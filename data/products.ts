@@ -1,0 +1,64 @@
+import type { InternalProduct } from "../types/product";
+
+export const products: InternalProduct[] = [
+  {
+    id: 1,
+    code: "JR-W001",
+    slug: "soft-cotton-set",
+    name: "Soft Cotton Set",
+    description:
+      "A soft everyday cotton set designed for simple comfort and daily wear.",
+    priceMMK: 18000,
+    category: "Women",
+    images: ["/products/soft-cotton-set.jpg"],
+    sizes: ["S", "M", "L", "XL"],
+    colors: ["Ivory", "Black", "Rose"],
+    availability: "Available",
+    isVisible: true,
+  },
+  {
+    id: 2,
+    code: "JR-M001",
+    slug: "classic-men-brief",
+    name: "Classic Men Brief",
+    description:
+      "A classic men’s brief with a simple fit for everyday comfort.",
+    priceMMK: 9500,
+    category: "Men",
+    images: ["/products/soft-cotton-set.jpg"],
+    sizes: ["M", "L", "XL"],
+    colors: ["Black", "Grey", "Navy"],
+    availability: "Available",
+    isVisible: true,
+  },
+  {
+    id: 3,
+    code: "JR-P001",
+    slug: "satin-pajama-set",
+    name: "Satin Pajama Set",
+    description:
+      "A smooth pajama set with an elegant feel, suitable for relaxed evenings and comfortable sleep.",
+    priceMMK: 32000,
+    category: "Pajamas",
+    images: ["/products/soft-cotton-set.jpg"],
+    sizes: ["S", "M", "L"],
+    colors: ["Champagne", "Rose", "Navy"],
+    availability: "Available",
+    isVisible: true,
+  },
+  {
+    id: 4,
+    code: "JR-S001",
+    slug: "minimal-swimwear",
+    name: "Minimal Swimwear",
+    description:
+      "A clean and simple swimwear piece designed for a minimal, comfortable look.",
+    priceMMK: 24000,
+    category: "Swimwear",
+    images: ["/products/soft-cotton-set.jpg"],
+    sizes: ["S", "M", "L"],
+    colors: ["Black", "Brown", "Olive"],
+    availability: "Available",
+    isVisible: true,
+  },
+];

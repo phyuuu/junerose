@@ -30,3 +30,18 @@ export type PublicProduct = {
   colors: string[];
   availability: ProductAvailability;
 };
+
+export type AdminProductFormValues = {
+  code: string;
+  slug: string;
+  name: string;
+  description: string;
+  priceMMK: number;
+  category: ProductCategory;
+  images: string[];
+  sizes: string[];
+  colors: string[];
+  availability: ProductAvailability;
+  stockQty: number;
+  isVisible: boolean;
+};

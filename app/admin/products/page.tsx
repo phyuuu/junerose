@@ -4,6 +4,7 @@ import { getAdminProducts } from "../../../lib/admin-products";
 import { formatMMK } from "../../../lib/formatPrice";
 import AdminNotice from "../../../components/AdminNotice";
 import AdminProductFormPlaceholder from "../../../components/AdminProductFormPlaceholder";
+import AdminProductCreatePanel from "../../../components/AdminProductCreatePanel";
 
 export default function AdminProductsPage() {
   const products = getAdminProducts();
@@ -17,15 +18,7 @@ export default function AdminProductsPage() {
           description="Staff will be able to add products, edit prices, upload photos, hide unavailable items, and manage public product information."
         />
 
-        <div className="mt-6 flex justify-end">
-          <button className="rounded-full bg-[#9c7a4f] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#7f623f]">
-            Add product
-          </button>
-        </div>
-
-        <div className="mt-6">
-          <AdminProductFormPlaceholder />
-        </div>
+        <AdminProductCreatePanel />
 
         <div className="mt-6">
           <AdminNotice title="Temporary admin page">

@@ -134,3 +134,26 @@ Admin-only data must not be exposed publicly:
 - supplier
 - cost price
 - staff notes
+
+
+## Stock Variant Plan
+
+The early prototype currently has a simple `stockQty` field on `InternalProduct`.
+
+This is useful for a temporary admin table, but it is not detailed enough for real product management because JuneRose products can have different stock quantities by size and color.
+
+Example:
+
+- Soft Cotton Set / S / Ivory = 5 pieces
+- Soft Cotton Set / M / Ivory = 8 pieces
+- Soft Cotton Set / S / Black = 5 pieces
+- Soft Cotton Set / M / Black = 12 pieces
+
+Planned future structure:
+
+```ts
+stockItems: {
+  size: string;
+  color: string;
+  quantity: number;
+}[];

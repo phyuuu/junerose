@@ -6,8 +6,8 @@ export default function AdminProductFormPlaceholder() {
           Add product
         </h2>
         <p className="mt-1 text-sm text-[#8a7a6d]">
-          This form is a UI placeholder. Real saving will be added after database,
-          image storage, and admin authentication are connected.
+          This form is a UI placeholder. Real saving will be added after
+          database, image storage, and admin authentication are connected.
         </p>
       </div>
 
@@ -35,6 +35,28 @@ export default function AdminProductFormPlaceholder() {
         </label>
 
         <label className="block">
+          <span className="text-sm font-medium text-[#6f6258]">Slug</span>
+          <input
+            disabled
+            placeholder="soft-cotton-set"
+            className="mt-1 w-full rounded-xl border border-[#d6c4aa] bg-white px-3 py-2 text-sm text-[#8a7a6d]"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium text-[#6f6258]">Category</span>
+          <select
+            disabled
+            className="mt-1 w-full rounded-xl border border-[#d6c4aa] bg-white px-3 py-2 text-sm text-[#8a7a6d]"
+          >
+            <option>Women</option>
+            <option>Men</option>
+            <option>Pajamas</option>
+            <option>Swimwear</option>
+          </select>
+        </label>
+
+        <label className="block">
           <span className="text-sm font-medium text-[#6f6258]">
             Price MMK
           </span>
@@ -56,6 +78,43 @@ export default function AdminProductFormPlaceholder() {
             placeholder="20"
             className="mt-1 w-full rounded-xl border border-[#d6c4aa] bg-white px-3 py-2 text-sm text-[#8a7a6d]"
           />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium text-[#6f6258]">Sizes</span>
+          <input
+            disabled
+            placeholder="S, M, L, XL"
+            className="mt-1 w-full rounded-xl border border-[#d6c4aa] bg-white px-3 py-2 text-sm text-[#8a7a6d]"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium text-[#6f6258]">Colors</span>
+          <input
+            disabled
+            placeholder="Ivory, Black, Rose"
+            className="mt-1 w-full rounded-xl border border-[#d6c4aa] bg-white px-3 py-2 text-sm text-[#8a7a6d]"
+          />
+        </label>
+
+        <label className="block">
+          <span className="text-sm font-medium text-[#6f6258]">
+            Availability
+          </span>
+          <select
+            disabled
+            className="mt-1 w-full rounded-xl border border-[#d6c4aa] bg-white px-3 py-2 text-sm text-[#8a7a6d]"
+          >
+            <option>Available</option>
+            <option>Low stock</option>
+            <option>Ask staff</option>
+          </select>
+        </label>
+
+        <label className="flex items-center gap-2 pt-7 text-sm text-[#6f6258]">
+          <input disabled type="checkbox" defaultChecked />
+          Visible to customers
         </label>
 
         <label className="block md:col-span-2">

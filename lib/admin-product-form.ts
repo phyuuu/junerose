@@ -12,6 +12,7 @@ export const defaultAdminProductFormValues: AdminProductFormValues = {
   colors: [],
   availability: "Available",
   stockQty: 0,
+  stockItems: [],
   isVisible: true,
 };
 
@@ -32,6 +33,7 @@ export function createInternalProductFromForm(
     colors: values.colors,
     availability: values.availability,
     stockQty: values.stockQty,
+    stockItems: values.stockItems,
     isVisible: values.isVisible,
   };
 }

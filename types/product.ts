@@ -2,6 +2,12 @@ export type ProductCategory = "Women" | "Men" | "Pajamas" | "Swimwear";
 
 export type ProductAvailability = "Available" | "Low stock" | "Ask staff";
 
+export type ProductStockItem = {
+  size: string;
+  color: string;
+  quantity: number;
+};
+
 export type InternalProduct = {
   id: number;
   code: string;
@@ -15,6 +21,7 @@ export type InternalProduct = {
   colors: string[];
   availability: ProductAvailability;
   stockQty: number;
+  stockItems: ProductStockItem[];
   isVisible: boolean;
 };
 
@@ -43,5 +50,6 @@ export type AdminProductFormValues = {
   colors: string[];
   availability: ProductAvailability;
   stockQty: number;
+  stockItems: ProductStockItem[];
   isVisible: boolean;
 };

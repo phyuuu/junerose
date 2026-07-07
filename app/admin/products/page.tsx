@@ -5,6 +5,7 @@ import { formatMMK } from "../../../lib/formatPrice";
 import AdminNotice from "../../../components/AdminNotice";
 import AdminProductFormPlaceholder from "../../../components/AdminProductFormPlaceholder";
 import AdminProductCreatePanel from "../../../components/AdminProductCreatePanel";
+import { calculateTotalStock } from "../../../lib/product-stock";
 
 export default function AdminProductsPage() {
   const products = getAdminProducts();
@@ -52,7 +53,16 @@ export default function AdminProductsPage() {
               <div>{product.code}</div>
               <div>{product.category}</div>
               <div>{formatMMK(product.priceMMK)}</div>
-              <div>{product.stockQty}</div>
+              <div>
+                <p className="font-medium">{calculateTotalStock(product.stockItems)}</p>
+                <div className="mt-1 space-y-0.5 text-xs text-[#8a7a6d]">
+                  {product.stockItems.map((item) => (
+                    <p key={`${item.size}-${item.color}`}>
+                      {item.size} / {item.color}: {item.quantity}
+                    </p>
+                  ))}
+                </div>
+              </div>
             </div>
           ))}
         </div>

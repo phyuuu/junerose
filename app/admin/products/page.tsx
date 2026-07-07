@@ -3,6 +3,7 @@ import SectionHeader from "../../../components/SectionHeader";
 import { getAdminProducts } from "../../../lib/admin-products";
 import { formatMMK } from "../../../lib/formatPrice";
 import AdminNotice from "../../../components/AdminNotice";
+import AdminProductFormPlaceholder from "../../../components/AdminProductFormPlaceholder";
 
 export default function AdminProductsPage() {
   const products = getAdminProducts();
@@ -20,6 +21,10 @@ export default function AdminProductsPage() {
           <button className="rounded-full bg-[#9c7a4f] px-5 py-2.5 text-sm font-medium text-white transition hover:bg-[#7f623f]">
             Add product
           </button>
+        </div>
+
+        <div className="mt-6">
+          <AdminProductFormPlaceholder />
         </div>
 
         <div className="mt-6">

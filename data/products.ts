@@ -14,6 +14,7 @@ export const products: InternalProduct[] = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["Ivory", "Black", "Rose"],
     availability: "Available",
+    stockQty: 20,
     isVisible: true,
   },
   {
@@ -29,6 +30,7 @@ export const products: InternalProduct[] = [
     sizes: ["M", "L", "XL"],
     colors: ["Black", "Grey", "Navy"],
     availability: "Available",
+    stockQty: 25,
     isVisible: true,
   },
   {
@@ -44,6 +46,7 @@ export const products: InternalProduct[] = [
     sizes: ["S", "M", "L"],
     colors: ["Champagne", "Rose", "Navy"],
     availability: "Available",
+    stockQty: 15,
     isVisible: true,
   },
   {
@@ -59,6 +62,7 @@ export const products: InternalProduct[] = [
     sizes: ["S", "M", "L"],
     colors: ["Black", "Brown", "Olive"],
     availability: "Available",
+    stockQty: 10,
     isVisible: true,
   },
 ];

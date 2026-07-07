@@ -14,6 +14,7 @@ export type InternalProduct = {
   sizes: string[];
   colors: string[];
   availability: ProductAvailability;
+  stockQty: number;
   isVisible: boolean;
 };
 

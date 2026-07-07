@@ -1,6 +1,10 @@
 import { products } from "../data/products";
 import type { ProductCategory, PublicProduct } from "../types/product";
 
+// Public product mapper.
+// Only return fields that are safe for customer-facing pages.
+// Do not expose admin-only fields such as code, stockQty, supplier, costPrice, or staffNotes.
+
 export function getPublicProducts(): PublicProduct[] {
   return products
     .filter((product) => product.isVisible)

@@ -5,29 +5,11 @@ import AdminProductCreatePanel from "../../../components/AdminProductCreatePanel
 import AdminSummaryCard from "../../../components/AdminSummaryCard";
 import AdminProductTable from "../../../components/AdminProductTable";
 import { getAdminProducts } from "../../../lib/admin-products";
-import { calculateTotalStock } from "../../../lib/product-stock";
+import { getAdminProductSummary } from "../../../lib/admin-product-summary";
 
 export default function AdminProductsPage() {
   const products = getAdminProducts();
-
-  const visibleProductCount = products.filter(
-    (product) => product.isVisible
-  ).length;
-
-  const hiddenProductCount = products.filter(
-    (product) => !product.isVisible
-  ).length;
-
-  const totalStock = products.reduce(
-    (total, product) => total + calculateTotalStock(product.stockItems),
-    0
-  );
-
-  const lowStockProductCount = products.filter((product) => {
-    const stock = calculateTotalStock(product.stockItems);
-
-    return stock > 0 && stock <= 5;
-  }).length;
+  const summary = getAdminProductSummary(products);
 
   return (
     <AdminShell>
@@ -50,19 +32,22 @@ export default function AdminProductsPage() {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-5">
-          <AdminSummaryCard label="Total products" value={products.length} />
+          <AdminSummaryCard
+            label="Total products"
+            value={summary.totalProductCount}
+          />
           <AdminSummaryCard
             label="Visible products"
-            value={visibleProductCount}
+            value={summary.visibleProductCount}
           />
           <AdminSummaryCard
             label="Hidden products"
-            value={hiddenProductCount}
+            value={summary.hiddenProductCount}
           />
-          <AdminSummaryCard label="Total stock" value={totalStock} />
+          <AdminSummaryCard label="Total stock" value={summary.totalStock} />
           <AdminSummaryCard
             label="Low stock products"
-            value={lowStockProductCount}
+            value={summary.lowStockProductCount}
           />
         </div>
 

@@ -1,15 +1,11 @@
-import Image from "next/image";
 import AdminShell from "../../../components/AdminShell";
 import SectionHeader from "../../../components/SectionHeader";
 import AdminNotice from "../../../components/AdminNotice";
 import AdminProductCreatePanel from "../../../components/AdminProductCreatePanel";
+import AdminSummaryCard from "../../../components/AdminSummaryCard";
+import AdminProductTable from "../../../components/AdminProductTable";
 import { getAdminProducts } from "../../../lib/admin-products";
-import { formatMMK } from "../../../lib/formatPrice";
-import { getMainProductImage } from "../../../lib/product-image";
-import {
-  calculateTotalStock,
-  isProductStockConsistent,
-} from "../../../lib/product-stock";
+import { calculateTotalStock } from "../../../lib/product-stock";
 
 export default function AdminProductsPage() {
   const products = getAdminProducts();
@@ -54,117 +50,23 @@ export default function AdminProductsPage() {
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-5">
-          <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-4">
-            <p className="text-sm text-[#8a7a6d]">Total products</p>
-            <p className="mt-1 text-2xl font-semibold text-[#3f342b]">
-              {products.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-4">
-            <p className="text-sm text-[#8a7a6d]">Visible products</p>
-            <p className="mt-1 text-2xl font-semibold text-[#3f342b]">
-              {visibleProductCount}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-4">
-            <p className="text-sm text-[#8a7a6d]">Hidden products</p>
-            <p className="mt-1 text-2xl font-semibold text-[#3f342b]">
-              {hiddenProductCount}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-4">
-            <p className="text-sm text-[#8a7a6d]">Total stock</p>
-            <p className="mt-1 text-2xl font-semibold text-[#3f342b]">
-              {totalStock}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-4">
-            <p className="text-sm text-[#8a7a6d]">Low stock products</p>
-            <p className="mt-1 text-2xl font-semibold text-[#3f342b]">
-              {lowStockProductCount}
-            </p>
-          </div>
+          <AdminSummaryCard label="Total products" value={products.length} />
+          <AdminSummaryCard
+            label="Visible products"
+            value={visibleProductCount}
+          />
+          <AdminSummaryCard
+            label="Hidden products"
+            value={hiddenProductCount}
+          />
+          <AdminSummaryCard label="Total stock" value={totalStock} />
+          <AdminSummaryCard
+            label="Low stock products"
+            value={lowStockProductCount}
+          />
         </div>
 
-        <div className="mt-6 overflow-x-auto rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0]">
-          <div className="grid min-w-[900px] grid-cols-[80px_1.4fr_1fr_1fr_1fr_1.2fr] bg-[#eadfce] px-4 py-3 text-sm font-semibold text-[#6f6258]">
-            <div>Image</div>
-            <div>Name</div>
-            <div>Code</div>
-            <div>Category</div>
-            <div>Price</div>
-            <div>Stock details</div>
-          </div>
-
-          {products.length === 0 ? (
-            <div className="min-w-[900px] border-t border-[#d6c4aa] px-4 py-6 text-sm text-[#8a7a6d]">
-              No products found.
-            </div>
-          ) : (
-            products.map((product) => (
-              <div
-                key={product.id}
-                className="grid min-w-[900px] grid-cols-[80px_1.4fr_1fr_1fr_1fr_1.2fr] border-t border-[#d6c4aa] px-4 py-3 text-sm text-[#3f342b]"
-              >
-                <div className="relative h-14 w-14 overflow-hidden rounded-xl bg-[#eadfce]">
-                  <Image
-                    src={getMainProductImage(product)}
-                    alt={product.name}
-                    fill
-                    sizes="56px"
-                    className="object-cover"
-                  />
-                </div>
-
-                <div>
-                  <p className="font-medium">{product.name}</p>
-                  <p className="mt-1 text-xs text-[#8a7a6d]">
-                    {product.isVisible
-                      ? "Visible to customers"
-                      : "Hidden from customers"}
-                  </p>
-                </div>
-
-                <div>{product.code}</div>
-                <div>{product.category}</div>
-                <div>{formatMMK(product.priceMMK)}</div>
-
-                <div>
-                  <p className="font-medium">
-                    Total: {calculateTotalStock(product.stockItems)}
-                  </p>
-
-                  {!isProductStockConsistent(product) && (
-                    <p className="mt-1 rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-600">
-                      Stock mismatch
-                    </p>
-                  )}
-
-                  <div className="mt-2 space-y-1 text-xs text-[#8a7a6d]">
-                    {product.stockItems.length > 0 ? (
-                      product.stockItems.map((item, index) => (
-                        <p
-                          key={`${item.size}-${item.color}-${index}`}
-                          className="rounded-lg bg-white/70 px-2 py-1"
-                        >
-                          {item.size} / {item.color}: {item.quantity}
-                        </p>
-                      ))
-                    ) : (
-                      <p className="rounded-lg bg-white/70 px-2 py-1">
-                        No stock rows
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+        <AdminProductTable products={products} />
 
         <p className="mt-4 text-xs leading-5 text-[#8a7a6d]">
           This is an internal staff view. Product code and exact stock details

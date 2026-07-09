@@ -57,7 +57,7 @@ export const products: InternalProduct[] = [
     sizes: ["S", "M", "L"],
     colors: ["Champagne", "Rose", "Navy"],
     availability: "Available",
-    stockQty: 20,
+    stockQty: 19,
     stockItems: [
       { size: "S", color: "Ivory", quantity: 4 },
       { size: "M", color: "Ivory", quantity: 4 },

@@ -58,7 +58,7 @@ export default function AdminProductFormPlaceholder() {
 
         <div className="block">
       <span className="text-sm font-medium text-[#6f6258]">
-        Stock variants
+        Stock by size and color
       </span>
 
       <div className="mt-1 overflow-hidden rounded-xl border border-[#d6c4aa] bg-white">
@@ -82,8 +82,8 @@ export default function AdminProductFormPlaceholder() {
       </div>
 
       <p className="mt-1 text-xs text-[#8a7a6d]">
-        Later, staff can add multiple size/color stock rows. Total stock will be
-        calculated automatically.
+        Later, staff can add multiple stock rows such as S / Ivory / 10 and
+        M / Black / 20. Total stock will be calculated automatically from these rows.
       </p>
     </div>
 

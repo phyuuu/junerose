@@ -1,6 +1,6 @@
-import PageShell from "../../../components/PageShell";
-import OrderSuccessView from "../../../components/OrderSuccessView";
-import SectionHeader from "../../../components/SectionHeader";
+import OrderSuccessView from "@/components/OrderSuccessView";
+import PageShell from "@/components/PageShell";
+import SectionHeader from "@/components/SectionHeader";
 
 type OrderSuccessPageProps = {
   params: Promise<{

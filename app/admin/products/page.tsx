@@ -1,11 +1,10 @@
-import AdminShell from "../../../components/AdminShell";
-import SectionHeader from "../../../components/SectionHeader";
-import AdminNotice from "../../../components/AdminNotice";
-import AdminProductCreatePanel from "../../../components/AdminProductCreatePanel";
-import AdminSummaryCard from "../../../components/AdminSummaryCard";
-import AdminProductTable from "../../../components/AdminProductTable";
-import { getAdminProducts } from "../../../lib/admin-products";
-import { getAdminProductSummary } from "../../../lib/admin-product-summary";
+import AdminNotice from "@/components/AdminNotice";
+import AdminProductTable from "@/components/AdminProductTable";
+import AdminShell from "@/components/AdminShell";
+import AdminSummaryCard from "@/components/AdminSummaryCard";
+import SectionHeader from "@/components/SectionHeader";
+import { getAdminProducts } from "@/lib/admin-products";
+import { getAdminProductSummary } from "@/lib/admin-product-summary";
 
 export default function AdminProductsPage() {
   const products = getAdminProducts();
@@ -14,13 +13,22 @@ export default function AdminProductsPage() {
   return (
     <AdminShell>
       <section className="mx-auto max-w-6xl px-5 py-6">
-        <SectionHeader
-          eyebrow="STAFF AREA"
-          title="Products"
-          description="Staff will be able to add products, edit prices, upload photos, hide unavailable items, and manage public product information."
-        />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <SectionHeader
+            eyebrow="STAFF AREA"
+            title="Products"
+            description="Staff will be able to add products, edit prices, upload photos, hide unavailable items, and manage public product information."
+          />
 
-        <AdminProductCreatePanel />
+          <button
+            type="button"
+            disabled
+            title="Product creation will be enabled after database, authentication, and protected admin actions are added."
+            className="w-fit rounded-xl bg-[#8b5e3c] px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            + Add product
+          </button>
+        </div>
 
         <div className="mt-6">
           <AdminNotice title="Temporary admin page">
@@ -51,7 +59,9 @@ export default function AdminProductsPage() {
           />
         </div>
 
-        <AdminProductTable products={products} />
+        <div className="mt-8">
+          <AdminProductTable products={products} />
+        </div>
 
         <p className="mt-4 text-xs leading-5 text-[#8a7a6d]">
           This is an internal staff view. Product code and exact stock details

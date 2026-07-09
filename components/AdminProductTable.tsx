@@ -7,6 +7,7 @@ import {
   isProductStockConsistent,
 } from "@/lib/product-stock";
 import AdminStatusBadge from "./AdminStatusBadge";
+import AdminTableActionButton from "@/components/AdminTableActionButton";
 
 type AdminProductTableProps = {
   products: InternalProduct[];
@@ -17,24 +18,25 @@ export default function AdminProductTable({
 }: AdminProductTableProps) {
   return (
     <div className="mt-6 overflow-x-auto rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0]">
-      <div className="grid min-w-[900px] grid-cols-[80px_1.4fr_1fr_1fr_1fr_1.2fr] bg-[#eadfce] px-4 py-3 text-sm font-semibold text-[#6f6258]">
+      <div className="grid min-w-[1050px] grid-cols-[80px_1.4fr_1fr_1fr_1fr_1.2fr_1fr] bg-[#eadfce] px-4 py-3 text-sm font-semibold text-[#6f6258]">
         <div>Image</div>
         <div>Name</div>
         <div>Code</div>
         <div>Category</div>
         <div>Price</div>
         <div>Stock details</div>
+        <div>Actions</div>
       </div>
 
       {products.length === 0 ? (
-        <div className="min-w-[900px] border-t border-[#d6c4aa] px-4 py-6 text-sm text-[#8a7a6d]">
+        <div className="min-w-[1050px] border-t border-[#d6c4aa] px-4 py-6 text-sm text-[#8a7a6d]">
           No products found.
         </div>
       ) : (
         products.map((product) => (
           <div
             key={product.id}
-            className="grid min-w-[900px] grid-cols-[80px_1.4fr_1fr_1fr_1fr_1.2fr] border-t border-[#d6c4aa] px-4 py-3 text-sm text-[#3f342b]"
+            className="grid min-w-[1050px] grid-cols-[80px_1.4fr_1fr_1fr_1fr_1.2fr_1fr] border-t border-[#d6c4aa] px-4 py-3 text-sm text-[#3f342b]"
           >
             <div className="relative h-14 w-14 overflow-hidden rounded-xl bg-[#eadfce]">
               <Image
@@ -103,6 +105,27 @@ export default function AdminProductTable({
                   </p>
                 )}
               </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-2">
+                <AdminTableActionButton
+                variant="primary"
+                disabledReason="Product editing will be enabled after database, authentication, and protected admin actions are added."
+                >
+                Edit
+                </AdminTableActionButton>
+
+                <AdminTableActionButton
+                disabledReason="Product visibility changes will be enabled after protected admin actions are added."
+                >
+                {product.isVisible ? "Hide" : "Show"}
+                </AdminTableActionButton>
+            </div>
+
+            <p className="text-[11px] leading-4 text-slate-400">
+                Disabled for local mock data.
+            </p>
             </div>
           </div>
         ))

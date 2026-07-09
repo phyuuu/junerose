@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { clearCart, getCartItems } from "../lib/cartStorage";
-import { formatMMK } from "../lib/formatPrice";
-import { generateOrderNumber } from "../lib/generateOrderNumber";
-import { saveOrder } from "../lib/orderStorage";
-import { routes } from "../lib/routes";
-import type { CartItem } from "../types/cart";
-import type { CustomerContactInfo, OrderRequest } from "../types/order";
+import { clearCart, getCartItems } from "@/lib/cartStorage";
+import { formatMMK } from "@/lib/formatPrice";
+import { generateOrderNumber } from "@/lib/generateOrderNumber";
+import { saveOrder } from "@/lib/orderStorage";
+import { routes } from "@/lib/routes";
+import type { CartItem } from "@/types/cart";
+import type { CustomerContactInfo, OrderRequest } from "@/types/order";
+import Link from "next/link";
 
 export default function OrderForm() {
   const router = useRouter();
@@ -66,14 +67,21 @@ export default function OrderForm() {
   }
 
   if (cartItems.length === 0) {
-    return (
-      <div className="mt-8 rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
-        <p className="text-sm text-[#8a7a6d]">
-          Your cart is empty. Please add items before sending an order request.
-        </p>
-      </div>
-    );
-  }
+  return (
+    <div className="mt-8 rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
+      <p className="text-sm text-[#8a7a6d]">
+        Your cart is empty. Please add items before sending an order request.
+      </p>
+
+      <a
+        href={routes.catalog}
+        className="mt-4 inline-block rounded-full bg-[#2f241d] px-5 py-2 text-sm text-[#f8f3eb] hover:bg-[#4a382c]"
+      >
+        Browse Catalog
+      </a>
+    </div>
+  );
+}
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 grid gap-6 md:grid-cols-[1fr_360px]">

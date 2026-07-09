@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { formatMMK } from "../lib/formatPrice";
+import { formatMMK } from "@/lib/formatPrice";
 import {
   getCartItems,
   removeCartItem,
   updateCartItemQuantity,
-} from "../lib/cartStorage";
-import { routes } from "../lib/routes";
-import type { CartItem } from "../types/cart";
+} from "@/lib/cartStorage";
+import { routes } from "@/lib/routes";
+import type { CartItem } from "@/types/cart";
 
 export default function CartView() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -114,22 +114,22 @@ export default function CartView() {
 
       <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-5">
         <div className="flex items-center justify-between">
-            <p className="text-sm font-medium">Estimated Total</p>
-            <p className="text-sm font-semibold">{formatMMK(totalMMK)}</p>
+          <p className="text-sm font-medium">Estimated Total</p>
+          <p className="text-sm font-semibold">{formatMMK(totalMMK)}</p>
         </div>
 
         <p className="mt-2 text-xs leading-5 text-[#8a7a6d]">
-            Final availability, total price, and pickup or delivery details will
-            be confirmed by JuneRose staff.
+          Final availability, total price, and pickup or delivery details will be
+          confirmed by JuneRose staff.
         </p>
 
         <Link
-            href={routes.order}
-            className="mt-5 inline-block rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c]"
+          href={routes.order}
+          className="mt-5 inline-block rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c]"
         >
-            Proceed to Order Request
+          Proceed to Order Request
         </Link>
-        </div>
+      </div>
     </div>
   );
 }

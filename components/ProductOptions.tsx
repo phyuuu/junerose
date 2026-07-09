@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { addCartItem } from "../lib/cartStorage";
-import { routes } from "../lib/routes";
-import type { PublicProduct } from "../types/product";
+import { addCartItem } from "@/lib/cartStorage";
+import { routes } from "@/lib/routes";
+import type { PublicProduct } from "@/types/product";
 import { getMainProductImage } from "@/lib/product-image";
 
 type ProductOptionsProps = {
@@ -98,13 +98,16 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
         </button>
 
         {message && (
-        <div className="mt-3 flex items-center gap-4">
+          <div className="mt-3 flex items-center gap-4">
             <p className="text-sm text-[#6f6258]">{message}</p>
 
-            <Link href={routes.cart} className="text-sm text-[#9c7a4f] hover:underline">
-            View Cart
+            <Link
+              href={routes.cart}
+              className="text-sm text-[#9c7a4f] hover:underline"
+            >
+              View Cart
             </Link>
-        </div>
+          </div>
         )}
       </div>
     </div>

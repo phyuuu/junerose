@@ -1,4 +1,4 @@
-import type { CartItem } from "../types/cart";
+import type { CartItem } from "@/types/cart";
 
 const CART_STORAGE_KEY = "junerose_cart";
 
@@ -29,6 +29,10 @@ export function getCartItems(): CartItem[] {
 }
 
 export function saveCartItems(items: CartItem[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
   window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
 }
 

@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { formatMMK } from "../lib/formatPrice";
-import { getOrderByNumber } from "../lib/orderStorage";
-import { buildCustomerOrderMessage } from "../lib/orderMessage";
-import { routes } from "../lib/routes";
-import type { OrderRequest } from "../types/order";
+import { buildCustomerOrderMessage } from "@/lib/orderMessage";
+import { formatMMK } from "@/lib/formatPrice";
+import { getOrderByNumber } from "@/lib/orderStorage";
+import { routes } from "@/lib/routes";
+import type { OrderRequest } from "@/types/order";
 
 type OrderSuccessViewProps = {
   orderNumber: string;
@@ -79,13 +79,13 @@ export default function OrderSuccessView({
             type="button"
             onClick={handleCopyOrderInfo}
             className="mt-6 rounded-full bg-[#2f241d] px-5 py-2 text-sm text-[#f8f3eb] hover:bg-[#4a382c]"
-            >
+          >
             Copy Order Info
-            </button>
+          </button>
 
-            {copyMessage && (
+          {copyMessage && (
             <p className="mt-3 text-sm text-[#6f6258]">{copyMessage}</p>
-            )}
+          )}
         </div>
       </div>
 

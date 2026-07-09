@@ -6,6 +6,7 @@ import {
   calculateTotalStock,
   isProductStockConsistent,
 } from "@/lib/product-stock";
+import AdminStatusBadge from "./AdminStatusBadge";
 
 type AdminProductTableProps = {
   products: InternalProduct[];
@@ -47,15 +48,32 @@ export default function AdminProductTable({
 
             <div>
               <p className="font-medium">{product.name}</p>
-              <p className="mt-1 text-xs text-[#8a7a6d]">
-                {product.isVisible
-                  ? "Visible to customers"
-                  : "Hidden from customers"}
-              </p>
+              <div className="mt-2">
+                <AdminStatusBadge
+                  label={product.isVisible ? "Visible" : "Hidden"}
+                  tone={product.isVisible ? "green" : "gray"}
+                />
+              </div>
             </div>
 
             <div>{product.code}</div>
-            <div>{product.category}</div>
+
+            <div>
+              <p>{product.category}</p>
+              <div className="mt-2">
+                <AdminStatusBadge
+                  label={product.availability}
+                  tone={
+                    product.availability === "Available"
+                      ? "green"
+                      : product.availability === "Low stock"
+                        ? "amber"
+                        : "gray"
+                  }
+                />
+              </div>
+            </div>
+
             <div>{formatMMK(product.priceMMK)}</div>
 
             <div>

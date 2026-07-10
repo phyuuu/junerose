@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCartItems } from "@/hooks/useCartItems";
 import Image from "next/image";
 import Link from "next/link";
 import { formatMMK } from "@/lib/formatPrice";
 import {
-  getCartItems,
   removeCartItem,
   updateCartItemQuantity,
 } from "@/lib/cartStorage";
@@ -13,24 +12,14 @@ import { routes } from "@/lib/routes";
 import type { CartItem } from "@/types/cart";
 
 export default function CartView() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-
-  function refreshCart() {
-    setCartItems(getCartItems());
-  }
-
-  useEffect(() => {
-    refreshCart();
-  }, []);
+  const cartItems = useCartItems();
 
   function handleQuantityChange(item: CartItem, quantity: number) {
     updateCartItemQuantity(item, quantity);
-    refreshCart();
   }
 
   function handleRemove(item: CartItem) {
     removeCartItem(item);
-    refreshCart();
   }
 
   if (cartItems.length === 0) {

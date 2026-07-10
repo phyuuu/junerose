@@ -2,12 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { buildCustomerOrderMessage } from "@/lib/orderMessage";
 import { formatMMK } from "@/lib/formatPrice";
 import { getOrderByNumber } from "@/lib/orderStorage";
 import { routes } from "@/lib/routes";
-import type { OrderRequest } from "@/types/order";
 
 type OrderSuccessViewProps = {
   orderNumber: string;
@@ -16,13 +15,8 @@ type OrderSuccessViewProps = {
 export default function OrderSuccessView({
   orderNumber,
 }: OrderSuccessViewProps) {
-  const [order, setOrder] = useState<OrderRequest | null>(null);
+  const order = getOrderByNumber(orderNumber) ?? null;
   const [copyMessage, setCopyMessage] = useState("");
-
-  useEffect(() => {
-    const foundOrder = getOrderByNumber(orderNumber);
-    setOrder(foundOrder ?? null);
-  }, [orderNumber]);
 
   async function handleCopyOrderInfo() {
   if (!order) {

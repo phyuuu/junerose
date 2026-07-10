@@ -2,11 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { formatMMK } from "@/lib/formatPrice";
 import { getOrderByNumber } from "@/lib/orderStorage";
-import { routes } from "@/lib/routes";
-import type { OrderRequest } from "@/types/order";
 
 type AdminOrderDetailViewProps = {
   orderNumber: string;
@@ -15,11 +12,7 @@ type AdminOrderDetailViewProps = {
 export default function AdminOrderDetailView({
   orderNumber,
 }: AdminOrderDetailViewProps) {
-  const [order, setOrder] = useState<OrderRequest | null>(null);
-
-  useEffect(() => {
-    setOrder(getOrderByNumber(orderNumber) ?? null);
-  }, [orderNumber]);
+  const order = getOrderByNumber(orderNumber) ?? null;
 
   if (!order) {
     return (

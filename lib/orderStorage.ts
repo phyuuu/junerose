@@ -2,6 +2,16 @@ import type { OrderRequest } from "@/types/order";
 
 const ORDER_STORAGE_KEY = "junerose_orders";
 
+export const ORDER_STORAGE_EVENT = "junerose_orders_changed";
+
+function notifyOrdersChanged() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new Event(ORDER_STORAGE_EVENT));
+}
+
 export function getOrders(): OrderRequest[] {
   if (typeof window === "undefined") {
     return [];
@@ -31,6 +41,8 @@ export function saveOrder(order: OrderRequest) {
     ORDER_STORAGE_KEY,
     JSON.stringify([...currentOrders, order]),
   );
+
+  notifyOrdersChanged();
 }
 
 export function getOrderByNumber(

@@ -2,6 +2,16 @@ import type { CartItem } from "@/types/cart";
 
 const CART_STORAGE_KEY = "junerose_cart";
 
+export const CART_STORAGE_EVENT = "junerose_cart_changed";
+
+function notifyCartChanged() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new Event(CART_STORAGE_EVENT));
+}
+
 function isSameCartItem(item: CartItem, target: CartItem) {
   return (
     item.productId === target.productId &&
@@ -34,18 +44,24 @@ export function saveCartItems(items: CartItem[]) {
   }
 
   window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+  notifyCartChanged();
 }
 
 export function addCartItem(newItem: CartItem) {
   const currentItems = getCartItems();
 
   const existingItemIndex = currentItems.findIndex((item) =>
-    isSameCartItem(item, newItem)
+    isSameCartItem(item, newItem),
   );
 
   if (existingItemIndex >= 0) {
-    currentItems[existingItemIndex].quantity += newItem.quantity;
-    saveCartItems(currentItems);
+    const updatedItems = currentItems.map((item, index) =>
+      index === existingItemIndex
+        ? { ...item, quantity: item.quantity + newItem.quantity }
+        : item,
+    );
+
+    saveCartItems(updatedItems);
     return;
   }
 
@@ -57,7 +73,7 @@ export function updateCartItemQuantity(targetItem: CartItem, quantity: number) {
 
   const updatedItems = currentItems
     .map((item) =>
-      isSameCartItem(item, targetItem) ? { ...item, quantity } : item
+      isSameCartItem(item, targetItem) ? { ...item, quantity } : item,
     )
     .filter((item) => item.quantity > 0);
 
@@ -68,7 +84,7 @@ export function removeCartItem(targetItem: CartItem) {
   const currentItems = getCartItems();
 
   const updatedItems = currentItems.filter(
-    (item) => !isSameCartItem(item, targetItem)
+    (item) => !isSameCartItem(item, targetItem),
   );
 
   saveCartItems(updatedItems);

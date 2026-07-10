@@ -1,17 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { formatMMK } from "@/lib/formatPrice";
 import { getOrders } from "@/lib/orderStorage";
-import type { OrderRequest } from "@/types/order";
 
 export default function AdminOrderList() {
-  const [orders, setOrders] = useState<OrderRequest[]>([]);
-
-  useEffect(() => {
-    setOrders(getOrders());
-  }, []);
+  const orders = getOrders();
 
   if (orders.length === 0) {
     return (

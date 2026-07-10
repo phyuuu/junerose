@@ -1,20 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { clearCart, getCartItems } from "@/lib/cartStorage";
+import { clearCart } from "@/lib/cartStorage";
 import { formatMMK } from "@/lib/formatPrice";
 import { generateOrderNumber } from "@/lib/generateOrderNumber";
 import { saveOrder } from "@/lib/orderStorage";
+import { useCartItems } from "@/hooks/useCartItems";
 import { routes } from "@/lib/routes";
-import type { CartItem } from "@/types/cart";
 import type { CustomerContactInfo, OrderRequest } from "@/types/order";
-import Link from "next/link";
 
 export default function OrderForm() {
   const router = useRouter();
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const cartItems = useCartItems();
   const [customer, setCustomer] = useState<CustomerContactInfo>({
     name: "",
     phone: "",
@@ -22,10 +21,6 @@ export default function OrderForm() {
     preferredContact: "Viber",
     note: "",
   });
-
-  useEffect(() => {
-    setCartItems(getCartItems());
-  }, []);
 
   const totalMMK = cartItems.reduce(
     (total, item) => total + item.priceMMK * item.quantity,

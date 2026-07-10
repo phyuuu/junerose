@@ -73,7 +73,7 @@ export default function AdminOrderList() {
                 </td>
                 <td className="px-5 py-4">
                   <Link
-                    href={`/order/success/${order.orderNumber}`}
+                    href={`/admin/orders/${order.orderNumber}`}
                     className="text-sm font-medium text-[#9c7a4f] hover:underline"
                   >
                     View

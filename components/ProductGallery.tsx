@@ -20,6 +20,7 @@ export default function ProductGallery({ product }: ProductGalleryProps) {
           alt={product.name}
           fill
           sizes="(min-width: 768px) 50vw, 100vw"
+          loading="eager"
           className="object-cover"
         />
       </div>

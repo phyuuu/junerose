@@ -6,8 +6,8 @@ import { productCategories } from "../data/categories";
 import { getFeaturedProducts } from "../lib/products";
 import { routes } from "../lib/routes";
 
-export default function Home() {
-  const featuredProducts = getFeaturedProducts();
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts();
 
   return (
     <PageShell>

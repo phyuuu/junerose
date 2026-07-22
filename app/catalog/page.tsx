@@ -22,8 +22,8 @@ export default async function CatalogPage({ searchParams }: CatalogPageProps) {
     category && isProductCategory(category) ? category : undefined;
 
   const products = activeCategory
-    ? getPublicProductsByCategory(activeCategory)
-    : getPublicProducts();
+    ? await getPublicProductsByCategory(activeCategory)
+    : await getPublicProducts();
 
   const title = activeCategory ? activeCategory : "Catalog";
 

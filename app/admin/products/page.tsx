@@ -5,13 +5,16 @@ import AdminSummaryCard from "@/components/AdminSummaryCard";
 import SectionHeader from "@/components/SectionHeader";
 import { getAdminProducts } from "@/lib/admin-products";
 import { getAdminProductSummary } from "@/lib/admin-product-summary";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
-export default function AdminProductsPage() {
+export default async function AdminProductsPage() {
+  await requireAdmin();
+
   const products = getAdminProducts();
   const summary = getAdminProductSummary(products);
 
   return (
-    <AdminShell>
+    <AdminShell showSignOut>
       <section className="mx-auto max-w-6xl px-5 py-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <SectionHeader

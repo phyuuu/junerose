@@ -7,6 +7,7 @@ export const routes = {
   order: "/order",
 
   admin: "/admin",
+  adminLogin: "/admin/login",
   adminOrders: "/admin/orders",
   adminProducts: "/admin/products",
 

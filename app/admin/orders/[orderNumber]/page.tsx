@@ -1,6 +1,7 @@
 import AdminOrderDetailView from "@/components/AdminOrderDetailView";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
 type AdminOrderDetailPageProps = {
   params: Promise<{
@@ -11,10 +12,12 @@ type AdminOrderDetailPageProps = {
 export default async function AdminOrderDetailPage({
   params,
 }: AdminOrderDetailPageProps) {
+  await requireAdmin();
+
   const { orderNumber } = await params;
 
   return (
-    <AdminShell>
+    <AdminShell showSignOut>
       <section className="mx-auto max-w-6xl px-5 py-6">
         <SectionHeader
           eyebrow="STAFF AREA"

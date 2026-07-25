@@ -2,10 +2,13 @@ import AdminNotice from "@/components/AdminNotice";
 import AdminOrderList from "@/components/AdminOrderList";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
+import { requireAdmin } from "@/lib/auth/require-admin";
 
-export default function AdminOrdersPage() {
+export default async function AdminOrdersPage() {
+  await requireAdmin();
+
   return (
-    <AdminShell>
+    <AdminShell showSignOut>
       <section className="mx-auto max-w-6xl px-5 py-6">
         <SectionHeader
           eyebrow="STAFF AREA"

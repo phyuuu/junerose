@@ -1,12 +1,17 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import AdminSignOutButton from "@/components/AdminSignOutButton";
 import { routes } from "../lib/routes";
 
 type AdminShellProps = {
   children: ReactNode;
+  showSignOut?: boolean;
 };
 
-export default function AdminShell({ children }: AdminShellProps) {
+export default function AdminShell({
+  children,
+  showSignOut = false,
+}: AdminShellProps) {
   return (
     <main className="min-h-screen bg-[#f8f3eb] text-[#2f241d]">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
@@ -14,7 +19,7 @@ export default function AdminShell({ children }: AdminShellProps) {
           JuneRose Admin
         </Link>
 
-        <nav className="flex gap-5 text-sm">
+        <nav className="flex items-center gap-5 text-sm">
           <Link href={routes.adminOrders} className="hover:text-[#9c7a4f]">
             Orders
           </Link>
@@ -26,6 +31,8 @@ export default function AdminShell({ children }: AdminShellProps) {
           <Link href={routes.home} className="text-[#8a7a6d] hover:text-[#9c7a4f]">
             View Store
           </Link>
+
+          {showSignOut && <AdminSignOutButton />}
         </nav>
       </header>
 

@@ -8,6 +8,7 @@ import {
 } from "@/lib/product-stock";
 import AdminStatusBadge from "./AdminStatusBadge";
 import AdminTableActionButton from "@/components/AdminTableActionButton";
+import Link from "next/link";
 
 type AdminProductTableProps = {
   products: InternalProduct[];
@@ -109,12 +110,12 @@ export default function AdminProductTable({
 
             <div className="flex flex-col gap-2">
             <div className="flex flex-wrap gap-2">
-                <AdminTableActionButton
-                variant="primary"
-                disabledReason="Product editing will be enabled after database, authentication, and protected admin actions are added."
+                <Link
+                  href={`/admin/products/${product.id}/edit`}
+                  className="rounded-xl border border-[#d6c4aa] px-3 py-2 text-sm font-medium text-[#8b5e3c] hover:bg-[#eadfce]"
                 >
-                Edit
-                </AdminTableActionButton>
+                  Edit
+                </Link>
 
                 <AdminTableActionButton
                 disabledReason="Product visibility changes will be enabled after protected admin actions are added."

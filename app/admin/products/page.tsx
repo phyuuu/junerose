@@ -10,7 +10,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 export default async function AdminProductsPage() {
   await requireAdmin();
 
-  const products = getAdminProducts();
+  const products = await getAdminProducts();
   const summary = getAdminProductSummary(products);
 
   return (
@@ -34,11 +34,9 @@ export default async function AdminProductsPage() {
         </div>
 
         <div className="mt-6">
-          <AdminNotice title="Temporary admin page">
-            This page is not protected by authentication yet. It is currently
-            used for local development only. Before real use, admin
-            authentication must be added so customer users cannot access
-            internal product data.
+          <AdminNotice title="Development admin page">
+            Product data is now loaded from Supabase with protected staff access.
+            Product editing actions will be connected next.
           </AdminNotice>
         </div>
 

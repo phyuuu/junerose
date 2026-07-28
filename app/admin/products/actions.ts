@@ -7,13 +7,20 @@ import { routes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 import { adminProductInfoSchema } from "@/lib/validation/product";
 
-export async function updateProductInfoAction(formData: FormData) {
+import type { UpdateProductInfoState } from "@/types/admin-product-action";
+
+export async function updateProductInfoAction(
+  _previousState: UpdateProductInfoState,
+  formData: FormData,
+): Promise<UpdateProductInfoState> {
   await requireAdmin();
 
   const productId = Number(formData.get("productId"));
 
   if (!Number.isInteger(productId) || productId <= 0) {
-    throw new Error("Invalid product ID.");
+    return {
+      formError: "Invalid product ID.",
+    };
   }
 
   const parsed = adminProductInfoSchema.safeParse({
@@ -26,9 +33,9 @@ export async function updateProductInfoAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error(
-      parsed.error.issues[0]?.message ?? "Invalid product data.",
-    );
+    return {
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
   }
 
   const supabase = await createClient();
@@ -41,7 +48,9 @@ export async function updateProductInfoAction(formData: FormData) {
       .single();
 
   if (existingProductError || !existingProduct) {
-    throw new Error("Product not found.");
+    return {
+      formError: "Product not found.",
+    };
   }
 
   const { error: updateError } = await supabase.rpc(
@@ -72,9 +81,9 @@ export async function updateProductInfoAction(formData: FormData) {
       ),
     );
 
-    throw new Error(
-      "Unable to update product and record its history.",
-    );
+    return {
+      formError: "Unable to update product and record its history.",
+    };
   }
 
   revalidatePath(routes.adminProducts);

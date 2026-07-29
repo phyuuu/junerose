@@ -16,6 +16,7 @@ type ProductRow = {
 };
 
 type VariantRow = {
+  id: number;
   product_id: number;
   size: string;
   color: string;
@@ -35,6 +36,7 @@ function mapAdminProduct(
   const stockItems = variants
     .filter((variant) => variant.product_id === product.id)
     .map((variant) => ({
+      variantId: variant.id,
       size: variant.size,
       color: variant.color,
       quantity: variant.quantity,
@@ -79,7 +81,7 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
 
     supabase
       .from("product_variants")
-      .select("product_id, size, color, quantity"),
+      .select("id, product_id, size, color, quantity"),
 
     supabase
       .from("product_images")
@@ -95,10 +97,9 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
       product,
       variants as VariantRow[],
       images as ImageRow[],
-    )
+    ),
   );
 }
-
 
 export async function getAdminProductById(
   id: number,
@@ -118,7 +119,7 @@ export async function getAdminProductById(
 
     supabase
       .from("product_variants")
-      .select("product_id, size, color, quantity")
+      .select("id, product_id, size, color, quantity")
       .eq("product_id", id),
 
     supabase

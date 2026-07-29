@@ -4,6 +4,8 @@ import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
 import { getAdminProductById } from "@/lib/admin-products";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import AdminInventoryAdjustmentPanel from "@/components/AdminInventoryAdjustmentPanel";
+
 
 type AdminProductEditPageProps = {
   params: Promise<{
@@ -52,6 +54,10 @@ export default async function AdminProductEditPage({
 
         <div className="mt-8">
           <AdminProductInfoForm product={product} />
+          
+        <AdminInventoryAdjustmentPanel
+          product={product}
+        />
         </div>
       </section>
     </AdminShell>

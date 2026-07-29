@@ -3,6 +3,7 @@ export type ProductCategory = "Women" | "Men" | "Pajamas" | "Swimwear";
 export type ProductAvailability = "Available" | "Low stock" | "Ask staff";
 
 export type ProductStockItem = {
+  variantId: number;
   size: string;
   color: string;
   quantity: number;

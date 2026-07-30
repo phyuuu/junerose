@@ -13,6 +13,24 @@ export type InventoryAdjustmentHistoryItem = {
   createdAt: string;
 };
 
+type JoinedProduct = {
+  name: string;
+};
+
+type JoinedVariant = {
+  size: string;
+  color: string;
+  products: JoinedProduct | JoinedProduct[] | null;
+};
+
+type InventoryHistoryRow = {
+  id: number;
+  quantity_change: number;
+  changed_by: string;
+  created_at: string;
+  product_variants: JoinedVariant | JoinedVariant[] | null;
+};
+
 export async function getInventoryAdjustments(
   variantId: number,
 ): Promise<InventoryAdjustment[]> {
@@ -68,12 +86,20 @@ export async function getAllInventoryAdjustments(): Promise<
     });
 
   if (error) {
+    console.error("Unable to load inventory history:", error);
     throw new Error("Unable to load inventory history.");
   }
 
-  return data.map((item) => {
-    const variant = item.product_variants[0];
-    const product = variant?.products[0];
+  const rows = data as unknown as InventoryHistoryRow[];
+
+  return rows.map((item) => {
+    const variant = Array.isArray(item.product_variants)
+      ? item.product_variants[0]
+      : item.product_variants;
+
+    const product = Array.isArray(variant?.products)
+      ? variant.products[0]
+      : variant?.products;
 
     return {
       id: item.id,

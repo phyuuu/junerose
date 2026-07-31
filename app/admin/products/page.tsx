@@ -1,3 +1,4 @@
+import Link from "next/link";
 import AdminNotice from "@/components/AdminNotice";
 import AdminProductTable from "@/components/AdminProductTable";
 import AdminShell from "@/components/AdminShell";
@@ -6,6 +7,7 @@ import SectionHeader from "@/components/SectionHeader";
 import { getAdminProducts } from "@/lib/admin-products";
 import { getAdminProductSummary } from "@/lib/admin-product-summary";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { routes } from "@/lib/routes";
 
 export default async function AdminProductsPage() {
   await requireAdmin();
@@ -23,14 +25,12 @@ export default async function AdminProductsPage() {
             description="Staff will be able to add products, edit prices, upload photos, hide unavailable items, and manage public product information."
           />
 
-          <button
-            type="button"
-            disabled
-            title="Product creation will be enabled after database, authentication, and protected admin actions are added."
-            className="w-fit rounded-xl bg-[#8b5e3c] px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+          <Link
+            href={routes.adminProductNew}
+            className="w-fit rounded-xl bg-[#8b5e3c] px-4 py-2 text-sm font-semibold text-white shadow-sm"
           >
             + Add product
-          </button>
+          </Link>
         </div>
 
         <div className="mt-6">

@@ -23,11 +23,25 @@ type PublicProductImageRow = {
   display_order: number;
 };
 
+type OptionNameRow = {
+  name: string;
+};
+
 type PublicProductVariantRow = {
   product_id: number;
-  size: string;
-  color: string;
+  sizes: OptionNameRow | OptionNameRow[] | null;
+  colors: OptionNameRow | OptionNameRow[] | null;
 };
+
+function getRelatedOptionName(
+  relation: OptionNameRow | OptionNameRow[] | null,
+): string {
+  if (Array.isArray(relation)) {
+    return relation[0]?.name ?? "Unknown";
+  }
+
+  return relation?.name ?? "Unknown";
+}
 
 async function loadPublicProducts(): Promise<PublicProduct[]> {
   const supabase = await createClient();
@@ -51,7 +65,17 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
 
     supabase
       .from("product_variants")
-      .select("product_id, size, color"),
+      .select(
+        `
+          product_id,
+          sizes (
+            name
+          ),
+          colors (
+            name
+          )
+        `,
+      ),
   ]);
 
   if (productsError) {
@@ -81,11 +105,19 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
     );
 
     const sizes = [
-      ...new Set(productVariants.map((variant) => variant.size)),
+      ...new Set(
+        productVariants.map((variant) =>
+          getRelatedOptionName(variant.sizes),
+        ),
+      ),
     ];
 
     const colors = [
-      ...new Set(productVariants.map((variant) => variant.color)),
+      ...new Set(
+        productVariants.map((variant) =>
+          getRelatedOptionName(variant.colors),
+        ),
+      ),
     ];
 
     return {

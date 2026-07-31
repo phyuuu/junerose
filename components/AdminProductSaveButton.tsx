@@ -2,7 +2,15 @@
 
 import { useFormStatus } from "react-dom";
 
-export default function AdminProductSaveButton() {
+type AdminProductSaveButtonProps = {
+  idleLabel?: string;
+  pendingLabel?: string;
+};
+
+export default function AdminProductSaveButton({
+  idleLabel = "Save changes",
+  pendingLabel = "Saving...",
+}: AdminProductSaveButtonProps) {
   const { pending } = useFormStatus();
 
   return (
@@ -11,7 +19,7 @@ export default function AdminProductSaveButton() {
       disabled={pending}
       className="w-fit rounded-xl bg-[#2f241d] px-5 py-3 text-sm font-semibold text-white hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {pending ? "Saving..." : "Save changes"}
+      {pending ? pendingLabel : idleLabel}
     </button>
   );
 }

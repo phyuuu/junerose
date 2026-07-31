@@ -63,6 +63,16 @@ export default function AdminProductInfoForm({
           </label>
 
           <label className="grid gap-1 text-sm">
+            Slug
+            <input
+              type="text"
+              value={product.slug}
+              readOnly
+              className={`${inputClassName} cursor-not-allowed opacity-70`}
+            />
+          </label>
+
+          <label className="grid gap-1 text-sm">
             Category
             <select
               name="category"

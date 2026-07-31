@@ -2,9 +2,11 @@ import { notFound } from "next/navigation";
 import AdminProductInfoForm from "@/components/AdminProductInfoForm";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
+import { getAdminProductOptions } from "@/lib/admin-product-options";
 import { getAdminProductById } from "@/lib/admin-products";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import AdminInventoryAdjustmentPanel from "@/components/AdminInventoryAdjustmentPanel";
+import AdminProductVariantPanel from "@/components/AdminProductVariantPanel";
 
 
 type AdminProductEditPageProps = {
@@ -31,7 +33,10 @@ export default async function AdminProductEditPage({
     notFound();
   }
 
-  const product = await getAdminProductById(productId);
+  const [product, options] = await Promise.all([
+    getAdminProductById(productId),
+    getAdminProductOptions(),
+  ]);
 
   if (!product) {
     notFound();
@@ -54,10 +59,10 @@ export default async function AdminProductEditPage({
 
         <div className="mt-8">
           <AdminProductInfoForm product={product} />
-          
-        <AdminInventoryAdjustmentPanel
-          product={product}
-        />
+
+          <AdminProductVariantPanel product={product} options={options} />
+
+          <AdminInventoryAdjustmentPanel product={product} />
         </div>
       </section>
     </AdminShell>

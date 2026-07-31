@@ -15,18 +15,32 @@ type ProductRow = {
   is_visible: boolean;
 };
 
+type OptionNameRow = {
+  name: string;
+};
+
 type VariantRow = {
   id: number;
   product_id: number;
-  size: string;
-  color: string;
   quantity: number;
+  sizes: OptionNameRow | OptionNameRow[] | null;
+  colors: OptionNameRow | OptionNameRow[] | null;
 };
 
 type ImageRow = {
   product_id: number;
   image_url: string;
 };
+
+function getRelatedOptionName(
+  relation: OptionNameRow | OptionNameRow[] | null,
+): string {
+  if (Array.isArray(relation)) {
+    return relation[0]?.name ?? "Unknown";
+  }
+
+  return relation?.name ?? "Unknown";
+}
 
 function mapAdminProduct(
   product: ProductRow,
@@ -37,8 +51,8 @@ function mapAdminProduct(
     .filter((variant) => variant.product_id === product.id)
     .map((variant) => ({
       variantId: variant.id,
-      size: variant.size,
-      color: variant.color,
+      size: getRelatedOptionName(variant.sizes),
+      color: getRelatedOptionName(variant.colors),
       quantity: variant.quantity,
     }));
 
@@ -77,11 +91,27 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
     { data: variants, error: variantsError },
     { data: images, error: imagesError },
   ] = await Promise.all([
-    supabase.from("products").select("*").order("id"),
+    supabase
+      .from("products")
+      .select("*")
+      .is("deleted_at", null)
+      .order("id"),
 
     supabase
       .from("product_variants")
-      .select("id, product_id, size, color, quantity"),
+      .select(
+        `
+          id,
+          product_id,
+          quantity,
+          sizes (
+            name
+          ),
+          colors (
+            name
+          )
+        `,
+      ),
 
     supabase
       .from("product_images")
@@ -89,13 +119,19 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
   ]);
 
   if (productsError || variantsError || imagesError) {
+    console.error("Unable to load admin products:", {
+      productsError,
+      variantsError,
+      imagesError,
+    });
+
     throw new Error("Unable to load admin products.");
   }
 
   return (products as ProductRow[]).map((product) =>
     mapAdminProduct(
       product,
-      variants as VariantRow[],
+      variants as unknown as VariantRow[],
       images as ImageRow[],
     ),
   );
@@ -115,11 +151,24 @@ export async function getAdminProductById(
       .from("products")
       .select("*")
       .eq("id", id)
+      .is("deleted_at", null)
       .single(),
 
     supabase
       .from("product_variants")
-      .select("id, product_id, size, color, quantity")
+      .select(
+        `
+          id,
+          product_id,
+          quantity,
+          sizes (
+            name
+          ),
+          colors (
+            name
+          )
+        `,
+      )
       .eq("product_id", id),
 
     supabase
@@ -133,12 +182,17 @@ export async function getAdminProductById(
   }
 
   if (variantsError || imagesError) {
+    console.error("Unable to load admin product:", {
+      variantsError: JSON.stringify(variantsError),
+      imagesError: JSON.stringify(imagesError),
+    });
+
     throw new Error("Unable to load admin product.");
   }
 
   return mapAdminProduct(
     product as ProductRow,
-    variants as VariantRow[],
+    variants as unknown as VariantRow[],
     images as ImageRow[],
   );
 }

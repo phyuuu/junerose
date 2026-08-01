@@ -28,6 +28,14 @@ export default function AdminShell({
             Products
           </Link>
 
+          <Link href={routes.adminProductSizes} className="hover:text-[#9c7a4f]">
+            Sizes
+          </Link>
+
+          <Link href={routes.adminProductColors} className="hover:text-[#9c7a4f]">
+            Colors
+          </Link>
+
           <Link href={routes.home} className="text-[#8a7a6d] hover:text-[#9c7a4f]">
             View Store
           </Link>

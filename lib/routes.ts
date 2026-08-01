@@ -12,8 +12,9 @@ export const routes = {
   adminProducts: "/admin/products",
   adminInventoryHistory: "/admin/inventory/history",
   adminProductNew: "/admin/products/new",
-  
-  
+  adminProductSizes: "/admin/options/sizes",
+  adminProductColors: "/admin/options/colors",
+
   adminProductEdit: (id: number) => `/admin/products/${id}/edit`,
 
   productDetail: (slug: string) => `/product/${slug}`,

@@ -29,18 +29,29 @@ type OptionNameRow = {
 
 type PublicProductVariantRow = {
   product_id: number;
-  sizes: OptionNameRow | OptionNameRow[] | null;
-  colors: OptionNameRow | OptionNameRow[] | null;
+  size?: string | null;
+  color?: string | null;
+  sizes?: OptionNameRow | OptionNameRow[] | null;
+  colors?: OptionNameRow | OptionNameRow[] | null;
 };
 
 function getRelatedOptionName(
-  relation: OptionNameRow | OptionNameRow[] | null,
+  relation: OptionNameRow | OptionNameRow[] | null | undefined,
+  fallback?: string | null,
 ): string {
   if (Array.isArray(relation)) {
-    return relation[0]?.name ?? "Unknown";
+    return relation[0]?.name ?? fallback ?? "Unknown";
   }
 
-  return relation?.name ?? "Unknown";
+  return relation?.name ?? fallback ?? "Unknown";
+}
+
+function getVariantSize(variant: PublicProductVariantRow): string {
+  return getRelatedOptionName(variant.sizes, variant.size);
+}
+
+function getVariantColor(variant: PublicProductVariantRow): string {
+  return getRelatedOptionName(variant.colors, variant.color);
 }
 
 async function loadPublicProducts(): Promise<PublicProduct[]> {
@@ -49,7 +60,6 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
   const [
     { data: productRows, error: productsError },
     { data: imageRows, error: imagesError },
-    { data: variantRows, error: variantsError },
   ] = await Promise.all([
     supabase
       .from("public_products")
@@ -62,21 +72,24 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
       .from("product_images")
       .select("product_id, image_url, display_order")
       .order("display_order"),
-
-    supabase
-      .from("product_variants")
-      .select(
-        `
-          product_id,
-          sizes (
-            name
-          ),
-          colors (
-            name
-          )
-        `,
-      ),
   ]);
+
+  const {
+    data: relatedVariantRows,
+    error: relatedVariantsError,
+  } = await supabase.from("product_variants").select(
+    `
+      product_id,
+      size,
+      color,
+      sizes (
+        name
+      ),
+      colors (
+        name
+      )
+    `,
+  );
 
   if (productsError) {
     throw new Error("Unable to load public products.");
@@ -86,8 +99,33 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
     throw new Error("Unable to load public product images.");
   }
 
-  if (variantsError) {
-    throw new Error("Unable to load public product options.");
+  let variantRows = relatedVariantRows as
+    | PublicProductVariantRow[]
+    | null;
+
+  if (relatedVariantsError) {
+    console.error(
+      "Unable to load reusable public product options. Falling back to stored text options:",
+      relatedVariantsError,
+    );
+
+    const {
+      data: fallbackVariantRows,
+      error: fallbackVariantsError,
+    } = await supabase
+      .from("product_variants")
+      .select("product_id, size, color");
+
+    if (fallbackVariantsError) {
+      console.error(
+        "Unable to load fallback public product options:",
+        fallbackVariantsError,
+      );
+
+      throw new Error("Unable to load public product options.");
+    }
+
+    variantRows = fallbackVariantRows as PublicProductVariantRow[] | null;
   }
 
   const products = (productRows ?? []) as PublicProductRow[];
@@ -106,17 +144,13 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
 
     const sizes = [
       ...new Set(
-        productVariants.map((variant) =>
-          getRelatedOptionName(variant.sizes),
-        ),
+        productVariants.map((variant) => getVariantSize(variant)),
       ),
     ];
 
     const colors = [
       ...new Set(
-        productVariants.map((variant) =>
-          getRelatedOptionName(variant.colors),
-        ),
+        productVariants.map((variant) => getVariantColor(variant)),
       ),
     ];
 

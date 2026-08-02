@@ -7,6 +7,7 @@ import {
   isProductStockConsistent,
 } from "@/lib/product-stock";
 import AdminStatusBadge from "./AdminStatusBadge";
+import AdminProductArchiveButton from "@/components/AdminProductArchiveButton";
 import AdminProductVisibilityButton from "@/components/AdminProductVisibilityButton";
 import Link from "next/link";
 
@@ -120,6 +121,11 @@ export default function AdminProductTable({
                 <AdminProductVisibilityButton
                   productId={product.id}
                   isVisible={product.isVisible}
+                  productName={product.name}
+                />
+
+                <AdminProductArchiveButton
+                  productId={product.id}
                   productName={product.name}
                 />
             </div>

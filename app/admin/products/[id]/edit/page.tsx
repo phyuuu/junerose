@@ -6,6 +6,7 @@ import { getAdminProductOptions } from "@/lib/admin-product-options";
 import { getAdminProductById } from "@/lib/admin-products";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import AdminInventoryAdjustmentPanel from "@/components/AdminInventoryAdjustmentPanel";
+import AdminProductImagePanel from "@/components/AdminProductImagePanel";
 import AdminProductVariantPanel from "@/components/AdminProductVariantPanel";
 
 
@@ -14,6 +15,7 @@ type AdminProductEditPageProps = {
     id: string;
   }>;
   searchParams: Promise<{
+    imageMessage?: string;
     saved?: string;
   }>;
 };
@@ -25,7 +27,7 @@ export default async function AdminProductEditPage({
   await requireAdmin();
 
   const { id } = await params;
-  const { saved } = await searchParams;
+  const { imageMessage, saved } = await searchParams;
 
   const productId = Number(id);
 
@@ -59,6 +61,11 @@ export default async function AdminProductEditPage({
 
         <div className="mt-8">
           <AdminProductInfoForm product={product} />
+
+          <AdminProductImagePanel
+            product={product}
+            message={imageMessage}
+          />
 
           <AdminProductVariantPanel product={product} options={options} />
 

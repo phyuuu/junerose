@@ -30,6 +30,7 @@ type VariantRow = {
 type ImageRow = {
   product_id: number;
   image_url: string;
+  display_order: number | null;
 };
 
 function getRelatedOptionName(
@@ -58,6 +59,11 @@ function mapAdminProduct(
 
   const productImages = images
     .filter((image) => image.product_id === product.id)
+    .sort(
+      (firstImage, secondImage) =>
+        (firstImage.display_order ?? 0) -
+        (secondImage.display_order ?? 0),
+    )
     .map((image) => image.image_url);
 
   const stockQty = stockItems.reduce(
@@ -115,7 +121,9 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
 
     supabase
       .from("product_images")
-      .select("product_id, image_url"),
+      .select("product_id, image_url, display_order")
+      .order("display_order")
+      .order("id"),
   ]);
 
   if (productsError || variantsError || imagesError) {
@@ -173,8 +181,10 @@ export async function getAdminProductById(
 
     supabase
       .from("product_images")
-      .select("product_id, image_url")
-      .eq("product_id", id),
+      .select("product_id, image_url, display_order")
+      .eq("product_id", id)
+      .order("display_order")
+      .order("id"),
   ]);
 
   if (productError) {

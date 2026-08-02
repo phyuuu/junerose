@@ -3,6 +3,7 @@ import AdminProductInfoForm from "@/components/AdminProductInfoForm";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
 import { getAdminProductOptions } from "@/lib/admin-product-options";
+import { getAdminProductImages } from "@/lib/admin-product-images";
 import { getAdminProductById } from "@/lib/admin-products";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import AdminInventoryAdjustmentPanel from "@/components/AdminInventoryAdjustmentPanel";
@@ -35,9 +36,10 @@ export default async function AdminProductEditPage({
     notFound();
   }
 
-  const [product, options] = await Promise.all([
+  const [product, options, images] = await Promise.all([
     getAdminProductById(productId),
     getAdminProductOptions(),
+    getAdminProductImages(productId),
   ]);
 
   if (!product) {
@@ -63,6 +65,7 @@ export default async function AdminProductEditPage({
           <AdminProductInfoForm product={product} />
 
           <AdminProductImagePanel
+            images={images}
             product={product}
             message={imageMessage}
           />

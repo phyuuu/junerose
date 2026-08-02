@@ -25,12 +25,21 @@ export default async function AdminProductsPage() {
             description="Staff will be able to add products, edit prices, upload photos, hide unavailable items, and manage public product information."
           />
 
-          <Link
-            href={routes.adminProductNew}
-            className="w-fit rounded-xl bg-[#8b5e3c] px-4 py-2 text-sm font-semibold text-white shadow-sm"
-          >
-            + Add product
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={routes.adminArchivedProducts}
+              className="w-fit rounded-xl border border-[#d6c4aa] px-4 py-2 text-sm font-semibold text-[#8b5e3c] hover:bg-[#eadfce]"
+            >
+              Archived products
+            </Link>
+
+            <Link
+              href={routes.adminProductNew}
+              className="w-fit rounded-xl bg-[#8b5e3c] px-4 py-2 text-sm font-semibold text-white shadow-sm"
+            >
+              + Add product
+            </Link>
+          </div>
         </div>
 
         <div className="mt-6">

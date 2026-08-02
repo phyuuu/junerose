@@ -10,6 +10,7 @@ export const routes = {
   adminLogin: "/admin/login",
   adminOrders: "/admin/orders",
   adminProducts: "/admin/products",
+  adminArchivedProducts: "/admin/products/archived",
   adminInventoryHistory: "/admin/inventory/history",
   adminProductNew: "/admin/products/new",
   adminProductSizes: "/admin/options/sizes",

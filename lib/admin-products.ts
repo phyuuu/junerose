@@ -145,6 +145,62 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
   );
 }
 
+export async function getArchivedAdminProducts(): Promise<InternalProduct[]> {
+  const supabase = await createClient();
+
+  const [
+    { data: products, error: productsError },
+    { data: variants, error: variantsError },
+    { data: images, error: imagesError },
+  ] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*")
+      .not("deleted_at", "is", null)
+      .order("id"),
+
+    supabase
+      .from("product_variants")
+      .select(
+        `
+          id,
+          product_id,
+          quantity,
+          sizes (
+            name
+          ),
+          colors (
+            name
+          )
+        `,
+      ),
+
+    supabase
+      .from("product_images")
+      .select("product_id, image_url, display_order")
+      .order("display_order")
+      .order("id"),
+  ]);
+
+  if (productsError || variantsError || imagesError) {
+    console.error("Unable to load archived admin products:", {
+      productsError,
+      variantsError,
+      imagesError,
+    });
+
+    throw new Error("Unable to load archived admin products.");
+  }
+
+  return (products as ProductRow[]).map((product) =>
+    mapAdminProduct(
+      product,
+      variants as unknown as VariantRow[],
+      images as ImageRow[],
+    ),
+  );
+}
+
 export async function getAdminProductById(
   id: number,
 ): Promise<InternalProduct | undefined> {

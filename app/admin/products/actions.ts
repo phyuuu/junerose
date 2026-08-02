@@ -411,3 +411,53 @@ export async function archiveProductAction(productId: number) {
 
   return {};
 }
+
+export async function restoreProductAction(productId: number) {
+  await requireAdmin();
+
+  if (!Number.isInteger(productId) || productId <= 0) {
+    return {
+      error: "Invalid product ID.",
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { data: product, error: productError } = await supabase
+    .from("products")
+    .select("id, slug")
+    .eq("id", productId)
+    .not("deleted_at", "is", null)
+    .single();
+
+  if (productError || !product) {
+    return {
+      error: "Archived product not found.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("products")
+    .update({
+      deleted_at: null,
+      is_visible: false,
+    })
+    .eq("id", productId);
+
+  if (error) {
+    console.error("Unable to restore product:", error);
+
+    return {
+      error: "Unable to restore product.",
+    };
+  }
+
+  revalidatePath(routes.adminProducts);
+  revalidatePath(routes.adminArchivedProducts);
+  revalidatePath(routes.adminProductEdit(productId));
+  revalidatePath(routes.catalog);
+  revalidatePath(routes.home);
+  revalidatePath(routes.productDetail(product.slug));
+
+  return {};
+}

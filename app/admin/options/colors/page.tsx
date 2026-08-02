@@ -2,6 +2,7 @@ import {
   createColorAction,
   deleteColorAction,
   toggleColorActiveAction,
+  updateColorSortOrderAction,
 } from "@/app/admin/options/colors/actions";
 import AdminColorActionForm from "@/components/AdminColorActionForm";
 import AdminShell from "@/components/AdminShell";
@@ -115,7 +116,30 @@ export default async function AdminColorsPage({
               {(colors as ColorRow[]).map((color) => (
                 <tr key={color.id} className="border-t border-[#eadcc8]">
                   <td className="px-4 py-3">{color.name}</td>
-                  <td className="px-4 py-3">{color.sort_order ?? "-"}</td>
+                  <td className="px-4 py-3">
+                    <form
+                      action={updateColorSortOrderAction}
+                      className="flex items-center gap-2"
+                    >
+                      <input type="hidden" name="colorId" value={color.id} />
+
+                      <input
+                        name="sortOrder"
+                        type="number"
+                        min="0"
+                        step="1"
+                        defaultValue={color.sort_order ?? ""}
+                        className="w-24 rounded-xl border border-[#d6c4aa] bg-white px-3 py-1 text-sm"
+                      />
+
+                      <button
+                        type="submit"
+                        className="rounded-xl border border-[#9c7a4f] px-3 py-1 text-sm text-[#6d4c2f]"
+                      >
+                        Save order
+                      </button>
+                    </form>
+                  </td>
                   <td className="px-4 py-3">
                     {color.is_active ? "Active" : "Inactive"}
                   </td>

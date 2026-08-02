@@ -120,6 +120,40 @@ export async function deleteColorAction(formData: FormData) {
   redirectWithMessage("saved", "Color deleted successfully.");
 }
 
+export async function updateColorSortOrderAction(formData: FormData) {
+  await requireAdmin();
+
+  const colorId = Number(formData.get("colorId"));
+  const sortOrderValue = String(formData.get("sortOrder") ?? "").trim();
+
+  if (!Number.isInteger(colorId) || colorId <= 0) {
+    redirectWithMessage("error", "Invalid color.");
+  }
+
+  const sortOrder = sortOrderValue ? Number(sortOrderValue) : null;
+
+  if (sortOrderValue && !Number.isInteger(sortOrder)) {
+    redirectWithMessage("error", "Sort order must be a whole number.");
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("colors")
+    .update({
+      sort_order: sortOrder,
+    })
+    .eq("id", colorId);
+
+  if (error) {
+    console.error("Unable to update color sort order:", error);
+    redirectWithMessage("error", "Unable to update color sort order.");
+  }
+
+  revalidatePath(colorsPath);
+  redirectWithMessage("saved", "Color sort order updated successfully.");
+}
+
 export async function toggleColorActiveAction(formData: FormData) {
   await requireAdmin();
 

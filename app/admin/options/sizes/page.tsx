@@ -2,6 +2,7 @@ import {
   createSizeAction,
   deleteSizeAction,
   toggleSizeActiveAction,
+  updateSizeSortOrderAction,
 } from "@/app/admin/options/sizes/actions";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
@@ -115,7 +116,30 @@ export default async function AdminSizesPage({
               {(sizes as SizeRow[]).map((size) => (
                 <tr key={size.id} className="border-t border-[#eadcc8]">
                   <td className="px-4 py-3">{size.name}</td>
-                  <td className="px-4 py-3">{size.sort_order ?? "-"}</td>
+                  <td className="px-4 py-3">
+                    <form
+                      action={updateSizeSortOrderAction}
+                      className="flex items-center gap-2"
+                    >
+                      <input type="hidden" name="sizeId" value={size.id} />
+
+                      <input
+                        name="sortOrder"
+                        type="number"
+                        min="0"
+                        step="1"
+                        defaultValue={size.sort_order ?? ""}
+                        className="w-24 rounded-xl border border-[#d6c4aa] bg-white px-3 py-1 text-sm"
+                      />
+
+                      <button
+                        type="submit"
+                        className="rounded-xl border border-[#9c7a4f] px-3 py-1 text-sm text-[#6d4c2f]"
+                      >
+                        Save order
+                      </button>
+                    </form>
+                  </td>
                   <td className="px-4 py-3">
                     {size.is_active ? "Active" : "Inactive"}
                   </td>

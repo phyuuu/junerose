@@ -120,6 +120,40 @@ export async function deleteSizeAction(formData: FormData) {
   redirectWithMessage("saved", "Size deleted successfully.");
 }
 
+export async function updateSizeSortOrderAction(formData: FormData) {
+  await requireAdmin();
+
+  const sizeId = Number(formData.get("sizeId"));
+  const sortOrderValue = String(formData.get("sortOrder") ?? "").trim();
+
+  if (!Number.isInteger(sizeId) || sizeId <= 0) {
+    redirectWithMessage("error", "Invalid size.");
+  }
+
+  const sortOrder = sortOrderValue ? Number(sortOrderValue) : null;
+
+  if (sortOrderValue && !Number.isInteger(sortOrder)) {
+    redirectWithMessage("error", "Sort order must be a whole number.");
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("sizes")
+    .update({
+      sort_order: sortOrder,
+    })
+    .eq("id", sizeId);
+
+  if (error) {
+    console.error("Unable to update size sort order:", error);
+    redirectWithMessage("error", "Unable to update size sort order.");
+  }
+
+  revalidatePath(sizesPath);
+  redirectWithMessage("saved", "Size sort order updated successfully.");
+}
+
 export async function toggleSizeActiveAction(formData: FormData) {
   await requireAdmin();
 

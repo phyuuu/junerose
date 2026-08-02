@@ -311,3 +311,54 @@ export async function addProductVariantAction(
 
   return {};
 }
+
+export async function toggleProductVisibilityAction(
+  productId: number,
+  nextIsVisible: boolean,
+) {
+  await requireAdmin();
+
+  if (!Number.isInteger(productId) || productId <= 0) {
+    return {
+      error: "Invalid product ID.",
+    };
+  }
+
+  const supabase = await createClient();
+
+  const { data: product, error: productError } = await supabase
+    .from("products")
+    .select("id, slug")
+    .eq("id", productId)
+    .is("deleted_at", null)
+    .single();
+
+  if (productError || !product) {
+    return {
+      error: "Product not found.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("products")
+    .update({
+      is_visible: nextIsVisible,
+    })
+    .eq("id", productId);
+
+  if (error) {
+    console.error("Unable to update product visibility:", error);
+
+    return {
+      error: "Unable to update product visibility.",
+    };
+  }
+
+  revalidatePath(routes.adminProducts);
+  revalidatePath(routes.adminProductEdit(productId));
+  revalidatePath(routes.catalog);
+  revalidatePath(routes.home);
+  revalidatePath(routes.productDetail(product.slug));
+
+  return {};
+}

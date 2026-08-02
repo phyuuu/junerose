@@ -7,7 +7,7 @@ import {
   isProductStockConsistent,
 } from "@/lib/product-stock";
 import AdminStatusBadge from "./AdminStatusBadge";
-import AdminTableActionButton from "@/components/AdminTableActionButton";
+import AdminProductVisibilityButton from "@/components/AdminProductVisibilityButton";
 import Link from "next/link";
 
 type AdminProductTableProps = {
@@ -117,16 +117,12 @@ export default function AdminProductTable({
                   Edit
                 </Link>
 
-                <AdminTableActionButton
-                disabledReason="Product visibility changes will be enabled after protected admin actions are added."
-                >
-                {product.isVisible ? "Hide" : "Show"}
-                </AdminTableActionButton>
+                <AdminProductVisibilityButton
+                  productId={product.id}
+                  isVisible={product.isVisible}
+                  productName={product.name}
+                />
             </div>
-
-            <p className="text-[11px] leading-4 text-slate-400">
-                Disabled for local mock data.
-            </p>
             </div>
           </div>
         ))

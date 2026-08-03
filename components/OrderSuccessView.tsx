@@ -2,32 +2,64 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { buildCustomerOrderMessage } from "@/lib/orderMessage";
 import { formatMMK } from "@/lib/formatPrice";
-import { getOrderByNumber } from "@/lib/orderStorage";
+import {
+  getOrderByNumber,
+  ORDER_STORAGE_EVENT,
+} from "@/lib/orderStorage";
 import { routes } from "@/lib/routes";
+import type { OrderRequest } from "@/types/order";
 
 type OrderSuccessViewProps = {
   orderNumber: string;
 };
 
+const EMPTY_ORDER_SNAPSHOT = "null";
+
+function subscribeToOrder(onStoreChange: () => void) {
+  window.addEventListener("storage", onStoreChange);
+  window.addEventListener(ORDER_STORAGE_EVENT, onStoreChange);
+
+  return () => {
+    window.removeEventListener("storage", onStoreChange);
+    window.removeEventListener(ORDER_STORAGE_EVENT, onStoreChange);
+  };
+}
+
+function getOrderSnapshot(orderNumber: string) {
+  return JSON.stringify(getOrderByNumber(orderNumber) ?? null);
+}
+
+function getServerOrderSnapshot() {
+  return EMPTY_ORDER_SNAPSHOT;
+}
+
 export default function OrderSuccessView({
   orderNumber,
 }: OrderSuccessViewProps) {
-  const order = getOrderByNumber(orderNumber) ?? null;
   const [copyMessage, setCopyMessage] = useState("");
+  const orderSnapshot = useSyncExternalStore(
+    subscribeToOrder,
+    () => getOrderSnapshot(orderNumber),
+    getServerOrderSnapshot,
+  );
+  const order = useMemo(
+    () => JSON.parse(orderSnapshot) as OrderRequest | null,
+    [orderSnapshot],
+  );
 
   async function handleCopyOrderInfo() {
-  if (!order) {
-    return;
+    if (!order) {
+      return;
+    }
+
+    const message = buildCustomerOrderMessage(order);
+
+    await navigator.clipboard.writeText(message);
+    setCopyMessage("Order info copied.");
   }
-
-  const message = buildCustomerOrderMessage(order);
-
-  await navigator.clipboard.writeText(message);
-  setCopyMessage("Order info copied.");
-}
 
   if (!order) {
     return (

@@ -77,23 +77,31 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
         <p className="text-sm font-medium">Choose Color</p>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {availableColors.map((color) => (
-            <button
-              key={color}
-              type="button"
-              onClick={() => {
-                setSelectedColor(color);
-                setMessage("");
-              }}
-              className={`rounded-full border px-4 py-2 text-sm transition ${
-                selectedColor === color
-                  ? "border-[#2f241d] bg-[#2f241d] text-[#f8f3eb]"
-                  : "border-[#d6c4aa] text-[#2f241d] hover:border-[#9c7a4f]"
-              }`}
-            >
-              {color}
-            </button>
-          ))}
+          {product.colors.map((color) => {
+            const isAvailable =
+              selectedSize !== null && availableColors.includes(color);
+
+            return (
+              <button
+                key={color}
+                type="button"
+                disabled={!isAvailable}
+                onClick={() => {
+                  setSelectedColor(color);
+                  setMessage("");
+                }}
+                className={`rounded-full border px-4 py-2 text-sm transition disabled:cursor-not-allowed ${
+                  selectedColor === color
+                    ? "border-[#2f241d] bg-[#2f241d] text-[#f8f3eb]"
+                    : isAvailable
+                      ? "border-[#d6c4aa] text-[#2f241d] hover:border-[#9c7a4f]"
+                      : "border-[#e4d6c3] text-[#b8aa98] opacity-60"
+                }`}
+              >
+                {color}
+              </button>
+            );
+          })}
         </div>
 
         {!selectedSize && (

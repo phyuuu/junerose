@@ -19,6 +19,16 @@ const ORDER_STATUS_OPTIONS: {
   { value: "cancelled", label: "Cancelled" },
 ];
 
+function formatOrderCreatedAt(createdAt: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(createdAt));
+}
+
 type AdminOrderListProps = {
   orders: OrderRequest[];
 };
@@ -98,10 +108,11 @@ export default function AdminOrderList({ orders }: AdminOrderListProps) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[820px] text-left text-sm">
+        <table className="w-full min-w-[980px] text-left text-sm">
           <thead className="bg-[#f4eadc] text-xs uppercase tracking-wide text-[#8a7a6d]">
             <tr>
               <th className="px-5 py-3 font-medium">Order No.</th>
+              <th className="px-5 py-3 font-medium">Created At</th>
               <th className="px-5 py-3 font-medium">Customer</th>
               <th className="px-5 py-3 font-medium">Phone</th>
               <th className="px-5 py-3 font-medium">Contact</th>
@@ -116,6 +127,9 @@ export default function AdminOrderList({ orders }: AdminOrderListProps) {
               <tr key={order.orderNumber}>
                 <td className="px-5 py-4 font-medium text-[#2f241d]">
                   {order.orderNumber}
+                </td>
+                <td className="px-5 py-4 text-[#6f6258]">
+                  {formatOrderCreatedAt(order.createdAt)}
                 </td>
                 <td className="px-5 py-4 text-[#6f6258]">
                   {order.customer.name}

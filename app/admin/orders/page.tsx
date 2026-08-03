@@ -1,4 +1,4 @@
-import AdminOrderList from "@/components/AdminOrderList";
+import AdminOrderDashboard from "@/components/AdminOrderDashboard";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
 import { requireAdmin } from "@/lib/auth/require-admin";
@@ -17,9 +17,7 @@ export default async function AdminOrdersPage() {
           description="Staff will be able to search orders by order number, review customer requests, and update order status."
         />
 
-        <div className="mt-8">
-          <AdminOrderList orders={orders} />
-        </div>
+        <AdminOrderDashboard orders={orders} />
       </section>
     </AdminShell>
   );

@@ -31,9 +31,13 @@ function formatOrderCreatedAt(createdAt: string) {
 
 type AdminOrderListProps = {
   orders: OrderRequest[];
+  emptyMessage?: string;
 };
 
-export default function AdminOrderList({ orders }: AdminOrderListProps) {
+export default function AdminOrderList({
+  orders,
+  emptyMessage = "No order requests found yet.",
+}: AdminOrderListProps) {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | OrderStatus>("all");
 
@@ -55,10 +59,7 @@ export default function AdminOrderList({ orders }: AdminOrderListProps) {
     return (
       <section className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
         <h2 className="text-lg font-medium">Order requests</h2>
-        <p className="mt-2 text-sm text-[#8a7a6d]">
-          No order requests found yet. Submit a test order from the customer
-          cart flow to see it here.
-        </p>
+        <p className="mt-2 text-sm text-[#8a7a6d]">{emptyMessage}</p>
       </section>
     );
   }

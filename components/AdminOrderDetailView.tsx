@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import AdminOrderStatusBadge from "@/components/AdminOrderStatusBadge";
 import AdminOrderStatusForm from "@/components/AdminOrderStatusForm";
 import { formatMMK } from "@/lib/formatPrice";
 import type { OrderRequest } from "@/types/order";
@@ -53,9 +54,7 @@ export default function AdminOrderDetailView({
             </h2>
           </div>
 
-          <span className="w-fit rounded-full bg-[#eadfce] px-3 py-1 text-xs font-medium text-[#9c7a4f]">
-            {order.status}
-          </span>
+          <AdminOrderStatusBadge status={order.status} />
         </div>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">

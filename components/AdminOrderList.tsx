@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import AdminOrderStatusBadge from "@/components/AdminOrderStatusBadge";
 import { formatMMK } from "@/lib/formatPrice";
 import type { OrderRequest, OrderStatus } from "@/types/order";
 
@@ -129,9 +130,7 @@ export default function AdminOrderList({ orders }: AdminOrderListProps) {
                   {formatMMK(order.totalMMK)}
                 </td>
                 <td className="px-5 py-4">
-                  <span className="rounded-full bg-[#eadfce] px-3 py-1 text-xs font-medium text-[#9c7a4f]">
-                    {order.status}
-                  </span>
+                  <AdminOrderStatusBadge status={order.status} />
                 </td>
                 <td className="px-5 py-4">
                   <Link

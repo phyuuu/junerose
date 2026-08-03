@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import AdminOrderStatusForm from "@/components/AdminOrderStatusForm";
 import { formatMMK } from "@/lib/formatPrice";
 import type { OrderRequest } from "@/types/order";
 
@@ -99,13 +100,10 @@ export default function AdminOrderDetailView({
           </div>
         )}
 
-        <div className="mt-6 rounded-xl border border-dashed border-[#d6c4aa] bg-[#f8f3eb] p-4">
-          <p className="text-sm font-medium">Status actions coming later</p>
-          <p className="mt-1 text-xs leading-5 text-[#8a7a6d]">
-            Confirm, complete, and cancel actions will be enabled after database,
-            authentication, and protected admin actions are added.
-          </p>
-        </div>
+        <AdminOrderStatusForm
+          orderNumber={order.orderNumber}
+          status={order.status}
+        />
       </section>
 
       <section className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">

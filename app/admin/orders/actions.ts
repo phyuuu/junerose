@@ -33,6 +33,25 @@ type OrderStatusRow = {
   stock_released_at: string | null;
 };
 
+function getStockErrorMessage(
+  message: string | undefined,
+  fallback: string,
+) {
+  if (!message) {
+    return fallback;
+  }
+
+  if (
+    message.startsWith("Not enough stock") ||
+    message.startsWith("Product variant not found") ||
+    message.startsWith("Stock was already released")
+  ) {
+    return message;
+  }
+
+  return fallback;
+}
+
 export async function updateOrderStatusAction(
   orderNumber: string,
   status: OrderStatus,
@@ -117,8 +136,10 @@ export async function updateOrderStatusAction(
       console.error("Unable to reserve order stock:", reserveError);
 
       return {
-        error:
+        error: getStockErrorMessage(
+          reserveError.message,
           "Unable to reserve stock. Check that all ordered items are still available.",
+        ),
       };
     }
   }
@@ -135,7 +156,10 @@ export async function updateOrderStatusAction(
       console.error("Unable to release order stock:", releaseError);
 
       return {
-        error: "Unable to release stock for this order.",
+        error: getStockErrorMessage(
+          releaseError.message,
+          "Unable to release stock for this order.",
+        ),
       };
     }
   }

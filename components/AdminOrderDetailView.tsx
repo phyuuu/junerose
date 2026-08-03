@@ -8,6 +8,18 @@ type AdminOrderDetailViewProps = {
   order: OrderRequest | null;
 };
 
+function getStockStatusText(order: OrderRequest) {
+  if (order.stockReleasedAt) {
+    return "Stock released after cancellation.";
+  }
+
+  if (order.stockReservedAt) {
+    return "Stock reserved for this order.";
+  }
+
+  return "Stock not reserved yet.";
+}
+
 export default function AdminOrderDetailView({
   order,
 }: AdminOrderDetailViewProps) {
@@ -99,6 +111,15 @@ export default function AdminOrderDetailView({
             </p>
           </div>
         )}
+
+        <div className="mt-6 rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] p-4">
+          <p className="text-xs uppercase tracking-wide text-[#8a7a6d]">
+            Stock
+          </p>
+          <p className="mt-1 text-sm font-medium">
+            {getStockStatusText(order)}
+          </p>
+        </div>
 
         <AdminOrderStatusForm
           orderNumber={order.orderNumber}

@@ -24,7 +24,7 @@ export default async function AdminOrderDetailPage({
         <SectionHeader
           eyebrow="STAFF AREA"
           title="Order Detail"
-          description="Review customer order request details. Status updates will be connected after database and protected admin actions are added."
+          description="Review customer request details, update order status, and track stock reservation."
         />
 
         <div className="mt-8">

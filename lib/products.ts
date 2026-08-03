@@ -153,6 +153,10 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
         productVariants.map((variant) => getVariantColor(variant)),
       ),
     ];
+    const publicVariants = productVariants.map((variant) => ({
+      size: getVariantSize(variant),
+      color: getVariantColor(variant),
+    }));
 
     return {
       id: product.id,
@@ -164,6 +168,7 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
       images: productImages,
       sizes,
       colors,
+      variants: publicVariants,
       availability: product.availability,
     };
   });

@@ -16,6 +16,15 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
+  const availableColors = selectedSize
+    ? [
+        ...new Set(
+          product.variants
+            .filter((variant) => variant.size === selectedSize)
+            .map((variant) => variant.color),
+        ),
+      ]
+    : [];
   const canAddToCart = selectedSize !== null && selectedColor !== null;
 
   function handleAddToCart() {
@@ -49,6 +58,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
               type="button"
               onClick={() => {
                 setSelectedSize(size);
+                setSelectedColor(null);
                 setMessage("");
               }}
               className={`rounded-full border px-4 py-2 text-sm transition ${
@@ -67,7 +77,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
         <p className="text-sm font-medium">Choose Color</p>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {product.colors.map((color) => (
+          {availableColors.map((color) => (
             <button
               key={color}
               type="button"
@@ -85,6 +95,12 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
             </button>
           ))}
         </div>
+
+        {!selectedSize && (
+          <p className="mt-3 text-sm text-[#8a7a6d]">
+            Select a size first.
+          </p>
+        )}
       </div>
 
       <div>

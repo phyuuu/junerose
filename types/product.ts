@@ -36,6 +36,10 @@ export type PublicProduct = {
   images: string[];
   sizes: string[];
   colors: string[];
+  variants: {
+    size: string;
+    color: string;
+  }[];
   availability: ProductAvailability;
 };
 

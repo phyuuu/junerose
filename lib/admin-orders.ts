@@ -15,6 +15,8 @@ type OrderRow = {
   total_mmk: number;
   status: OrderStatus;
   created_at: string;
+  stock_reserved_at: string | null;
+  stock_released_at: string | null;
 };
 
 type OrderItemRow = {
@@ -58,6 +60,8 @@ function mapOrderRow(order: OrderWithItemsRow): OrderRequest {
     totalMMK: order.total_mmk,
     status: order.status,
     createdAt: order.created_at,
+    stockReservedAt: order.stock_reserved_at,
+    stockReleasedAt: order.stock_released_at,
   };
 }
 
@@ -77,7 +81,9 @@ export async function getAdminOrders(): Promise<OrderRequest[]> {
         customer_note,
         total_mmk,
         status,
-        created_at
+        created_at,
+        stock_reserved_at,
+        stock_released_at
       `,
     )
     .order("created_at", { ascending: false });
@@ -146,7 +152,9 @@ export async function getAdminOrderByNumber(
         customer_note,
         total_mmk,
         status,
-        created_at
+        created_at,
+        stock_reserved_at,
+        stock_released_at
       `,
     )
     .eq("order_number", orderNumber)

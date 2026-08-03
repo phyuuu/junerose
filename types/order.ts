@@ -23,4 +23,6 @@ export type OrderRequest = {
   totalMMK: number;
   status: OrderStatus;
   createdAt: string;
+  stockReservedAt?: string | null;
+  stockReleasedAt?: string | null;
 };

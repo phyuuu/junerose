@@ -32,6 +32,10 @@ export default function AdminOrderStatusForm({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (selectedStatus === status) {
+      return;
+    }
+
     setMessage("");
     setIsPending(true);
 
@@ -77,7 +81,7 @@ export default function AdminOrderStatusForm({
 
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || selectedStatus === status}
           className="rounded-xl bg-[#2f241d] px-5 py-3 text-sm font-semibold text-white hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? "Saving..." : "Save status"}

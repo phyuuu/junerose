@@ -2,42 +2,41 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { findCustomerOrder } from "@/lib/customer-orders";
 import { formatMMK } from "@/lib/formatPrice";
-import { getOrderByNumber } from "@/lib/orderStorage";
 import type { OrderRequest } from "@/types/order";
-
-function normalizeText(value: string) {
-  return value.trim().toLowerCase();
-}
 
 export default function CheckOrderForm() {
   const [orderNumber, setOrderNumber] = useState("");
   const [phone, setPhone] = useState("");
   const [foundOrder, setFoundOrder] = useState<OrderRequest | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const order = getOrderByNumber(orderNumber.trim());
-
-    if (!order) {
-      setFoundOrder(null);
-      setErrorMessage("We could not find an order with this order number.");
-      return;
-    }
-
-    const phoneMatches =
-      normalizeText(order.customer.phone) === normalizeText(phone);
-
-    if (!phoneMatches) {
-      setFoundOrder(null);
-      setErrorMessage("The phone number does not match this order.");
-      return;
-    }
-
-    setFoundOrder(order);
     setErrorMessage("");
+    setFoundOrder(null);
+    setIsChecking(true);
+
+    try {
+      const order = await findCustomerOrder(orderNumber.trim(), phone.trim());
+
+      if (!order) {
+        setErrorMessage(
+          "We could not find an order with this order number and phone number.",
+        );
+        return;
+      }
+
+      setFoundOrder(order);
+    } catch {
+      setErrorMessage("Unable to check order. Please try again.");
+    } finally {
+      setIsChecking(false);
+    }
+
   }
 
   return (
@@ -50,7 +49,7 @@ export default function CheckOrderForm() {
 
         <p className="mt-2 text-sm leading-6 text-[#8a7a6d]">
           Enter your order number and phone number to view the order request
-          saved on this device.
+          saved for JuneRose staff.
         </p>
 
         <div className="mt-5 space-y-4">
@@ -83,14 +82,14 @@ export default function CheckOrderForm() {
 
         <button
           type="submit"
-          className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c]"
+          disabled={isChecking}
+          className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:bg-[#b8aa98]"
         >
-          Check Order
+          {isChecking ? "Checking..." : "Check Order"}
         </button>
 
         <p className="mt-4 text-xs leading-5 text-[#8a7a6d]">
-          This is a local development feature. Orders can only be found in the
-          same browser where they were submitted until we add a database.
+          For privacy, the order number and phone number must both match.
         </p>
       </form>
 

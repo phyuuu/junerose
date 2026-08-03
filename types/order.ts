@@ -1,6 +1,12 @@
 import type { CartItem } from "@/types/cart";
 
-export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "preparing"
+  | "ready"
+  | "completed"
+  | "cancelled";
 
 export type CustomerContactInfo = {
   name: string;

@@ -1,27 +1,22 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { formatMMK } from "@/lib/formatPrice";
-import { getOrderByNumber } from "@/lib/orderStorage";
+import type { OrderRequest } from "@/types/order";
 
 type AdminOrderDetailViewProps = {
-  orderNumber: string;
+  order: OrderRequest | null;
 };
 
 export default function AdminOrderDetailView({
-  orderNumber,
+  order,
 }: AdminOrderDetailViewProps) {
-  const order = getOrderByNumber(orderNumber) ?? null;
-
   if (!order) {
     return (
       <section className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
         <h2 className="text-lg font-medium">Order not found</h2>
 
         <p className="mt-2 text-sm text-[#8a7a6d]">
-          This order could not be found in local browser storage. Local mock
-          orders only exist on the device/browser where they were created.
+          This order could not be found in the database.
         </p>
 
         <Link

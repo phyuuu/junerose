@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createOrderRequestAction } from "@/app/order/actions";
 import { clearCart } from "@/lib/cartStorage";
 import { formatMMK } from "@/lib/formatPrice";
-import { generateOrderNumber } from "@/lib/generateOrderNumber";
 import { saveOrder } from "@/lib/orderStorage";
 import { useCartItems } from "@/hooks/useCartItems";
 import { routes } from "@/lib/routes";
-import type { CustomerContactInfo, OrderRequest } from "@/types/order";
+import type { CustomerContactInfo } from "@/types/order";
 
 export default function OrderForm() {
   const router = useRouter();
@@ -21,6 +21,8 @@ export default function OrderForm() {
     preferredContact: "Viber",
     note: "",
   });
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const totalMMK = cartItems.reduce(
     (total, item) => total + item.priceMMK * item.quantity,
@@ -37,28 +39,32 @@ export default function OrderForm() {
     }));
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (cartItems.length === 0) {
+    if (cartItems.length === 0 || isSubmitting) {
       return;
     }
 
-    const orderNumber = generateOrderNumber();
+    setErrorMessage("");
+    setIsSubmitting(true);
 
-    const order: OrderRequest = {
-      orderNumber,
+    const result = await createOrderRequestAction({
       customer,
       items: cartItems,
-      totalMMK,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    };
+    });
 
-    saveOrder(order);
+    setIsSubmitting(false);
+
+    if (!result.ok) {
+      setErrorMessage(result.error);
+      return;
+    }
+
+    saveOrder(result.order);
     clearCart();
 
-    router.push(routes.orderSuccess(orderNumber));
+    router.push(routes.orderSuccess(result.order.orderNumber));
   }
 
   if (cartItems.length === 0) {
@@ -180,11 +186,16 @@ export default function OrderForm() {
           delivery details.
         </p>
 
+        {errorMessage && (
+          <p className="mt-4 text-sm text-red-700">{errorMessage}</p>
+        )}
+
         <button
           type="submit"
-          className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c]"
+          disabled={isSubmitting}
+          className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:bg-[#b8aa98]"
         >
-          Send Order Request
+          {isSubmitting ? "Sending..." : "Send Order Request"}
         </button>
       </div>
     </form>

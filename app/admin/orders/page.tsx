@@ -1,11 +1,12 @@
-import AdminNotice from "@/components/AdminNotice";
 import AdminOrderList from "@/components/AdminOrderList";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { getAdminOrders } from "@/lib/admin-orders";
 
 export default async function AdminOrdersPage() {
   await requireAdmin();
+  const orders = await getAdminOrders();
 
   return (
     <AdminShell showSignOut>
@@ -16,16 +17,8 @@ export default async function AdminOrdersPage() {
           description="Staff will be able to search orders by order number, review customer requests, and update order status."
         />
 
-        <div className="mt-6">
-          <AdminNotice title="Temporary local order preview">
-            Orders shown here are saved in this browser only. This is useful for
-            development, but real staff order management will need a database
-            and protected admin access.
-          </AdminNotice>
-        </div>
-
         <div className="mt-8">
-          <AdminOrderList />
+          <AdminOrderList orders={orders} />
         </div>
       </section>
     </AdminShell>

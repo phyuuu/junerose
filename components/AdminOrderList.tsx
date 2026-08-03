@@ -1,19 +1,19 @@
-"use client";
-
 import Link from "next/link";
 import { formatMMK } from "@/lib/formatPrice";
-import { getOrders } from "@/lib/orderStorage";
+import type { OrderRequest } from "@/types/order";
 
-export default function AdminOrderList() {
-  const orders = getOrders();
+type AdminOrderListProps = {
+  orders: OrderRequest[];
+};
 
+export default function AdminOrderList({ orders }: AdminOrderListProps) {
   if (orders.length === 0) {
     return (
       <section className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
         <h2 className="text-lg font-medium">Order requests</h2>
         <p className="mt-2 text-sm text-[#8a7a6d]">
-          No local order requests found yet. Submit a test order from the
-          customer cart flow to see it here.
+          No order requests found yet. Submit a test order from the customer
+          cart flow to see it here.
         </p>
       </section>
     );
@@ -24,7 +24,7 @@ export default function AdminOrderList() {
       <div className="border-b border-[#d6c4aa] px-5 py-4">
         <h2 className="text-lg font-medium">Order requests</h2>
         <p className="mt-1 text-sm text-[#8a7a6d]">
-          Local mock orders submitted from this browser.
+          Customer order requests saved in Supabase.
         </p>
       </div>
 

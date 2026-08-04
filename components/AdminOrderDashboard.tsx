@@ -1,12 +1,27 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 import AdminOrderList from "@/components/AdminOrderList";
 import AdminOrderSummary from "@/components/AdminOrderSummary";
-import type { OrderRequest } from "@/types/order";
+import type { AdminOrderSort, OrderRequest, OrderStatus } from "@/types/order";
+
+type AdminOrdersPageResult = {
+  orders: OrderRequest[];
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+};
 
 type AdminOrderDashboardProps = {
-  orders: OrderRequest[];
+  ordersPage: AdminOrdersPageResult;
+  filters: {
+    search?: string;
+    status?: OrderStatus;
+    date?: string;
+    sort: AdminOrderSort;
+  };
 };
 
 function getLocalDateKey(value: string) {
@@ -74,27 +89,55 @@ function formatTypedDate(value: string) {
 }
 
 export default function AdminOrderDashboard({
-  orders,
+  ordersPage,
+  filters,
 }: AdminOrderDashboardProps) {
-  const [selectedDate, setSelectedDate] = useState("");
-  const [dateText, setDateText] = useState("");
+  const [selectedDate, setSelectedDate] = useState(filters.date ?? "");
+  const [dateText, setDateText] = useState(
+    filters.date ? formatDateText(filters.date) : "",
+  );
   const datePickerRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const todayDateKey = getLocalDateKey(new Date().toISOString());
+  const { orders, currentPage, pageSize, totalCount, totalPages } = ordersPage;
+  const hasActiveFilters = Boolean(
+    filters.search || filters.status || filters.date,
+  );
 
-  const visibleOrders = useMemo(() => {
-    if (!selectedDate) {
-      return orders;
+  function getOrdersHref(nextDate: string | null) {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+
+    if (filters.search) {
+      params.set("search", filters.search);
     }
 
-    return orders.filter(
-      (order) => getLocalDateKey(order.createdAt) === selectedDate,
-    );
-  }, [orders, selectedDate]);
+    if (filters.status) {
+      params.set("status", filters.status);
+    }
+
+    if (filters.sort !== "newest") {
+      params.set("sort", filters.sort);
+    }
+
+    if (nextDate) {
+      params.set("date", nextDate);
+    }
+
+    return `/admin/orders?${params.toString()}`;
+  }
 
   function applyDate(nextDate: string) {
     const safeDate = nextDate > todayDateKey ? todayDateKey : nextDate;
     setSelectedDate(safeDate);
     setDateText(formatDateText(safeDate));
+    router.push(getOrdersHref(safeDate));
+  }
+
+  function clearDate() {
+    setSelectedDate("");
+    setDateText("");
+    router.push(getOrdersHref(null));
   }
 
   function handleDateTextChange(value: string) {
@@ -140,6 +183,12 @@ export default function AdminOrderDashboard({
             <label htmlFor="order-date-filter" className="text-sm font-medium">
               Order date
             </label>
+            <input
+              type="hidden"
+              form="admin-order-filters"
+              name="date"
+              value={selectedDate}
+            />
             <div className="mt-2 flex w-full gap-2 md:max-w-md">
               <input
                 id="order-date-filter"
@@ -192,11 +241,8 @@ export default function AdminOrderDashboard({
 
           <button
             type="button"
-            onClick={() => {
-              setSelectedDate("");
-              setDateText("");
-            }}
-            disabled={!selectedDate}
+            onClick={clearDate}
+            disabled={!selectedDate && !filters.date}
             className="rounded-xl border border-[#d6c4aa] px-4 py-3 text-sm font-medium text-[#8b5e3c] hover:bg-[#eadfce] disabled:cursor-not-allowed disabled:opacity-60"
           >
             Clear date
@@ -206,17 +252,27 @@ export default function AdminOrderDashboard({
         <p className="mt-3 text-sm text-[#8a7a6d]">
           {selectedDate
             ? "Showing orders from the selected date."
-            : "Showing all orders from the database."}
+            : `Showing page ${currentPage} of matching orders.`}
         </p>
       </section>
 
-      <AdminOrderSummary orders={visibleOrders} />
+      <AdminOrderSummary orders={orders} />
 
       <AdminOrderList
-        orders={visibleOrders}
+        key={`${filters.search ?? ""}-${filters.status ?? ""}-${
+          filters.date ?? ""
+        }-${filters.sort}-${currentPage}`}
+        orders={orders}
+        filters={filters}
+        pagination={{
+          currentPage,
+          pageSize,
+          totalCount,
+          totalPages,
+        }}
         emptyMessage={
-          selectedDate
-            ? "No order requests found for the selected date."
+          hasActiveFilters
+            ? "No order requests match the current filters."
             : "No order requests found yet. Submit a test order from the customer cart flow to see it here."
         }
       />

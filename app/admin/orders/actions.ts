@@ -26,6 +26,18 @@ type UpdateOrderStatusResult = {
   error?: string;
 };
 
+type AddOrderNoteResult = {
+  error?: string;
+};
+
+type UpdateOrderNoteResult = {
+  error?: string;
+};
+
+type DeleteOrderNoteResult = {
+  error?: string;
+};
+
 type OrderStatusRow = {
   order_number: string;
   status: OrderStatus;
@@ -50,6 +62,26 @@ function getStockErrorMessage(
   }
 
   return fallback;
+}
+
+async function getOrderIdByNumber(orderNumber: string) {
+  const supabase = await createClient();
+
+  const { data: order, error } = await supabase
+    .from("orders")
+    .select("id")
+    .eq("order_number", orderNumber)
+    .single();
+
+  if (error || !order) {
+    console.error("Unable to load order:", error);
+    return null;
+  }
+
+  return {
+    supabase,
+    orderId: order.id as number,
+  };
 }
 
 export async function updateOrderStatusAction(
@@ -180,6 +212,159 @@ export async function updateOrderStatusAction(
   }
 
   revalidatePath(routes.adminOrders);
+  revalidatePath(`${routes.adminOrders}/${normalizedOrderNumber}`);
+
+  return {};
+}
+
+export async function addOrderNoteAction(
+  orderNumber: string,
+  note: string,
+): Promise<AddOrderNoteResult> {
+  await requireAdmin();
+
+  const normalizedOrderNumber = orderNumber.trim();
+  const normalizedNote = note.trim();
+
+  if (!normalizedOrderNumber) {
+    return {
+      error: "Order number is required.",
+    };
+  }
+
+  if (!normalizedNote) {
+    return {
+      error: "Write a note before saving.",
+    };
+  }
+
+  if (normalizedNote.length > 1000) {
+    return {
+      error: "Order notes must be 1000 characters or less.",
+    };
+  }
+
+  const orderLookup = await getOrderIdByNumber(normalizedOrderNumber);
+
+  if (!orderLookup) {
+    return {
+      error: "Order not found.",
+    };
+  }
+
+  const { error } = await orderLookup.supabase.from("order_notes").insert({
+    order_id: orderLookup.orderId,
+    note: normalizedNote,
+  });
+
+  if (error) {
+    console.error("Unable to add order note:", error);
+
+    return {
+      error: "Unable to add note. Check order_notes permissions in Supabase.",
+    };
+  }
+
+  revalidatePath(`${routes.adminOrders}/${normalizedOrderNumber}`);
+
+  return {};
+}
+
+export async function updateOrderNoteAction(
+  orderNumber: string,
+  noteId: number,
+  note: string,
+): Promise<UpdateOrderNoteResult> {
+  await requireAdmin();
+
+  const normalizedOrderNumber = orderNumber.trim();
+  const normalizedNote = note.trim();
+
+  if (!normalizedOrderNumber || !Number.isInteger(noteId) || noteId < 1) {
+    return {
+      error: "Select a valid note.",
+    };
+  }
+
+  if (!normalizedNote) {
+    return {
+      error: "Write a note before saving.",
+    };
+  }
+
+  if (normalizedNote.length > 1000) {
+    return {
+      error: "Order notes must be 1000 characters or less.",
+    };
+  }
+
+  const orderLookup = await getOrderIdByNumber(normalizedOrderNumber);
+
+  if (!orderLookup) {
+    return {
+      error: "Order not found.",
+    };
+  }
+
+  const { error } = await orderLookup.supabase
+    .from("order_notes")
+    .update({ note: normalizedNote })
+    .eq("id", noteId)
+    .eq("order_id", orderLookup.orderId)
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("Unable to update order note:", error);
+
+    return {
+      error:
+        "Unable to update note. Check order_notes permissions in Supabase.",
+    };
+  }
+
+  revalidatePath(`${routes.adminOrders}/${normalizedOrderNumber}`);
+
+  return {};
+}
+
+export async function deleteOrderNoteAction(
+  orderNumber: string,
+  noteId: number,
+): Promise<DeleteOrderNoteResult> {
+  await requireAdmin();
+
+  const normalizedOrderNumber = orderNumber.trim();
+
+  if (!normalizedOrderNumber || !Number.isInteger(noteId) || noteId < 1) {
+    return {
+      error: "Select a valid note.",
+    };
+  }
+
+  const orderLookup = await getOrderIdByNumber(normalizedOrderNumber);
+
+  if (!orderLookup) {
+    return {
+      error: "Order not found.",
+    };
+  }
+
+  const { error } = await orderLookup.supabase
+    .from("order_notes")
+    .delete()
+    .eq("id", noteId)
+    .eq("order_id", orderLookup.orderId);
+
+  if (error) {
+    console.error("Unable to delete order note:", error);
+
+    return {
+      error:
+        "Unable to delete note. Check order_notes permissions in Supabase.",
+    };
+  }
+
   revalidatePath(`${routes.adminOrders}/${normalizedOrderNumber}`);
 
   return {};

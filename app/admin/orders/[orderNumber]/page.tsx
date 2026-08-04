@@ -1,6 +1,7 @@
 import AdminOrderDetailView from "@/components/AdminOrderDetailView";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
+import { getAdminOrderNotes } from "@/lib/admin-order-notes";
 import { getAdminOrderByNumber } from "@/lib/admin-orders";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
@@ -17,6 +18,7 @@ export default async function AdminOrderDetailPage({
 
   const { orderNumber } = await params;
   const order = await getAdminOrderByNumber(orderNumber);
+  const notes = order ? await getAdminOrderNotes(orderNumber) : [];
 
   return (
     <AdminShell showSignOut>
@@ -28,7 +30,7 @@ export default async function AdminOrderDetailPage({
         />
 
         <div className="mt-8">
-          <AdminOrderDetailView order={order} />
+          <AdminOrderDetailView order={order} notes={notes} />
         </div>
       </section>
     </AdminShell>

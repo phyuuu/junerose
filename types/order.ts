@@ -8,6 +8,12 @@ export type OrderStatus =
   | "completed"
   | "cancelled";
 
+export type AdminOrderSort =
+  | "newest"
+  | "oldest"
+  | "total_desc"
+  | "total_asc";
+
 export type CustomerContactInfo = {
   name: string;
   phone: string;
@@ -25,4 +31,10 @@ export type OrderRequest = {
   createdAt: string;
   stockReservedAt?: string | null;
   stockReleasedAt?: string | null;
+};
+
+export type AdminOrderNote = {
+  id: number;
+  note: string;
+  createdAt: string;
 };

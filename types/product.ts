@@ -1,6 +1,10 @@
 export type ProductCategory = "Women" | "Men" | "Pajamas" | "Swimwear";
 
-export type ProductAvailability = "Available" | "Low stock" | "Ask staff";
+export type ProductAvailability =
+  | "Available"
+  | "Low stock"
+  | "Ask staff"
+  | "Sold out";
 
 export type ProductStockItem = {
   variantId: number;
@@ -37,8 +41,10 @@ export type PublicProduct = {
   sizes: string[];
   colors: string[];
   variants: {
+    variantId: number;
     size: string;
     color: string;
+    isAvailable: boolean;
   }[];
   availability: ProductAvailability;
 };

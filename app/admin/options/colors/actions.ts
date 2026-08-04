@@ -4,10 +4,17 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createClient } from "@/lib/supabase/server";
+import {
+  reportServerError,
+  withErrorReference,
+} from "@/lib/server/report-error";
 
 const colorsPath = "/admin/options/colors";
 
-function redirectWithMessage(type: "error" | "saved", message?: string) {
+function redirectWithMessage(
+  type: "error" | "saved",
+  message?: string,
+): never {
   if (type === "saved") {
     redirect(
       `${colorsPath}?saved=${encodeURIComponent(
@@ -21,6 +28,21 @@ function redirectWithMessage(type: "error" | "saved", message?: string) {
       message ?? "Unable to save color.",
     )}`,
   );
+}
+
+function failColorAction(
+  operation: string,
+  error: unknown,
+  message: string,
+  colorId?: number,
+): never {
+  const referenceId = reportServerError({
+    operation,
+    error,
+    colorId,
+  });
+
+  redirectWithMessage("error", withErrorReference(message, referenceId));
 }
 
 export async function createColorAction(formData: FormData) {
@@ -49,9 +71,9 @@ export async function createColorAction(formData: FormData) {
     .maybeSingle();
 
   if (existingColorError) {
-    console.error("Unable to check existing colors:", existingColorError);
-    redirectWithMessage(
-      "error",
+    failColorAction(
+      "admin.color.check_duplicate",
+      existingColorError,
       "Unable to check whether this color already exists.",
     );
   }
@@ -67,8 +89,7 @@ export async function createColorAction(formData: FormData) {
   });
 
   if (error) {
-    console.error("Unable to create color:", error);
-    redirectWithMessage("error", "Unable to create color.");
+    failColorAction("admin.color.create", error, "Unable to create color.");
   }
 
   revalidatePath(colorsPath);
@@ -95,8 +116,12 @@ export async function deleteColorAction(formData: FormData) {
     .eq("color_id", colorId);
 
   if (usageError) {
-    console.error("Unable to check color usage:", usageError);
-    redirectWithMessage("error", "Unable to check whether this color is used.");
+    failColorAction(
+      "admin.color.check_usage",
+      usageError,
+      "Unable to check whether this color is used.",
+      colorId,
+    );
   }
 
   if ((count ?? 0) > 0) {
@@ -112,8 +137,12 @@ export async function deleteColorAction(formData: FormData) {
     .eq("id", colorId);
 
   if (error) {
-    console.error("Unable to delete color:", error);
-    redirectWithMessage("error", "Unable to delete color.");
+    failColorAction(
+      "admin.color.delete",
+      error,
+      "Unable to delete color.",
+      colorId,
+    );
   }
 
   revalidatePath(colorsPath);
@@ -146,8 +175,12 @@ export async function updateColorSortOrderAction(formData: FormData) {
     .eq("id", colorId);
 
   if (error) {
-    console.error("Unable to update color sort order:", error);
-    redirectWithMessage("error", "Unable to update color sort order.");
+    failColorAction(
+      "admin.color.update_sort_order",
+      error,
+      "Unable to update color sort order.",
+      colorId,
+    );
   }
 
   revalidatePath(colorsPath);
@@ -174,8 +207,12 @@ export async function toggleColorActiveAction(formData: FormData) {
     .eq("id", colorId);
 
   if (error) {
-    console.error("Unable to update color status:", error);
-    redirectWithMessage("error", "Unable to update color status.");
+    failColorAction(
+      "admin.color.update_status",
+      error,
+      "Unable to update color status.",
+      colorId,
+    );
   }
 
   revalidatePath(colorsPath);

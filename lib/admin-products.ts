@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { throwReportedServerError } from "@/lib/server/report-error";
 import type { InternalProduct } from "@/types/product";
 
 type ProductRow = {
@@ -127,13 +128,11 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
   ]);
 
   if (productsError || variantsError || imagesError) {
-    console.error("Unable to load admin products:", {
-      productsError,
-      variantsError,
-      imagesError,
+    throwReportedServerError({
+      operation: "admin.products.load_active",
+      error: productsError ?? variantsError ?? imagesError,
+      message: "Unable to load admin products.",
     });
-
-    throw new Error("Unable to load admin products.");
   }
 
   return (products as ProductRow[]).map((product) =>
@@ -183,13 +182,11 @@ export async function getArchivedAdminProducts(): Promise<InternalProduct[]> {
   ]);
 
   if (productsError || variantsError || imagesError) {
-    console.error("Unable to load archived admin products:", {
-      productsError,
-      variantsError,
-      imagesError,
+    throwReportedServerError({
+      operation: "admin.products.load_archived",
+      error: productsError ?? variantsError ?? imagesError,
+      message: "Unable to load archived admin products.",
     });
-
-    throw new Error("Unable to load archived admin products.");
   }
 
   return (products as ProductRow[]).map((product) =>
@@ -248,12 +245,12 @@ export async function getAdminProductById(
   }
 
   if (variantsError || imagesError) {
-    console.error("Unable to load admin product:", {
-      variantsError: JSON.stringify(variantsError),
-      imagesError: JSON.stringify(imagesError),
+    throwReportedServerError({
+      operation: "admin.product.load_detail",
+      error: variantsError ?? imagesError,
+      productId: id,
+      message: "Unable to load admin product.",
     });
-
-    throw new Error("Unable to load admin product.");
   }
 
   return mapAdminProduct(

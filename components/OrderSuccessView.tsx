@@ -1,39 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState, useSyncExternalStore } from "react";
-import { findCustomerOrder } from "@/lib/customer-orders";
+import { useEffect, useState } from "react";
+import {
+  findCustomerOrder,
+  OrderLookupRateLimitError,
+} from "@/lib/customer-orders";
 import { buildCustomerOrderMessage } from "@/lib/orderMessage";
 import { formatMMK } from "@/lib/formatPrice";
-import {
-  getOrderByNumber,
-  ORDER_STORAGE_EVENT,
-} from "@/lib/orderStorage";
+import { consumeRecentOrderPhone } from "@/lib/orderStorage";
 import type { OrderRequest } from "@/types/order";
 
 type OrderSuccessViewProps = {
   orderNumber: string;
 };
-
-const EMPTY_ORDER_SNAPSHOT = "null";
-
-function subscribeToOrder(onStoreChange: () => void) {
-  window.addEventListener("storage", onStoreChange);
-  window.addEventListener(ORDER_STORAGE_EVENT, onStoreChange);
-
-  return () => {
-    window.removeEventListener("storage", onStoreChange);
-    window.removeEventListener(ORDER_STORAGE_EVENT, onStoreChange);
-  };
-}
-
-function getOrderSnapshot(orderNumber: string) {
-  return JSON.stringify(getOrderByNumber(orderNumber) ?? null);
-}
-
-function getServerOrderSnapshot() {
-  return EMPTY_ORDER_SNAPSHOT;
-}
 
 export default function OrderSuccessView({
   orderNumber,
@@ -44,16 +24,35 @@ export default function OrderSuccessView({
     useState<OrderRequest | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isChecking, setIsChecking] = useState(false);
-  const orderSnapshot = useSyncExternalStore(
-    subscribeToOrder,
-    () => getOrderSnapshot(orderNumber),
-    getServerOrderSnapshot,
-  );
-  const order = useMemo(
-    () => JSON.parse(orderSnapshot) as OrderRequest | null,
-    [orderSnapshot],
-  );
-  const visibleOrder = verifiedOrder ?? order;
+  const [isRestoringRecentOrder, setIsRestoringRecentOrder] = useState(true);
+  const visibleOrder = verifiedOrder;
+
+  useEffect(() => {
+    let isActive = true;
+    const recentPhone = consumeRecentOrderPhone(orderNumber);
+    const recentOrderLookup = recentPhone
+      ? findCustomerOrder(orderNumber, recentPhone)
+      : Promise.resolve(null);
+
+    recentOrderLookup
+      .then((foundOrder) => {
+        if (isActive) {
+          setVerifiedOrder(foundOrder);
+        }
+      })
+      .catch(() => {
+        // The regular phone verification form remains available below.
+      })
+      .finally(() => {
+        if (isActive) {
+          setIsRestoringRecentOrder(false);
+        }
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [orderNumber]);
 
   async function handleCopyOrderInfo() {
     if (!visibleOrder) {
@@ -88,8 +87,12 @@ export default function OrderSuccessView({
       }
 
       setVerifiedOrder(foundOrder);
-    } catch {
-      setErrorMessage("Unable to check order. Please try again.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof OrderLookupRateLimitError
+          ? "Too many incorrect attempts. Please wait 15 minutes before trying again."
+          : "Unable to check order. Please try again.",
+      );
     } finally {
       setIsChecking(false);
     }
@@ -117,31 +120,46 @@ export default function OrderSuccessView({
           <h3 className="text-lg font-medium">View order details</h3>
 
           <p className="mt-2 text-sm leading-6 text-[#8a7a6d]">
-            Enter the phone number used in the order to view the full summary.
+            {isRestoringRecentOrder
+              ? "Loading your order details..."
+              : "Enter the phone number used in the order to view the full summary."}
           </p>
 
-          <div className="mt-5">
-            <label className="text-sm font-medium">Phone Number</label>
-            <input
-              required
-              value={phone}
-              onChange={(event) => setPhone(event.target.value)}
-              placeholder="Phone used in the order"
-              className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
-            />
-          </div>
+          {!isRestoringRecentOrder && (
+            <>
+              <div className="mt-5">
+                <label
+                  htmlFor="success-order-phone"
+                  className="text-sm font-medium"
+                >
+                  Phone Number
+                </label>
+                <input
+                  id="success-order-phone"
+                  required
+                  inputMode="tel"
+                  autoComplete="tel"
+                  maxLength={30}
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  placeholder="Phone used in the order"
+                  className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
+                />
+              </div>
 
-          {errorMessage && (
-            <p className="mt-4 text-sm text-red-700">{errorMessage}</p>
+              {errorMessage && (
+                <p className="mt-4 text-sm text-red-700">{errorMessage}</p>
+              )}
+
+              <button
+                type="submit"
+                disabled={isChecking}
+                className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:bg-[#b8aa98]"
+              >
+                {isChecking ? "Checking..." : "View order details"}
+              </button>
+            </>
           )}
-
-          <button
-            type="submit"
-            disabled={isChecking}
-            className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:bg-[#b8aa98]"
-          >
-            {isChecking ? "Checking..." : "View order details"}
-          </button>
         </form>
       </div>
     );

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { throwReportedServerError } from "@/lib/server/report-error";
 import type { CartItem } from "@/types/cart";
 import type { AdminOrderSort, OrderRequest, OrderStatus } from "@/types/order";
 
@@ -20,6 +21,7 @@ type OrderRow = {
 };
 
 type OrderItemRow = {
+  product_variant_id?: number | null;
   order_id: number;
   product_id: number | null;
   product_slug: string;
@@ -56,6 +58,7 @@ export type AdminOrderFilters = {
 
 function mapOrderRow(order: OrderWithItemsRow): OrderRequest {
   const items: CartItem[] = order.order_items.map((item) => ({
+    variantId: item.product_variant_id ?? 0,
     productId: item.product_id ?? 0,
     slug: item.product_slug,
     name: item.product_name,
@@ -177,8 +180,11 @@ export async function getAdminOrders(
   ).range(from, to);
 
   if (ordersError) {
-    console.error("Unable to load admin orders:", ordersError);
-    throw new Error("Unable to load orders.");
+    throwReportedServerError({
+      operation: "admin.orders.load_page",
+      error: ordersError,
+      message: "Unable to load orders.",
+    });
   }
 
   const orders = (ordersData ?? []) as OrderRow[];
@@ -209,6 +215,7 @@ export async function getAdminOrders(
     .select(
       `
         order_id,
+        product_variant_id,
         product_id,
         product_slug,
         product_name,
@@ -223,8 +230,11 @@ export async function getAdminOrders(
     .order("created_at", { ascending: true });
 
   if (itemsError) {
-    console.error("Unable to load admin order items:", itemsError);
-    throw new Error("Unable to load order items.");
+    throwReportedServerError({
+      operation: "admin.orders.load_page_items",
+      error: itemsError,
+      message: "Unable to load order items.",
+    });
   }
 
   const items = (itemsData ?? []) as OrderItemRow[];
@@ -270,8 +280,11 @@ export async function getAdminOrderByNumber(
     .maybeSingle();
 
   if (orderError) {
-    console.error("Unable to load admin order:", orderError);
-    throw new Error("Unable to load order.");
+    throwReportedServerError({
+      operation: "admin.order.load_detail",
+      error: orderError,
+      message: "Unable to load order.",
+    });
   }
 
   if (!orderData) {
@@ -285,6 +298,7 @@ export async function getAdminOrderByNumber(
     .select(
       `
         order_id,
+        product_variant_id,
         product_id,
         product_slug,
         product_name,
@@ -299,8 +313,11 @@ export async function getAdminOrderByNumber(
     .order("created_at", { ascending: true });
 
   if (itemsError) {
-    console.error("Unable to load admin order items:", itemsError);
-    throw new Error("Unable to load order items.");
+    throwReportedServerError({
+      operation: "admin.order.load_detail_items",
+      error: itemsError,
+      message: "Unable to load order items.",
+    });
   }
 
   return mapOrderRow({

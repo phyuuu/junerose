@@ -13,7 +13,7 @@ export const defaultAdminProductFormValues: AdminProductFormValues = {
   availability: "Available",
   stockQty: 0,
   stockItems: [],
-  isVisible: true,
+  isVisible: false,
 };
 
 export function createInternalProductFromForm(

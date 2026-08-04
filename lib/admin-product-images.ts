@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { throwReportedServerError } from "@/lib/server/report-error";
 
 export type AdminProductImage = {
   id: number;
@@ -22,8 +23,12 @@ export async function getAdminProductImages(
     .order("id");
 
   if (error) {
-    console.error("Unable to load admin product images:", error);
-    throw new Error("Unable to load admin product images.");
+    throwReportedServerError({
+      operation: "admin.product_image.load_list",
+      error,
+      productId,
+      message: "Unable to load admin product images.",
+    });
   }
 
   return (data ?? []) as AdminProductImage[];

@@ -133,15 +133,6 @@ export default function AdminProductInfoForm({
             ))}
           </label>
 
-          <label className="flex items-center gap-3 self-end rounded-xl border border-[#d6c4aa] px-3 py-2 text-sm">
-            <input
-              name="isVisible"
-              type="checkbox"
-              defaultChecked={product.isVisible}
-              className="h-4 w-4"
-            />
-            Visible to customers
-          </label>
         </div>
 
         <label className="grid gap-1 text-sm">

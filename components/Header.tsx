@@ -8,7 +8,7 @@ export default function Header() {
         JuneRose
       </Link>
 
-      <nav className="flex gap-5 text-sm">
+      <nav aria-label="Store navigation" className="flex gap-5 text-sm">
         <Link href={routes.catalog} className="hover:text-[#9c7a4f]">
           Catalog
         </Link>

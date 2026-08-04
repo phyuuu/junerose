@@ -7,9 +7,14 @@ type PageShellProps = {
 
 export default function PageShell({ children }: PageShellProps) {
   return (
-    <main className="min-h-screen bg-[#f8f3eb] text-[#2f241d]">
+    <div className="min-h-screen bg-[#f8f3eb] text-[#2f241d]">
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
       <Header />
-      {children}
-    </main>
+      <main id="main-content" tabIndex={-1}>
+        {children}
+      </main>
+    </div>
   );
 }

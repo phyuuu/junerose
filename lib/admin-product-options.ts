@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { throwReportedServerError } from "@/lib/server/report-error";
 
 export type ProductOption = {
   id: number;
@@ -35,12 +36,11 @@ export async function getAdminProductOptions(): Promise<AdminProductOptions> {
   ]);
 
   if (sizesError || colorsError) {
-    console.error("Unable to load product options:", {
-      sizesError,
-      colorsError,
+    throwReportedServerError({
+      operation: "admin.product_options.load",
+      error: sizesError ?? colorsError,
+      message: "Unable to load product size and color options.",
     });
-
-    throw new Error("Unable to load product size and color options.");
   }
 
   return {

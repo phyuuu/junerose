@@ -16,23 +16,40 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
+  const availableSizes = [
+    ...new Set(
+      product.variants
+        .filter((variant) => variant.isAvailable)
+        .map((variant) => variant.size),
+    ),
+  ];
   const availableColors = selectedSize
     ? [
         ...new Set(
           product.variants
-            .filter((variant) => variant.size === selectedSize)
+            .filter(
+              (variant) =>
+                variant.size === selectedSize && variant.isAvailable,
+            )
             .map((variant) => variant.color),
         ),
       ]
     : [];
-  const canAddToCart = selectedSize !== null && selectedColor !== null;
+  const selectedVariant = product.variants.find(
+    (variant) =>
+      variant.size === selectedSize &&
+      variant.color === selectedColor &&
+      variant.isAvailable,
+  );
+  const canAddToCart = selectedVariant !== undefined;
 
   function handleAddToCart() {
-    if (!selectedSize || !selectedColor) {
+    if (!selectedSize || !selectedColor || !selectedVariant) {
       return;
     }
 
     addCartItem({
+      variantId: selectedVariant.variantId,
       productId: product.id,
       slug: product.slug,
       name: product.name,
@@ -52,24 +69,32 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
         <p className="text-sm font-medium">Choose Size</p>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {product.sizes.map((size) => (
-            <button
-              key={size}
-              type="button"
-              onClick={() => {
-                setSelectedSize(size);
-                setSelectedColor(null);
-                setMessage("");
-              }}
-              className={`rounded-full border px-4 py-2 text-sm transition ${
-                selectedSize === size
-                  ? "border-[#2f241d] bg-[#2f241d] text-[#f8f3eb]"
-                  : "border-[#d6c4aa] text-[#2f241d] hover:border-[#9c7a4f]"
-              }`}
-            >
-              {size}
-            </button>
-          ))}
+          {product.sizes.map((size) => {
+            const isAvailable = availableSizes.includes(size);
+
+            return (
+              <button
+                key={size}
+                type="button"
+                disabled={!isAvailable}
+                aria-pressed={selectedSize === size}
+                onClick={() => {
+                  setSelectedSize(size);
+                  setSelectedColor(null);
+                  setMessage("");
+                }}
+                className={`rounded-full border px-4 py-2 text-sm transition disabled:cursor-not-allowed ${
+                  selectedSize === size
+                    ? "border-[#2f241d] bg-[#2f241d] text-[#f8f3eb]"
+                    : isAvailable
+                      ? "border-[#d6c4aa] text-[#2f241d] hover:border-[#9c7a4f]"
+                      : "border-[#e4d6c3] text-[#b8aa98] opacity-60"
+                }`}
+              >
+                {size}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -86,6 +111,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
                 key={color}
                 type="button"
                 disabled={!isAvailable}
+                aria-pressed={selectedColor === color}
                 onClick={() => {
                   setSelectedColor(color);
                   setMessage("");
@@ -118,7 +144,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
           onClick={handleAddToCart}
           className="rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:bg-[#b8aa98]"
         >
-          Add to Cart
+          {product.availability === "Sold out" ? "Sold out" : "Add to Cart"}
         </button>
 
         {message && (

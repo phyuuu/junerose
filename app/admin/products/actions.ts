@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { routes } from "@/lib/routes";
+import {
+  reportServerError,
+  withErrorReference,
+} from "@/lib/server/report-error";
 import { createClient } from "@/lib/supabase/server";
 import {
   adminCreateProductBaseSchema,
@@ -33,7 +37,7 @@ export async function updateProductInfoAction(
     priceMMK: Number(formData.get("priceMMK")),
     category: formData.get("category"),
     availability: formData.get("availability"),
-    isVisible: formData.get("isVisible") === "on",
+    isVisible: false,
   });
 
   if (!parsed.success) {
@@ -47,7 +51,7 @@ export async function updateProductInfoAction(
   const { data: existingProduct, error: existingProductError } =
     await supabase
       .from("products")
-      .select("id, slug")
+      .select("id, slug, is_visible")
       .eq("id", productId)
       .single();
 
@@ -66,27 +70,22 @@ export async function updateProductInfoAction(
       new_price_mmk: parsed.data.priceMMK,
       new_category: parsed.data.category,
       new_availability: parsed.data.availability,
-      new_is_visible: parsed.data.isVisible,
+      new_is_visible: existingProduct.is_visible,
     },
   );
 
   if (updateError) {
-    console.error(
-      "update_product_info RPC failed:",
-      JSON.stringify(
-        {
-          code: updateError.code,
-          message: updateError.message,
-          details: updateError.details,
-          hint: updateError.hint,
-        },
-        null,
-        2,
-      ),
-    );
+    const referenceId = reportServerError({
+      operation: "admin.product.update_info",
+      error: updateError,
+      productId,
+    });
 
     return {
-      formError: "Unable to update product and record its history.",
+      formError: withErrorReference(
+        "Unable to update product and record its history.",
+        referenceId,
+      ),
     };
   }
 
@@ -113,7 +112,7 @@ export async function createProductAction(
     priceMMK: Number(formData.get("priceMMK")),
     category: formData.get("category"),
     availability: formData.get("availability"),
-    isVisible: formData.get("isVisible") === "on",
+    isVisible: false,
   });
 
   if (!parsed.success) {
@@ -173,26 +172,12 @@ export async function createProductAction(
       product_price_mmk: parsed.data.priceMMK,
       product_category: parsed.data.category,
       product_availability: parsed.data.availability,
-      product_is_visible: parsed.data.isVisible,
+      product_is_visible: false,
       product_variants: [],
     },
   );
 
   if (error || !productId) {
-    console.error(
-      "create_product_with_variants RPC failed:",
-      JSON.stringify(
-        {
-          code: error?.code,
-          message: error?.message,
-          details: error?.details,
-          hint: error?.hint,
-        },
-        null,
-        2,
-      ),
-    );
-
     if (error?.code === "23505") {
       return {
         formError:
@@ -200,8 +185,16 @@ export async function createProductAction(
       };
     }
 
+    const referenceId = reportServerError({
+      operation: "admin.product.create",
+      error: error ?? new Error("Product creation returned no ID"),
+    });
+
     return {
-      formError: "Unable to create the product.",
+      formError: withErrorReference(
+        "Unable to create the product.",
+        referenceId,
+      ),
     };
   }
 
@@ -281,20 +274,6 @@ export async function addProductVariantAction(
     });
 
   if (error) {
-    console.error(
-      "create product variant failed:",
-      JSON.stringify(
-        {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-        },
-        null,
-        2,
-      ),
-    );
-
     if (error.code === "23505") {
       return {
         formError:
@@ -302,8 +281,17 @@ export async function addProductVariantAction(
       };
     }
 
+    const referenceId = reportServerError({
+      operation: "admin.product_variant.create",
+      error,
+      productId,
+    });
+
     return {
-      formError: "Unable to add product variant.",
+      formError: withErrorReference(
+        "Unable to add product variant.",
+        referenceId,
+      ),
     };
   }
 
@@ -339,18 +327,34 @@ export async function toggleProductVisibilityAction(
     };
   }
 
-  const { error } = await supabase
-    .from("products")
-    .update({
-      is_visible: nextIsVisible,
-    })
-    .eq("id", productId);
+  const { error } = await supabase.rpc("set_product_visibility", {
+    target_product_id: productId,
+    next_is_visible: nextIsVisible,
+  });
 
   if (error) {
-    console.error("Unable to update product visibility:", error);
+    if (
+      error.message ===
+        "Add at least one product image before showing this product." ||
+      error.message ===
+        "Add at least one in-stock variant before showing this product."
+    ) {
+      return {
+        error: error.message,
+      };
+    }
+
+    const referenceId = reportServerError({
+      operation: "admin.product.update_visibility",
+      error,
+      productId,
+    });
 
     return {
-      error: "Unable to update product visibility.",
+      error: withErrorReference(
+        "Unable to update product visibility.",
+        referenceId,
+      ),
     };
   }
 
@@ -396,10 +400,14 @@ export async function archiveProductAction(productId: number) {
     .eq("id", productId);
 
   if (error) {
-    console.error("Unable to archive product:", error);
+    const referenceId = reportServerError({
+      operation: "admin.product.archive",
+      error,
+      productId,
+    });
 
     return {
-      error: "Unable to archive product.",
+      error: withErrorReference("Unable to archive product.", referenceId),
     };
   }
 
@@ -445,10 +453,14 @@ export async function restoreProductAction(productId: number) {
     .eq("id", productId);
 
   if (error) {
-    console.error("Unable to restore product:", error);
+    const referenceId = reportServerError({
+      operation: "admin.product.restore",
+      error,
+      productId,
+    });
 
     return {
-      error: "Unable to restore product.",
+      error: withErrorReference("Unable to restore product.", referenceId),
     };
   }
 

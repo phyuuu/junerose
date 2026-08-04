@@ -4,6 +4,10 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { routes } from "@/lib/routes";
+import {
+  reportServerError,
+  withErrorReference,
+} from "@/lib/server/report-error";
 
 export type AdjustStockState = {
   error?: string;
@@ -45,22 +49,15 @@ export async function adjustProductStockAction(
   );
 
   if (error) {
-    console.error(
-      "adjust_product_stock failed:",
-      JSON.stringify(
-        {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-        },
-        null,
-        2,
-      ),
-    );
+    const referenceId = reportServerError({
+      operation: "admin.inventory.adjust",
+      error,
+      productId,
+      variantId,
+    });
 
     return {
-      error: "Unable to update stock.",
+      error: withErrorReference("Unable to update stock.", referenceId),
     };
   }
 

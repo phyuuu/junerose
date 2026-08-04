@@ -3,6 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { routes } from "@/lib/routes";
+import {
+  reportServerError,
+  withErrorReference,
+} from "@/lib/server/report-error";
 import { createClient } from "@/lib/supabase/server";
 import type { OrderStatus } from "@/types/order";
 
@@ -13,13 +17,6 @@ const ORDER_STATUSES: OrderStatus[] = [
   "ready",
   "completed",
   "cancelled",
-];
-
-const STOCK_RESERVED_STATUSES: OrderStatus[] = [
-  "confirmed",
-  "preparing",
-  "ready",
-  "completed",
 ];
 
 type UpdateOrderStatusResult = {
@@ -38,30 +35,26 @@ type DeleteOrderNoteResult = {
   error?: string;
 };
 
-type OrderStatusRow = {
-  order_number: string;
-  status: OrderStatus;
-  stock_reserved_at: string | null;
-  stock_released_at: string | null;
-};
-
-function getStockErrorMessage(
-  message: string | undefined,
-  fallback: string,
-) {
+function getKnownOrderStatusErrorMessage(message: string | undefined) {
   if (!message) {
-    return fallback;
+    return undefined;
   }
 
   if (
     message.startsWith("Not enough stock") ||
     message.startsWith("Product variant not found") ||
-    message.startsWith("Stock was already released")
+    message.startsWith("Stock was already released") ||
+    message === "Order not found." ||
+    message === "Completed orders cannot be cancelled." ||
+    message === "Cancelled orders cannot be reopened." ||
+    message ===
+      "Reserved orders cannot be moved back to pending. Cancel the order to release stock." ||
+    message === "Confirm the order before marking it completed."
   ) {
     return message;
   }
 
-  return fallback;
+  return undefined;
 }
 
 async function getOrderIdByNumber(orderNumber: string) {
@@ -74,7 +67,10 @@ async function getOrderIdByNumber(orderNumber: string) {
     .single();
 
   if (error || !order) {
-    console.error("Unable to load order:", error);
+    reportServerError({
+      operation: "admin.order.lookup_for_note",
+      error: error ?? new Error("Order lookup returned no data"),
+    });
     return null;
   }
 
@@ -106,108 +102,28 @@ export async function updateOrderStatusAction(
 
   const supabase = await createClient();
 
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .select(
-      "order_number, status, stock_reserved_at, stock_released_at",
-    )
-    .eq("order_number", normalizedOrderNumber)
-    .single();
-
-  if (orderError || !order) {
-    console.error("Unable to load order before status update:", orderError);
-
-    return {
-      error: "Order not found.",
-    };
-  }
-
-  const currentOrder = order as OrderStatusRow;
-  const shouldReserveStock =
-    STOCK_RESERVED_STATUSES.includes(status) &&
-    currentOrder.stock_reserved_at === null;
-  const shouldReleaseStock =
-    status === "cancelled" &&
-    currentOrder.stock_reserved_at !== null &&
-    currentOrder.stock_released_at === null;
-
-  if (currentOrder.status === "completed" && status === "cancelled") {
-    return {
-      error: "Completed orders cannot be cancelled.",
-    };
-  }
-
-  if (currentOrder.status === "cancelled" && status !== "cancelled") {
-    return {
-      error: "Cancelled orders cannot be reopened.",
-    };
-  }
-
-  if (status === "pending" && currentOrder.stock_reserved_at !== null) {
-    return {
-      error:
-        "Reserved orders cannot be moved back to pending. Cancel the order to release stock.",
-    };
-  }
-
-  if (status === "completed" && currentOrder.stock_reserved_at === null) {
-    return {
-      error: "Confirm the order before marking it completed.",
-    };
-  }
-
-  if (shouldReserveStock) {
-    const { error: reserveError } = await supabase.rpc(
-      "reserve_order_stock",
-      {
-        target_order_number: normalizedOrderNumber,
-      },
-    );
-
-    if (reserveError) {
-      console.error("Unable to reserve order stock:", reserveError);
-
-      return {
-        error: getStockErrorMessage(
-          reserveError.message,
-          "Unable to reserve stock. Check that all ordered items are still available.",
-        ),
-      };
-    }
-  }
-
-  if (shouldReleaseStock) {
-    const { error: releaseError } = await supabase.rpc(
-      "release_order_stock",
-      {
-        target_order_number: normalizedOrderNumber,
-      },
-    );
-
-    if (releaseError) {
-      console.error("Unable to release order stock:", releaseError);
-
-      return {
-        error: getStockErrorMessage(
-          releaseError.message,
-          "Unable to release stock for this order.",
-        ),
-      };
-    }
-  }
-
-  const { error } = await supabase
-    .from("orders")
-    .update({ status })
-    .eq("order_number", normalizedOrderNumber)
-    .select("order_number")
-    .single();
+  const { error } = await supabase.rpc("update_order_status", {
+    target_order_number: normalizedOrderNumber,
+    target_status: status,
+  });
 
   if (error) {
-    console.error("Unable to update order status:", error);
+    const knownMessage = getKnownOrderStatusErrorMessage(error.message);
+
+    if (knownMessage) {
+      return { error: knownMessage };
+    }
+
+    const referenceId = reportServerError({
+      operation: "admin.order.update_status",
+      error,
+    });
 
     return {
-      error: "Unable to update order status.",
+      error: withErrorReference(
+        "Unable to update order status.",
+        referenceId,
+      ),
     };
   }
 
@@ -258,10 +174,13 @@ export async function addOrderNoteAction(
   });
 
   if (error) {
-    console.error("Unable to add order note:", error);
+    const referenceId = reportServerError({
+      operation: "admin.order_note.add",
+      error,
+    });
 
     return {
-      error: "Unable to add note. Check order_notes permissions in Supabase.",
+      error: withErrorReference("Unable to add note.", referenceId),
     };
   }
 
@@ -315,11 +234,14 @@ export async function updateOrderNoteAction(
     .single();
 
   if (error) {
-    console.error("Unable to update order note:", error);
+    const referenceId = reportServerError({
+      operation: "admin.order_note.update",
+      error,
+      noteId,
+    });
 
     return {
-      error:
-        "Unable to update note. Check order_notes permissions in Supabase.",
+      error: withErrorReference("Unable to update note.", referenceId),
     };
   }
 
@@ -357,11 +279,14 @@ export async function deleteOrderNoteAction(
     .eq("order_id", orderLookup.orderId);
 
   if (error) {
-    console.error("Unable to delete order note:", error);
+    const referenceId = reportServerError({
+      operation: "admin.order_note.delete",
+      error,
+      noteId,
+    });
 
     return {
-      error:
-        "Unable to delete note. Check order_notes permissions in Supabase.",
+      error: withErrorReference("Unable to delete note.", referenceId),
     };
   }
 

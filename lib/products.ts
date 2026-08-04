@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { throwReportedServerError } from "@/lib/server/report-error";
 import type {
   ProductAvailability,
   ProductCategory,
@@ -23,36 +24,13 @@ type PublicProductImageRow = {
   display_order: number;
 };
 
-type OptionNameRow = {
-  name: string;
-};
-
 type PublicProductVariantRow = {
+  variant_id: number;
   product_id: number;
-  size?: string | null;
-  color?: string | null;
-  sizes?: OptionNameRow | OptionNameRow[] | null;
-  colors?: OptionNameRow | OptionNameRow[] | null;
+  size_name: string;
+  color_name: string;
+  is_available: boolean;
 };
-
-function getRelatedOptionName(
-  relation: OptionNameRow | OptionNameRow[] | null | undefined,
-  fallback?: string | null,
-): string {
-  if (Array.isArray(relation)) {
-    return relation[0]?.name ?? fallback ?? "Unknown";
-  }
-
-  return relation?.name ?? fallback ?? "Unknown";
-}
-
-function getVariantSize(variant: PublicProductVariantRow): string {
-  return getRelatedOptionName(variant.sizes, variant.size);
-}
-
-function getVariantColor(variant: PublicProductVariantRow): string {
-  return getRelatedOptionName(variant.colors, variant.color);
-}
 
 async function loadPublicProducts(): Promise<PublicProduct[]> {
   const supabase = await createClient();
@@ -60,72 +38,35 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
   const [
     { data: productRows, error: productsError },
     { data: imageRows, error: imagesError },
+    { data: variantRows, error: variantsError },
   ] = await Promise.all([
-    supabase
-      .from("public_products")
-      .select(
-        "id, slug, name, description, price_mmk, category, availability",
-      )
-      .order("id"),
-
-    supabase
-      .from("product_images")
-      .select("product_id, image_url, display_order")
-      .order("display_order"),
+    supabase.rpc("get_public_products"),
+    supabase.rpc("get_public_product_images"),
+    supabase.rpc("get_public_product_variants"),
   ]);
 
-  const {
-    data: relatedVariantRows,
-    error: relatedVariantsError,
-  } = await supabase.from("product_variants").select(
-    `
-      product_id,
-      size,
-      color,
-      sizes (
-        name
-      ),
-      colors (
-        name
-      )
-    `,
-  );
-
   if (productsError) {
-    throw new Error("Unable to load public products.");
+    throwReportedServerError({
+      operation: "customer.catalog.load_products",
+      error: productsError,
+      message: "Unable to load products.",
+    });
   }
 
   if (imagesError) {
-    throw new Error("Unable to load public product images.");
+    throwReportedServerError({
+      operation: "customer.catalog.load_images",
+      error: imagesError,
+      message: "Unable to load product images.",
+    });
   }
 
-  let variantRows = relatedVariantRows as
-    | PublicProductVariantRow[]
-    | null;
-
-  if (relatedVariantsError) {
-    console.error(
-      "Unable to load reusable public product options. Falling back to stored text options:",
-      relatedVariantsError,
-    );
-
-    const {
-      data: fallbackVariantRows,
-      error: fallbackVariantsError,
-    } = await supabase
-      .from("product_variants")
-      .select("product_id, size, color");
-
-    if (fallbackVariantsError) {
-      console.error(
-        "Unable to load fallback public product options:",
-        fallbackVariantsError,
-      );
-
-      throw new Error("Unable to load public product options.");
-    }
-
-    variantRows = fallbackVariantRows as PublicProductVariantRow[] | null;
+  if (variantsError) {
+    throwReportedServerError({
+      operation: "customer.catalog.load_variants",
+      error: variantsError,
+      message: "Unable to load product options.",
+    });
   }
 
   const products = (productRows ?? []) as PublicProductRow[];
@@ -143,19 +84,19 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
     );
 
     const sizes = [
-      ...new Set(
-        productVariants.map((variant) => getVariantSize(variant)),
-      ),
+      ...new Set(productVariants.map((variant) => variant.size_name)),
     ];
 
     const colors = [
       ...new Set(
-        productVariants.map((variant) => getVariantColor(variant)),
+        productVariants.map((variant) => variant.color_name),
       ),
     ];
     const publicVariants = productVariants.map((variant) => ({
-      size: getVariantSize(variant),
-      color: getVariantColor(variant),
+      variantId: variant.variant_id,
+      size: variant.size_name,
+      color: variant.color_name,
+      isAvailable: variant.is_available,
     }));
 
     return {

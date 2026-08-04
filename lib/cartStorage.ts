@@ -4,6 +4,33 @@ const CART_STORAGE_KEY = "junerose_cart";
 
 export const CART_STORAGE_EVENT = "junerose_cart_changed";
 
+const MAX_CART_ITEM_QUANTITY = 20;
+
+function isCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const item = value as Partial<CartItem>;
+
+  return (
+    Number.isInteger(item.variantId) &&
+    Number(item.variantId) > 0 &&
+    Number.isInteger(item.productId) &&
+    Number(item.productId) > 0 &&
+    typeof item.slug === "string" &&
+    typeof item.name === "string" &&
+    Number.isInteger(item.priceMMK) &&
+    Number(item.priceMMK) >= 0 &&
+    typeof item.image === "string" &&
+    typeof item.selectedSize === "string" &&
+    typeof item.selectedColor === "string" &&
+    Number.isInteger(item.quantity) &&
+    Number(item.quantity) > 0 &&
+    Number(item.quantity) <= MAX_CART_ITEM_QUANTITY
+  );
+}
+
 function notifyCartChanged() {
   if (typeof window === "undefined") {
     return;
@@ -13,11 +40,7 @@ function notifyCartChanged() {
 }
 
 function isSameCartItem(item: CartItem, target: CartItem) {
-  return (
-    item.productId === target.productId &&
-    item.selectedSize === target.selectedSize &&
-    item.selectedColor === target.selectedColor
-  );
+  return item.variantId === target.variantId;
 }
 
 export function getCartItems(): CartItem[] {
@@ -32,7 +55,9 @@ export function getCartItems(): CartItem[] {
   }
 
   try {
-    return JSON.parse(storedCart) as CartItem[];
+    const parsedCart: unknown = JSON.parse(storedCart);
+
+    return Array.isArray(parsedCart) ? parsedCart.filter(isCartItem) : [];
   } catch {
     return [];
   }
@@ -57,7 +82,13 @@ export function addCartItem(newItem: CartItem) {
   if (existingItemIndex >= 0) {
     const updatedItems = currentItems.map((item, index) =>
       index === existingItemIndex
-        ? { ...item, quantity: item.quantity + newItem.quantity }
+        ? {
+            ...item,
+            quantity: Math.min(
+              item.quantity + newItem.quantity,
+              MAX_CART_ITEM_QUANTITY,
+            ),
+          }
         : item,
     );
 
@@ -70,10 +101,13 @@ export function addCartItem(newItem: CartItem) {
 
 export function updateCartItemQuantity(targetItem: CartItem, quantity: number) {
   const currentItems = getCartItems();
+  const safeQuantity = Math.min(quantity, MAX_CART_ITEM_QUANTITY);
 
   const updatedItems = currentItems
     .map((item) =>
-      isSameCartItem(item, targetItem) ? { ...item, quantity } : item,
+      isSameCartItem(item, targetItem)
+        ? { ...item, quantity: safeQuantity }
+        : item,
     )
     .filter((item) => item.quantity > 0);
 

@@ -1,18 +1,26 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import {
+  reportServerError,
+  withErrorReference,
+} from "@/lib/server/report-error";
 import { createOrderRequestSchema } from "@/lib/validation/order";
-import type { OrderRequest } from "@/types/order";
+import { z } from "zod";
 
 type CreateOrderRequestResult =
   | {
       ok: true;
-      order: OrderRequest;
+      orderNumber: string;
     }
   | {
       ok: false;
       error: string;
     };
+
+const createOrderResponseSchema = z.object({
+  order_number: z.string().min(1),
+});
 
 export async function createOrderRequestAction(
   input: unknown,
@@ -27,10 +35,6 @@ export async function createOrderRequestAction(
   }
 
   const { customer, items } = parsed.data;
-  const totalMMK = items.reduce(
-    (total, item) => total + item.priceMMK * item.quantity,
-    0,
-  );
 
   const supabase = await createClient();
 
@@ -41,51 +45,53 @@ export async function createOrderRequestAction(
     order_preferred_contact: customer.preferredContact,
     order_customer_note: customer.note ?? null,
     order_items: items.map((item) => ({
-      product_id: item.productId,
-      product_slug: item.slug,
-      product_name: item.name,
-      unit_price_mmk: item.priceMMK,
-      image_url: item.image,
-      selected_size: item.selectedSize,
-      selected_color: item.selectedColor,
+      variant_id: item.variantId,
       quantity: item.quantity,
     })),
   });
 
   if (error || !data) {
-    console.error("Unable to create order request:", error);
+    if (error?.message === "Too many order requests for this phone number.") {
+      return {
+        ok: false,
+        error:
+          "Too many recent order requests. Please wait before trying again or contact JuneRose staff.",
+      };
+    }
+
+    const referenceId = reportServerError({
+      operation: "customer.order.create",
+      error: error ?? new Error("Order creation returned no data"),
+    });
 
     return {
       ok: false,
-      error: "Unable to send order request. Please try again.",
+      error: withErrorReference(
+        "Unable to send order request. Please try again.",
+        referenceId,
+      ),
     };
   }
 
-  const orderNumber =
-    typeof data === "string"
-      ? data
-      : Array.isArray(data)
-        ? data[0]?.order_number
-        : data.order_number;
+  const createdOrder = createOrderResponseSchema.safeParse(data);
 
-  if (!orderNumber || typeof orderNumber !== "string") {
-    console.error("Unexpected order request response:", data);
+  if (!createdOrder.success) {
+    const referenceId = reportServerError({
+      operation: "customer.order.parse_response",
+      error: createdOrder.error,
+    });
 
     return {
       ok: false,
-      error: "Unable to send order request. Please try again.",
+      error: withErrorReference(
+        "Unable to send order request. Please try again.",
+        referenceId,
+      ),
     };
   }
 
   return {
     ok: true,
-    order: {
-      orderNumber,
-      customer,
-      items,
-      totalMMK,
-      status: "pending",
-      createdAt: new Date().toISOString(),
-    },
+    orderNumber: createdOrder.data.order_number,
   };
 }

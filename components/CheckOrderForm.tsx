@@ -2,7 +2,10 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { findCustomerOrder } from "@/lib/customer-orders";
+import {
+  findCustomerOrder,
+  OrderLookupRateLimitError,
+} from "@/lib/customer-orders";
 import { formatMMK } from "@/lib/formatPrice";
 import type { OrderRequest } from "@/types/order";
 
@@ -31,8 +34,12 @@ export default function CheckOrderForm() {
       }
 
       setFoundOrder(order);
-    } catch {
-      setErrorMessage("Unable to check order. Please try again.");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof OrderLookupRateLimitError
+          ? "Too many incorrect attempts. Please wait 15 minutes before trying again."
+          : "Unable to check order. Please try again.",
+      );
     } finally {
       setIsChecking(false);
     }
@@ -54,9 +61,13 @@ export default function CheckOrderForm() {
 
         <div className="mt-5 space-y-4">
           <div>
-            <label className="text-sm font-medium">Order Number</label>
+            <label htmlFor="check-order-number" className="text-sm font-medium">
+              Order Number
+            </label>
             <input
+              id="check-order-number"
               required
+              maxLength={40}
               value={orderNumber}
               onChange={(event) => setOrderNumber(event.target.value)}
               placeholder="Example: JR-..."
@@ -65,9 +76,15 @@ export default function CheckOrderForm() {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Phone Number</label>
+            <label htmlFor="check-order-phone" className="text-sm font-medium">
+              Phone Number
+            </label>
             <input
+              id="check-order-phone"
               required
+              inputMode="tel"
+              autoComplete="tel"
+              maxLength={30}
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
               placeholder="Phone used in the order"

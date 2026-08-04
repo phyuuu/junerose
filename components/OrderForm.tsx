@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createOrderRequestAction } from "@/app/order/actions";
 import { clearCart } from "@/lib/cartStorage";
 import { formatMMK } from "@/lib/formatPrice";
-import { saveOrder } from "@/lib/orderStorage";
+import { saveRecentOrderAccess } from "@/lib/orderStorage";
 import { useCartItems } from "@/hooks/useCartItems";
 import { routes } from "@/lib/routes";
 import type { CustomerContactInfo } from "@/types/order";
@@ -61,10 +61,10 @@ export default function OrderForm() {
       return;
     }
 
-    saveOrder(result.order);
+    saveRecentOrderAccess(result.orderNumber, customer.phone.trim());
     clearCart();
 
-    router.push(routes.orderSuccess(result.order.orderNumber));
+    router.push(routes.orderSuccess(result.orderNumber));
   }
 
   if (cartItems.length === 0) {
@@ -91,9 +91,13 @@ export default function OrderForm() {
 
         <div className="mt-5 space-y-4">
           <div>
-            <label className="text-sm font-medium">Name</label>
+            <label htmlFor="order-name" className="text-sm font-medium">
+              Name
+            </label>
             <input
+              id="order-name"
               required
+              autoComplete="name"
               value={customer.name}
               onChange={(event) => updateCustomerField("name", event.target.value)}
               className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
@@ -101,9 +105,15 @@ export default function OrderForm() {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Phone</label>
+            <label htmlFor="order-phone" className="text-sm font-medium">
+              Phone
+            </label>
             <input
+              id="order-phone"
               required
+              inputMode="tel"
+              autoComplete="tel"
+              maxLength={30}
               value={customer.phone}
               onChange={(event) => updateCustomerField("phone", event.target.value)}
               className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
@@ -111,9 +121,13 @@ export default function OrderForm() {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Address / Township</label>
+            <label htmlFor="order-address" className="text-sm font-medium">
+              Address / Township
+            </label>
             <textarea
+              id="order-address"
               required
+              autoComplete="street-address"
               value={customer.address}
               onChange={(event) =>
                 updateCustomerField("address", event.target.value)
@@ -124,8 +138,11 @@ export default function OrderForm() {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Preferred Contact</label>
+            <label htmlFor="order-contact" className="text-sm font-medium">
+              Preferred Contact
+            </label>
             <select
+              id="order-contact"
               value={customer.preferredContact}
               onChange={(event) =>
                 updateCustomerField(
@@ -142,8 +159,11 @@ export default function OrderForm() {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Note</label>
+            <label htmlFor="order-note" className="text-sm font-medium">
+              Note
+            </label>
             <textarea
+              id="order-note"
               value={customer.note}
               onChange={(event) => updateCustomerField("note", event.target.value)}
               rows={3}

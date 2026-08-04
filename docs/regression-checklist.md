@@ -1,0 +1,66 @@
+# JuneRose Regression Checklist
+
+Use a dedicated test product and customer details that are not real personal
+data. Check desktop and a narrow mobile viewport.
+
+## Customer workflow
+
+- [ ] Home and catalog load visible products without exposing exact stock.
+- [ ] Category filters show the correct products.
+- [ ] Product galleries, main images, and navigation arrows work.
+- [ ] Only real size/color combinations can be selected.
+- [ ] Unavailable colors remain visible and disabled.
+- [ ] Sold-out variants cannot be added to the cart.
+- [ ] Cart add, quantity change, item removal, and total calculation work.
+- [ ] An empty cart blocks order submission.
+- [ ] Contact validation rejects missing or invalid values.
+- [ ] Order creation ignores browser prices and returns a new order number.
+- [ ] The success page shows details after the immediate redirect.
+- [ ] Opening the success URL without access requires phone verification.
+- [ ] Order lookup fails when either order number or phone is wrong.
+- [ ] Order lookup succeeds when both values match.
+- [ ] Customer pages have no horizontal overflow or browser console errors.
+
+## Admin authentication and privacy
+
+- [ ] An unauthenticated user is redirected to `/admin/login`.
+- [ ] A valid Auth user without an active `staff_users` row is denied.
+- [ ] Active staff can sign in and sign out.
+- [ ] Customer pages never display product codes, exact quantities, staff notes,
+      customer lists, or inventory history.
+- [ ] Admin failures show safe messages and reference IDs without database detail.
+
+## Product and inventory workflow
+
+- [ ] Staff can create a hidden draft product.
+- [ ] Duplicate product code/slug and duplicate variants are rejected safely.
+- [ ] Staff can edit product information and add size/color variants.
+- [ ] Image upload validates file type and the 5 MB limit.
+- [ ] Staff can change the main image and delete a non-required image.
+- [ ] A product without an image cannot be published.
+- [ ] A product without an in-stock variant cannot be published.
+- [ ] Archive removes a product from the catalog; restore keeps it hidden.
+- [ ] Manual stock adjustment updates quantity and inventory history once.
+- [ ] Reusable size/color options can be sorted and deactivated safely.
+
+## Order and stock workflow
+
+- [ ] Order search, status, date, sorting, reset, and pagination work together.
+- [ ] Choosing a date applies immediately; search and status wait for Apply.
+- [ ] Order details show immutable item snapshots and customer information.
+- [ ] Internal notes can be added, edited, and deleted by staff only.
+- [ ] Pending to confirmed reserves stock exactly once.
+- [ ] Confirmed/preparing/ready/completed transitions do not reserve twice.
+- [ ] Cancelling a reserved order releases stock exactly once.
+- [ ] Cancelling a pending order does not change stock.
+- [ ] Invalid status transitions show a business-safe message.
+- [ ] Reserve, release, and manual changes appear in inventory history.
+
+## Final technical checks
+
+- [ ] `npm run check` passes.
+- [ ] `npm run build` passes.
+- [ ] `npm audit` is reviewed.
+- [ ] Required security headers are present on a production response.
+- [ ] Supabase Security Advisor is reviewed after migrations.
+- [ ] No unexpected personal data appears in browser or server logs.

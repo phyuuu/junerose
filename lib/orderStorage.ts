@@ -1,52 +1,69 @@
-import type { OrderRequest } from "@/types/order";
+const LEGACY_ORDER_STORAGE_KEY = "junerose_orders";
+const RECENT_ORDER_ACCESS_KEY = "junerose_recent_order_access";
+const ACCESS_LIFETIME_MS = 10 * 60 * 1000;
 
-const ORDER_STORAGE_KEY = "junerose_orders";
+type RecentOrderAccess = {
+  orderNumber: string;
+  phone: string;
+  expiresAt: number;
+};
 
-export const ORDER_STORAGE_EVENT = "junerose_orders_changed";
-
-function notifyOrdersChanged() {
+export function clearLegacyOrderStorage() {
   if (typeof window === "undefined") {
     return;
   }
 
-  window.dispatchEvent(new Event(ORDER_STORAGE_EVENT));
+  window.localStorage.removeItem(LEGACY_ORDER_STORAGE_KEY);
 }
 
-export function getOrders(): OrderRequest[] {
+export function saveRecentOrderAccess(orderNumber: string, phone: string) {
   if (typeof window === "undefined") {
-    return [];
+    return;
   }
 
-  const storedOrders = window.localStorage.getItem(ORDER_STORAGE_KEY);
+  clearLegacyOrderStorage();
 
-  if (!storedOrders) {
-    return [];
+  const access: RecentOrderAccess = {
+    orderNumber,
+    phone,
+    expiresAt: Date.now() + ACCESS_LIFETIME_MS,
+  };
+
+  window.sessionStorage.setItem(
+    RECENT_ORDER_ACCESS_KEY,
+    JSON.stringify(access),
+  );
+}
+
+export function consumeRecentOrderPhone(orderNumber: string): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  clearLegacyOrderStorage();
+
+  const storedAccess = window.sessionStorage.getItem(RECENT_ORDER_ACCESS_KEY);
+  window.sessionStorage.removeItem(RECENT_ORDER_ACCESS_KEY);
+
+  if (!storedAccess) {
+    return null;
   }
 
   try {
-    return JSON.parse(storedOrders) as OrderRequest[];
+    const access = JSON.parse(storedAccess) as Partial<RecentOrderAccess>;
+
+    if (
+      access.orderNumber !== orderNumber ||
+      typeof access.phone !== "string" ||
+      !access.phone ||
+      typeof access.expiresAt !== "number" ||
+      access.expiresAt < Date.now()
+    ) {
+      return null;
+    }
+
+    return access.phone;
   } catch {
-    return [];
+    return null;
   }
-}
-
-export function saveOrder(order: OrderRequest) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const currentOrders = getOrders();
-
-  window.localStorage.setItem(
-    ORDER_STORAGE_KEY,
-    JSON.stringify([...currentOrders, order]),
-  );
-
-  notifyOrdersChanged();
-}
-
-export function getOrderByNumber(
-  orderNumber: string,
-): OrderRequest | undefined {
-  return getOrders().find((order) => order.orderNumber === orderNumber);
 }

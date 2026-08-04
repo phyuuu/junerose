@@ -13,7 +13,6 @@ type ProductFormValues = {
   priceMMK: string;
   category: string;
   availability: string;
-  isVisible: boolean;
 };
 
 const initialState: UpdateProductInfoState = {};
@@ -26,7 +25,6 @@ const initialProductValues: ProductFormValues = {
   priceMMK: "",
   category: "Women",
   availability: "Available",
-  isVisible: true,
 };
 
 const inputClassName =
@@ -233,19 +231,6 @@ export default function AdminProductCreateForm() {
             <option value="Ask staff">Ask staff</option>
           </select>
         </div>
-
-        <label className="flex items-center gap-3 text-sm">
-          <input
-            name="isVisible"
-            type="checkbox"
-            checked={productValues.isVisible}
-            onChange={(event) =>
-              updateProductValue("isVisible", event.target.checked)
-            }
-          />
-
-          Visible on customer catalog
-        </label>
 
         <AdminProductSaveButton
           idleLabel="Save product"

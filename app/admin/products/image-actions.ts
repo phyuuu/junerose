@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { routes } from "@/lib/routes";
+import {
+  reportServerError,
+  withErrorReference,
+} from "@/lib/server/report-error";
 import { createClient } from "@/lib/supabase/server";
 
 const productImagesBucket = "product-images";
@@ -23,6 +27,32 @@ function redirectToProductImages(
     `${routes.adminProductEdit(productId)}?imageMessage=${encodeURIComponent(
       message,
     )}`,
+  );
+}
+
+function failProductImageAction({
+  operation,
+  error,
+  productId,
+  imageId,
+  message,
+}: {
+  operation: string;
+  error: unknown;
+  productId: number;
+  imageId?: number;
+  message: string;
+}): never {
+  const referenceId = reportServerError({
+    operation,
+    error,
+    productId,
+    imageId,
+  });
+
+  redirectToProductImages(
+    productId,
+    withErrorReference(message, referenceId),
   );
 }
 
@@ -56,7 +86,7 @@ async function getProductForImageAction(productId: number) {
 
   const { data: product, error } = await supabase
     .from("products")
-    .select("id, slug")
+    .select("id, slug, is_visible")
     .eq("id", productId)
     .is("deleted_at", null)
     .single();
@@ -93,7 +123,11 @@ async function resequenceProductImages(productId: number) {
     .order("id");
 
   if (error) {
-    console.error("Unable to resequence product images:", error);
+    reportServerError({
+      operation: "admin.product_image.resequence",
+      error,
+      productId,
+    });
     return;
   }
 
@@ -169,8 +203,12 @@ export async function uploadProductImageAction(formData: FormData) {
     .eq("product_id", productId);
 
   if (countError) {
-    console.error("Unable to count product images:", countError);
-    redirectToProductImages(productId, "Unable to upload product image.");
+    failProductImageAction({
+      operation: "admin.product_image.count_for_upload",
+      error: countError,
+      productId,
+      message: "Unable to upload product image.",
+    });
   }
 
   const extension = getFileExtension(productImageFile);
@@ -184,8 +222,12 @@ export async function uploadProductImageAction(formData: FormData) {
     });
 
   if (uploadError) {
-    console.error("Unable to upload product image:", uploadError);
-    redirectToProductImages(productId, "Unable to upload product image.");
+    failProductImageAction({
+      operation: "admin.product_image.upload_file",
+      error: uploadError,
+      productId,
+      message: "Unable to upload product image.",
+    });
   }
 
   const { data: publicUrlData } = supabase.storage
@@ -201,8 +243,12 @@ export async function uploadProductImageAction(formData: FormData) {
     });
 
   if (imageInsertError) {
-    console.error("Unable to save product image record:", imageInsertError);
-    redirectToProductImages(productId, "Unable to save product image.");
+    failProductImageAction({
+      operation: "admin.product_image.create_record",
+      error: imageInsertError,
+      productId,
+      message: "Unable to save product image.",
+    });
   }
 
   await revalidateProductImagePaths(productId, product.slug);
@@ -237,6 +283,28 @@ export async function deleteProductImageAction(formData: FormData) {
     redirectToProductImages(productId, "Product image not found.");
   }
 
+  const { count: imageCount, error: imageCountError } = await supabase
+    .from("product_images")
+    .select("id", { count: "exact", head: true })
+    .eq("product_id", productId);
+
+  if (imageCountError) {
+    failProductImageAction({
+      operation: "admin.product_image.count_for_delete",
+      error: imageCountError,
+      productId,
+      imageId,
+      message: "Unable to delete product image.",
+    });
+  }
+
+  if (product.is_visible && (imageCount ?? 0) <= 1) {
+    redirectToProductImages(
+      productId,
+      "Hide this product before deleting its only image.",
+    );
+  }
+
   const storagePath = getStoragePathFromPublicUrl(image.image_url);
 
   if (storagePath) {
@@ -245,8 +313,13 @@ export async function deleteProductImageAction(formData: FormData) {
       .remove([storagePath]);
 
     if (removeError) {
-      console.error("Unable to delete product image file:", removeError);
-      redirectToProductImages(productId, "Unable to delete product image.");
+      failProductImageAction({
+        operation: "admin.product_image.delete_file",
+        error: removeError,
+        productId,
+        imageId,
+        message: "Unable to delete product image.",
+      });
     }
   }
 
@@ -257,8 +330,13 @@ export async function deleteProductImageAction(formData: FormData) {
     .eq("product_id", productId);
 
   if (deleteError) {
-    console.error("Unable to delete product image record:", deleteError);
-    redirectToProductImages(productId, "Unable to delete product image.");
+    failProductImageAction({
+      operation: "admin.product_image.delete_record",
+      error: deleteError,
+      productId,
+      imageId,
+      message: "Unable to delete product image.",
+    });
   }
 
   await resequenceProductImages(productId);
@@ -291,8 +369,13 @@ export async function setMainProductImageAction(formData: FormData) {
     .order("id");
 
   if (error) {
-    console.error("Unable to load product images for ordering:", error);
-    redirectToProductImages(productId, "Unable to update main image.");
+    failProductImageAction({
+      operation: "admin.product_image.load_for_main",
+      error,
+      productId,
+      imageId,
+      message: "Unable to update main image.",
+    });
   }
 
   const imageIds = (images ?? []).map((image) => image.id);
@@ -331,11 +414,13 @@ export async function setMainProductImageAction(formData: FormData) {
   )?.error;
 
   if (temporaryOrderError) {
-    console.error(
-      "Unable to prepare main product image update:",
-      temporaryOrderError,
-    );
-    redirectToProductImages(productId, "Unable to update main image.");
+    failProductImageAction({
+      operation: "admin.product_image.prepare_main",
+      error: temporaryOrderError,
+      productId,
+      imageId,
+      message: "Unable to update main image.",
+    });
   }
 
   const finalOrderResults = await Promise.all(
@@ -353,8 +438,13 @@ export async function setMainProductImageAction(formData: FormData) {
   const updateError = finalOrderResults.find((result) => result.error)?.error;
 
   if (updateError) {
-    console.error("Unable to update main product image:", updateError);
-    redirectToProductImages(productId, "Unable to update main image.");
+    failProductImageAction({
+      operation: "admin.product_image.update_main",
+      error: updateError,
+      productId,
+      imageId,
+      message: "Unable to update main image.",
+    });
   }
 
   await revalidateProductImagePaths(productId, product.slug);

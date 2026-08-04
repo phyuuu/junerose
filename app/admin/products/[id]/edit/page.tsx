@@ -9,6 +9,8 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import AdminInventoryAdjustmentPanel from "@/components/AdminInventoryAdjustmentPanel";
 import AdminProductImagePanel from "@/components/AdminProductImagePanel";
 import AdminProductVariantPanel from "@/components/AdminProductVariantPanel";
+import AdminProductVisibilityButton from "@/components/AdminProductVisibilityButton";
+import AdminStatusBadge from "@/components/AdminStatusBadge";
 
 
 type AdminProductEditPageProps = {
@@ -60,6 +62,18 @@ export default async function AdminProductEditPage({
             Changes saved successfully.
           </p>
         )}
+
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <AdminStatusBadge
+            label={product.isVisible ? "Visible" : "Hidden"}
+            tone={product.isVisible ? "green" : "gray"}
+          />
+          <AdminProductVisibilityButton
+            productId={product.id}
+            isVisible={product.isVisible}
+            productName={product.name}
+          />
+        </div>
 
         <div className="mt-8">
           <AdminProductInfoForm product={product} />

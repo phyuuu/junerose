@@ -1,159 +1,120 @@
 # JuneRose Architecture
 
-JuneRose is a catalog-based e-commerce website for a physical retail shop.
+## System Purpose
 
-The website allows customers to browse products, add items to cart, and submit an order request. It does not process online payments. Payment and final confirmation are handled manually by staff.
+JuneRose is a catalog-based e-commerce application for a physical store. It
+implements product, cart, order, inventory, and staff workflows while keeping
+payment and final delivery arrangements outside the website.
 
-## Main Design Goals
+## Trust Boundaries
 
-- Keep the customer experience simple and elegant.
-- Allow customers to browse products like an online shop.
-- Generate an order number after order request submission.
-- Let staff later search and manage orders by order number.
-- Separate public customer data from private staff/internal data.
-- Keep the codebase clean and portfolio-quality.
+The browser is not trusted. Cart values, product prices, variant IDs, order
+numbers, and customer-supplied text must be validated by the server or database.
 
-## Public Customer Pages
+Public users receive only catalog fields required for shopping. Exact stock,
+internal product codes, customer details, staff membership, inventory history,
+and internal notes stay behind authenticated staff access.
 
-These pages are visible to customers:
+## Application Layers
 
-- `/`
-- `/catalog`
-- `/product/[slug]`
-- `/cart`
-- `/order`
-- `/order-success/[orderNumber]`
+### Presentation
 
-Customers can see:
+- `app/` contains App Router pages, layouts, error boundaries, and server actions.
+- `components/` contains customer and admin interface components.
+- Customer and admin shells provide separate navigation and error experiences.
 
-- Product name
-- Product image
-- Selling price
-- Category
-- Available sizes
-- Available colors
-- Cart items
-- Order number
-- Their own submitted order summary
+### Application and validation
 
-Customers must not see:
+- `lib/validation/` validates customer and admin inputs.
+- Server actions require staff authorization before admin writes.
+- Customer order submission sends only variant IDs and quantities to the
+  database; browser-provided names and prices are not authoritative.
+- `lib/server/report-error.ts` records redacted server errors with reference IDs.
 
-- Internal product code
-- Cost price
-- Supplier information
-- Exact stock quantity
-- Staff notes
-- Admin order management data
+### Data access
 
-## Admin Pages
+- `lib/products.ts` uses public-safe database functions for catalog reads.
+- `lib/admin-*.ts` contains server-only staff data loaders.
+- `lib/supabase/` creates browser, server, and proxy Supabase clients.
+- `lib/env.ts` validates the required public Supabase configuration once.
 
-These pages are for staff:
+### Database
 
-- `/admin`
-- `/admin/orders`
-- `/admin/products`
+- PostgreSQL tables store products, variants, images, orders, order snapshots,
+  inventory adjustments, staff membership, notes, and lookup rate limits.
+- Row Level Security is enabled on application tables.
+- Public access is limited to explicitly granted database functions.
+- Staff authorization combines Supabase Auth with an active `staff_users` row.
+- Security-definer functions perform sensitive multi-table transactions.
 
-Admin pages will later be protected by login.
+## Main Workflows
 
-Until authentication is added, real private business data should not be displayed on admin pages in production.
+### Public catalog
 
-## Data Exposure Rule
+1. A server component calls the public product, image, and variant functions.
+2. The functions return only visible, non-archived, customer-safe data.
+3. Exact quantities and internal product codes are never returned.
+4. Product availability is derived from current variant stock.
 
-The project separates product data into two layers:
+### Order request
 
-### InternalProduct
+1. The browser validates the contact form and cart shape.
+2. A server action validates the request again with Zod.
+3. `create_order_request` validates visible products, variants, quantities, and
+   current prices inside PostgreSQL.
+4. The function creates the order and immutable item snapshots atomically.
+5. The customer receives an order number, but stock is not reserved yet.
 
-Used for staff/admin/business logic.
+### Customer order lookup
 
-May contain:
+1. The customer supplies both order number and phone number.
+2. `find_order_request` rate-limits attempts and requires both values to match.
+3. Full details are returned only after successful verification.
+4. A new order success page may consume one short-lived session value once;
+   complete orders are never persisted in browser local storage.
 
-- Internal product code
-- Staff-only product fields
-- Future supplier/cost/stock data
+### Admin authorization
 
-### PublicProduct
+1. The session proxy refreshes Supabase authentication cookies.
+2. Protected pages and actions call `requireAdmin()` on the server.
+3. The guard requires valid claims and `current_user_is_active_staff() = true`.
+4. Database RLS and function checks enforce the same boundary below the UI.
 
-Used for customer-facing pages.
+### Order status and inventory
 
-Contains only safe public data:
+1. Staff submits a target status from the protected order detail page.
+2. `update_order_status` validates the transition.
+3. Entering confirmed, preparing, ready, or completed reserves stock once.
+4. Cancelling a reserved order releases stock once.
+5. Stock changes and inventory history are written in the same transaction.
 
-- Product id
-- Slug
-- Name
-- Price
-- Category
-- Image
-- Sizes
-- Colors
+### Product publishing
 
-Customer pages should use `PublicProduct`, not `InternalProduct`.
+1. New and restored products remain hidden.
+2. Staff adds product information, images, and variants.
+3. Database publication checks require an image and an in-stock variant.
+4. Archived products are removed from public catalog functions.
 
-## Folder Structure
+## Browser Storage
 
-```txt
-app/          Pages and routes
-components/   Reusable UI components
-data/         Temporary product/category data
-types/        TypeScript data shapes
-lib/          Business/helper logic
-public/       Static images
-docs/         Project documentation
+- `localStorage` contains cart selections only.
+- Legacy locally stored orders are removed automatically.
+- `sessionStorage` may briefly contain order number and phone access for the
+  immediate success-page redirect; it expires after ten minutes and is consumed
+  once.
 
+## Error and Privacy Model
 
- ## Product Image Upload Plan
+- Customer error screens never display database errors.
+- Unexpected failures receive a reference ID for server-log correlation.
+- Server logs contain operation names, technical error codes, and safe internal
+  IDs only. They exclude names, phones, addresses, order numbers, and note text.
+- No service-role key is used by the Next.js application.
 
-During the early prototype stage, product images are stored manually in `public/products`
-and referenced from `data/products.ts`.
+## Deliberate Boundaries
 
-Later, when database and admin authentication are added, images should be uploaded
-from the admin website instead of manually adding files to the project.
-
-Planned flow:
-
-1. Admin selects one or more image files in the product form.
-2. The admin UI sends the files to a protected upload API route.
-3. The upload API validates that the user is an admin.
-4. The upload API validates the image type and size.
-5. The image is uploaded to external storage.
-6. The storage provider returns a public image URL.
-7. The product record stores the image URLs in `images: string[]`.
-8. Customer pages receive only public-safe image URLs.
-
-Customer-safe product data may include:
-- name
-- slug
-- price
-- description
-- category
-- images
-- public availability status
-
-Admin-only data must not be exposed publicly:
-- product code
-- exact stock
-- supplier
-- cost price
-- staff notes
-
-
-## Stock Variant Plan
-
-The early prototype currently has a simple `stockQty` field on `InternalProduct`.
-
-This is useful for a temporary admin table, but it is not detailed enough for real product management because JuneRose products can have different stock quantities by size and color.
-
-Example:
-
-- Soft Cotton Set / S / Ivory = 5 pieces
-- Soft Cotton Set / M / Ivory = 8 pieces
-- Soft Cotton Set / S / Black = 5 pieces
-- Soft Cotton Set / M / Black = 12 pieces
-
-Planned future structure:
-
-```ts
-stockItems: {
-  size: string;
-  color: string;
-  quantity: number;
-}[];
+- There is no online payment provider.
+- There is no public customer account system.
+- Internal notes are the staff explanation surface; a second general activity
+  panel is not added unless multi-staff auditing becomes a real requirement.
+- Inventory adjustments already provide the audit history for stock changes.

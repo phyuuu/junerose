@@ -70,6 +70,7 @@ export default function CartView() {
               <button
                 type="button"
                 onClick={() => handleQuantityChange(item, item.quantity - 1)}
+                aria-label={`Decrease ${item.name} quantity`}
                 className="h-8 w-8 rounded-full border border-[#d6c4aa] text-sm hover:border-[#9c7a4f]"
               >
                 −
@@ -80,7 +81,9 @@ export default function CartView() {
               <button
                 type="button"
                 onClick={() => handleQuantityChange(item, item.quantity + 1)}
-                className="h-8 w-8 rounded-full border border-[#d6c4aa] text-sm hover:border-[#9c7a4f]"
+                disabled={item.quantity >= 20}
+                aria-label={`Increase ${item.name} quantity`}
+                className="h-8 w-8 rounded-full border border-[#d6c4aa] text-sm hover:border-[#9c7a4f] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 +
               </button>

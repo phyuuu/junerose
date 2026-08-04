@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JuneRose
 
-## Getting Started
+JuneRose is a functional catalog and order-request website for a physical
+retail shop in Myanmar. Customers can browse products, choose real size/color
+variants, manage a cart, and submit an order request. Staff confirm payment,
+pickup, or delivery outside the website; the application intentionally does
+not process online payments.
 
-First, run the development server:
+## Current Features
+
+### Customer
+
+- Public catalog backed by privacy-safe Supabase functions
+- Product galleries and valid size/color selection
+- Browser cart with quantity limits
+- Database-authoritative order creation and totals
+- Order lookup using both order number and phone number
+- Protected success details with short-lived, one-time browser access
+- Public order submission and lookup rate limits
+
+### Admin
+
+- Supabase Auth and active-staff authorization
+- Product creation, editing, publishing, archiving, and restoration
+- Reusable size and color management
+- Product image management through Supabase Storage
+- Variant-level stock adjustments and inventory history
+- Searchable, filterable, sortable, paginated orders
+- Atomic order status transitions with stock reservation and release
+- Private order notes with edit and delete support
+
+## Technology
+
+- Next.js 16 App Router
+- React 19 and TypeScript
+- Tailwind CSS 4
+- Supabase PostgreSQL, Auth, and Storage
+- `@supabase/ssr`
+- Zod validation
+- Vitest and GitHub Actions
+
+## Local Setup
+
+Requirements: Node.js 20.9 or newer and access to a Supabase project.
+
+1. Install the locked dependencies:
+
+   ```bash
+   npm ci
+   ```
+
+2. Create the local environment file:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+3. Add the Supabase project URL and publishable key to `.env.local`.
+   Never use a Supabase service-role key in this application.
+
+4. Prepare the database by following [supabase/README.md](supabase/README.md).
+
+5. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000).
+
+Required environment variables are validated when Next.js loads. A missing or
+invalid value stops the application with the variable name, without printing
+secret values.
+
+## Quality Checks
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run check
+npm run build
+npm audit
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`npm run check` runs ESLint, TypeScript, and the Vitest suite. The same check is
+also configured in GitHub Actions.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Database Changes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The executable schema history is in `supabase/migrations`. Apply migrations in
+filename order for a fresh project. The existing hosted JuneRose database has
+special baseline instructions in [supabase/README.md](supabase/README.md).
 
-## Learn More
+Files under `docs/*.sql` are supporting/reference SQL, not the canonical fresh
+database history. New database changes should be added as a new migration and
+committed with the application code that depends on them.
 
-To learn more about Next.js, take a look at the following resources:
+## Documentation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Architecture](docs/architecture.md)
+- [Database design](docs/database-plan.md)
+- [Deployment checklist](docs/deployment-checklist.md)
+- [Regression checklist](docs/regression-checklist.md)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Payment Boundary
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+JuneRose records order requests, reserves inventory after staff confirmation,
+and supports the operational workflow of a real shop. Payment collection and
+customer communication remain manual business processes outside this system.

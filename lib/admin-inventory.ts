@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { throwReportedServerError } from "@/lib/server/report-error";
 import type { InventoryAdjustment } from "@/types/inventory";
 
 export type InventoryAdjustmentHistoryItem = {
@@ -47,7 +48,12 @@ export async function getInventoryAdjustments(
     });
 
   if (error) {
-    throw new Error("Unable to load inventory history.");
+    throwReportedServerError({
+      operation: "admin.inventory.load_variant_history",
+      error,
+      variantId,
+      message: "Unable to load inventory history.",
+    });
   }
 
   return data.map((item) => ({
@@ -86,8 +92,11 @@ export async function getAllInventoryAdjustments(): Promise<
     });
 
   if (error) {
-    console.error("Unable to load inventory history:", error);
-    throw new Error("Unable to load inventory history.");
+    throwReportedServerError({
+      operation: "admin.inventory.load_all_history",
+      error,
+      message: "Unable to load inventory history.",
+    });
   }
 
   const rows = data as unknown as InventoryHistoryRow[];

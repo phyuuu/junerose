@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { throwReportedServerError } from "@/lib/server/report-error";
 import type { AdminOrderNote } from "@/types/order";
 
 type OrderNoteRow = {
@@ -20,8 +21,15 @@ export async function getAdminOrderNotes(
     .eq("order_number", orderNumber)
     .maybeSingle();
 
-  if (orderError || !order) {
-    console.error("Unable to load order for notes:", orderError);
+  if (orderError) {
+    throwReportedServerError({
+      operation: "admin.order_note.load_order",
+      error: orderError,
+      message: "Unable to load order notes.",
+    });
+  }
+
+  if (!order) {
     return [];
   }
 
@@ -32,8 +40,11 @@ export async function getAdminOrderNotes(
     .order("created_at", { ascending: false });
 
   if (notesError) {
-    console.error("Unable to load admin order notes:", notesError);
-    return [];
+    throwReportedServerError({
+      operation: "admin.order_note.load_list",
+      error: notesError,
+      message: "Unable to load order notes.",
+    });
   }
 
   return ((notesData ?? []) as OrderNoteRow[]).map((note) => ({

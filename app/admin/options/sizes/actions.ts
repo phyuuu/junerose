@@ -4,10 +4,17 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { createClient } from "@/lib/supabase/server";
+import {
+  reportServerError,
+  withErrorReference,
+} from "@/lib/server/report-error";
 
 const sizesPath = "/admin/options/sizes";
 
-function redirectWithMessage(type: "error" | "saved", message?: string) {
+function redirectWithMessage(
+  type: "error" | "saved",
+  message?: string,
+): never {
   if (type === "saved") {
     redirect(
       `${sizesPath}?saved=${encodeURIComponent(
@@ -21,6 +28,21 @@ function redirectWithMessage(type: "error" | "saved", message?: string) {
       message ?? "Unable to save size.",
     )}`,
   );
+}
+
+function failSizeAction(
+  operation: string,
+  error: unknown,
+  message: string,
+  sizeId?: number,
+): never {
+  const referenceId = reportServerError({
+    operation,
+    error,
+    sizeId,
+  });
+
+  redirectWithMessage("error", withErrorReference(message, referenceId));
 }
 
 export async function createSizeAction(formData: FormData) {
@@ -49,9 +71,9 @@ export async function createSizeAction(formData: FormData) {
     .maybeSingle();
 
   if (existingSizeError) {
-    console.error("Unable to check existing sizes:", existingSizeError);
-    redirectWithMessage(
-      "error",
+    failSizeAction(
+      "admin.size.check_duplicate",
+      existingSizeError,
       "Unable to check whether this size already exists.",
     );
   }
@@ -67,8 +89,7 @@ export async function createSizeAction(formData: FormData) {
   });
 
   if (error) {
-    console.error("Unable to create size:", error);
-    redirectWithMessage("error", "Unable to create size.");
+    failSizeAction("admin.size.create", error, "Unable to create size.");
   }
 
   revalidatePath(sizesPath);
@@ -95,8 +116,12 @@ export async function deleteSizeAction(formData: FormData) {
     .eq("size_id", sizeId);
 
   if (usageError) {
-    console.error("Unable to check size usage:", usageError);
-    redirectWithMessage("error", "Unable to check whether this size is used.");
+    failSizeAction(
+      "admin.size.check_usage",
+      usageError,
+      "Unable to check whether this size is used.",
+      sizeId,
+    );
   }
 
   if ((count ?? 0) > 0) {
@@ -112,8 +137,7 @@ export async function deleteSizeAction(formData: FormData) {
     .eq("id", sizeId);
 
   if (error) {
-    console.error("Unable to delete size:", error);
-    redirectWithMessage("error", "Unable to delete size.");
+    failSizeAction("admin.size.delete", error, "Unable to delete size.", sizeId);
   }
 
   revalidatePath(sizesPath);
@@ -146,8 +170,12 @@ export async function updateSizeSortOrderAction(formData: FormData) {
     .eq("id", sizeId);
 
   if (error) {
-    console.error("Unable to update size sort order:", error);
-    redirectWithMessage("error", "Unable to update size sort order.");
+    failSizeAction(
+      "admin.size.update_sort_order",
+      error,
+      "Unable to update size sort order.",
+      sizeId,
+    );
   }
 
   revalidatePath(sizesPath);
@@ -174,8 +202,12 @@ export async function toggleSizeActiveAction(formData: FormData) {
     .eq("id", sizeId);
 
   if (error) {
-    console.error("Unable to update size status:", error);
-    redirectWithMessage("error", "Unable to update size status.");
+    failSizeAction(
+      "admin.size.update_status",
+      error,
+      "Unable to update size status.",
+      sizeId,
+    );
   }
 
   revalidatePath(sizesPath);

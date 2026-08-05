@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createOrderRequestAction } from "@/app/order/actions";
 import { clearCart } from "@/lib/cartStorage";
 import { formatMMK } from "@/lib/formatPrice";
@@ -23,6 +24,7 @@ export default function OrderForm() {
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false);
 
   const totalMMK = cartItems.reduce(
     (total, item) => total + item.priceMMK * item.quantity,
@@ -52,6 +54,7 @@ export default function OrderForm() {
     const result = await createOrderRequestAction({
       customer,
       items: cartItems,
+      privacyAcknowledged,
     });
 
     setIsSubmitting(false);
@@ -206,13 +209,41 @@ export default function OrderForm() {
           delivery details.
         </p>
 
+        <label
+          htmlFor="order-privacy"
+          className="mt-5 flex items-start gap-3 text-sm leading-6 text-[#5f534a]"
+        >
+          <input
+            id="order-privacy"
+            type="checkbox"
+            required
+            checked={privacyAcknowledged}
+            onChange={(event) =>
+              setPrivacyAcknowledged(event.target.checked)
+            }
+            className="mt-1 size-4 shrink-0 accent-[#2f241d]"
+          />
+          <span>
+            I have read and acknowledge the{" "}
+            <Link
+              href={routes.privacy}
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-[#6d4c2f] underline underline-offset-2"
+            >
+              JuneRose privacy notice
+            </Link>
+            .
+          </span>
+        </label>
+
         {errorMessage && (
           <p className="mt-4 text-sm text-red-700">{errorMessage}</p>
         )}
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !privacyAcknowledged}
           className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:bg-[#b8aa98]"
         >
           {isSubmitting ? "Sending..." : "Send Order Request"}

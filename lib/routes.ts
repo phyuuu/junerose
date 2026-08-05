@@ -5,6 +5,8 @@ export const routes = {
   catalog: "/catalog",
   cart: "/cart",
   order: "/order",
+  checkOrder: "/check-order",
+  privacy: "/privacy",
 
   admin: "/admin",
   adminLogin: "/admin/login",
@@ -12,6 +14,7 @@ export const routes = {
   adminProducts: "/admin/products",
   adminArchivedProducts: "/admin/products/archived",
   adminInventoryHistory: "/admin/inventory/history",
+  adminDataRetention: "/admin/privacy",
   adminProductNew: "/admin/products/new",
   adminProductSizes: "/admin/options/sizes",
   adminProductColors: "/admin/options/colors",

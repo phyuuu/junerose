@@ -9,6 +9,7 @@ const validOrder = {
     preferredContact: "Phone" as const,
     note: "  Please call first.  ",
   },
+  privacyAcknowledged: true,
   items: [
     {
       variantId: 12,
@@ -62,6 +63,15 @@ describe("createOrderRequestSchema", () => {
           quantity: 1,
         },
       ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an order without privacy acknowledgement", () => {
+    const result = createOrderRequestSchema.safeParse({
+      ...validOrder,
+      privacyAcknowledged: false,
     });
 
     expect(result.success).toBe(false);

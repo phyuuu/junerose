@@ -14,6 +14,8 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Cart add, quantity change, item removal, and total calculation work.
 - [ ] An empty cart blocks order submission.
 - [ ] Contact validation rejects missing or invalid values.
+- [ ] Order submission requires acknowledgement of the privacy notice.
+- [ ] The privacy page and footer link work on desktop and mobile.
 - [ ] Order creation ignores browser prices and returns a new order number.
 - [ ] The success page shows details after the immediate redirect.
 - [ ] Opening the success URL without access requires phone verification.
@@ -49,6 +51,13 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Choosing a date applies immediately; search and status wait for Apply.
 - [ ] Order details show immutable item snapshots and customer information.
 - [ ] Internal notes can be added, edited, and deleted by staff only.
+- [ ] The Data Retention page is denied to non-staff users.
+- [ ] Privacy-request lookup requires a matching order number and phone number.
+- [ ] Active orders cannot be anonymized; staff must complete or cancel them.
+- [ ] Single-order anonymization requires the exact confirmation text.
+- [ ] Only the selected test order has contact fields and notes anonymized while
+      item, total, status, order number, and inventory history remain.
+- [ ] The 12-month dashboard performs no bulk or automatic anonymization.
 - [ ] Pending to confirmed reserves stock exactly once.
 - [ ] Confirmed/preparing/ready/completed transitions do not reserve twice.
 - [ ] Cancelling a reserved order releases stock exactly once.

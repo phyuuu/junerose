@@ -28,9 +28,15 @@ export async function createOrderRequestAction(
   const parsed = createOrderRequestSchema.safeParse(input);
 
   if (!parsed.success) {
+    const privacyIssue = parsed.error.issues.some(
+      (issue) => issue.path[0] === "privacyAcknowledged",
+    );
+
     return {
       ok: false,
-      error: "Please check the order details and try again.",
+      error: privacyIssue
+        ? "Read and acknowledge the privacy notice before continuing."
+        : "Please check the order details and try again.",
     };
   }
 

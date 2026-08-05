@@ -38,6 +38,9 @@ export const orderCartItemSchema = z.object({
 
 export const createOrderRequestSchema = z.object({
   customer: customerContactSchema,
+  privacyAcknowledged: z.boolean().refine((value) => value, {
+    message: "Read and acknowledge the privacy notice before continuing.",
+  }),
   items: z
     .array(orderCartItemSchema)
     .min(1, "Add at least one item.")

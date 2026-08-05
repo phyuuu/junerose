@@ -42,6 +42,10 @@ export default function AdminShell({
             Colors
           </Link>
 
+          <Link href={routes.adminDataRetention} className="hover:text-[#9c7a4f]">
+            Data retention
+          </Link>
+
           <Link href={routes.home} className="text-[#8a7a6d] hover:text-[#9c7a4f]">
             View Store
           </Link>

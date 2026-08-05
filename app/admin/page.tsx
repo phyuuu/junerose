@@ -8,7 +8,7 @@ export default async function AdminPage() {
 
   return (
     <AdminShell showSignOut>
-      <section className="mx-auto max-w-6xl px_5 py-6">
+      <section className="mx-auto max-w-6xl px-5 py-6">
         <p className="text-sm tracking-[0.25em] text-[#9c7a4f]">
           STAFF AREA
         </p>
@@ -22,7 +22,7 @@ export default async function AdminPage() {
           This area is protected by staff login.
         </p>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Link
             href={routes.adminOrders}
             className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6 hover:border-[#9c7a4f]"
@@ -59,6 +59,17 @@ export default async function AdminPage() {
 
             <p className="mt-2 text-sm text-[#8a7a6d]">
               Review all stock adjustments made by staff.
+            </p>
+          </Link>
+
+          <Link
+            href={routes.adminDataRetention}
+            className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6 hover:border-[#9c7a4f]"
+          >
+            <h2 className="text-lg font-medium">Data Retention</h2>
+
+            <p className="mt-2 text-sm text-[#8a7a6d]">
+              Remove expired customer details while preserving order history.
             </p>
           </Link>
         </div>

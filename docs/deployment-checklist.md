@@ -22,6 +22,9 @@ change database behavior, authentication, orders, or inventory.
 - [ ] RLS is enabled on every application table.
 - [ ] Anonymous roles have no direct access to private tables.
 - [ ] Public function execute grants match the intended catalog/order surface.
+- [ ] Retention summary and single-order privacy functions are executable only
+      by the authenticated role and reject users who are not active staff.
+- [ ] The legacy bulk anonymization function is absent after migration `007`.
 - [ ] Every administrator has an active `staff_users` row; old staff accounts are
       deactivated.
 - [ ] Supabase Security Advisor has no unexplained finding.
@@ -42,6 +45,7 @@ change database behavior, authentication, orders, or inventory.
 ## 4. Data protection and operations
 
 - [ ] Staff understand that customer contact data and notes are private.
+- [ ] A staff owner is assigned to review the Data Retention page regularly.
 - [ ] Server logs are checked for redacted structured errors only.
 - [ ] A staff owner knows how to use an error reference ID to locate a failure.
 - [ ] A database backup/recovery procedure and responsible person are identified.

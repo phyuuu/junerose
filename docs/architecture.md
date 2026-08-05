@@ -95,6 +95,19 @@ and internal notes stay behind authenticated staff access.
 3. Database publication checks require an image and an in-stock variant.
 4. Archived products are removed from public catalog functions.
 
+### Customer-data retention
+
+1. The customer receives the privacy notice at the point of order collection.
+2. The server requires privacy acknowledgement before creating an order.
+3. Staff can review the number of orders due for a manual 12-month review; the
+   review date never triggers automatic anonymization.
+4. Staff verifies a customer request using the order number and matching phone
+   number before seeing the deletion preview.
+5. A protected database function anonymizes only that completed or cancelled
+   order after exact staff confirmation and removes its related notes.
+6. Product snapshots, totals, statuses, order numbers, and inventory history
+   remain without direct customer contact details.
+
 ## Browser Storage
 
 - `localStorage` contains cart selections only.
@@ -110,6 +123,9 @@ and internal notes stay behind authenticated staff access.
 - Server logs contain operation names, technical error codes, and safe internal
   IDs only. They exclude names, phones, addresses, order numbers, and note text.
 - No service-role key is used by the Next.js application.
+- Completed, cancelled, and abandoned pending orders are surfaced for manual
+  review after 12 months; only a separately verified customer request can run
+  single-order anonymization.
 
 ## Deliberate Boundaries
 

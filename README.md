@@ -17,6 +17,7 @@ not process online payments.
 - Order lookup using both order number and phone number
 - Protected success details with short-lived, one-time browser access
 - Public order submission and lookup rate limits
+- Customer privacy notice and server-validated acknowledgement
 
 ### Admin
 
@@ -28,6 +29,7 @@ not process online payments.
 - Searchable, filterable, sortable, paginated orders
 - Atomic order status transitions with stock reservation and release
 - Private order notes with edit and delete support
+- Manual 12-month privacy review and verified single-order anonymization
 
 ## Technology
 

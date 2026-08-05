@@ -37,6 +37,13 @@ the current design; it is not a substitute for migrations.
 - `adjust_product_stock(...)` changes stock and records history.
 - `set_product_visibility(...)` enforces publication requirements.
 - `update_order_status(...)` changes status and coordinates stock transactions.
+- `get_order_retention_summary()` reports only the number and cutoff for orders
+  due for manual review.
+- `get_order_privacy_request(order_number, phone)` returns a minimal preview only
+  when active staff provides matching order details.
+- `anonymize_order_customer_data(order_number, phone)` removes customer details
+  and notes from one verified completed or cancelled order while preserving its
+  non-personal business history.
 
 `reserve_order_stock(...)` and `release_order_stock(...)` are internal helpers;
 clients do not receive execute permission for them.
@@ -52,6 +59,8 @@ clients do not receive execute permission for them.
 - Product availability is derived from stock rather than trusted admin text.
 - Search, status/date filtering, pagination, and total sorting have supporting
   indexes for the admin order workflow.
+- Orders record when and by which staff account customer details were
+  anonymized.
 
 ## Authorization
 

@@ -13,12 +13,17 @@ fresh JuneRose Supabase project. Apply them in filename order.
 | `202608040003_atomic_order_status_and_stock.sql` | Atomic status transitions, stock reservation, and stock release |
 | `202608040004_public_order_rate_limits.sql` | Order submission and customer lookup abuse limits |
 | `202608040005_product_publishing_and_availability.sql` | Publication guards and stock-derived availability |
+| `202608050006_customer_data_retention.sql` | Staff-only 12-month customer-data anonymization workflow |
+| `202608050007_single_order_privacy_requests.sql` | Replaces bulk anonymization with verified single-order privacy requests |
 
 ## Existing Hosted JuneRose Project
 
 The hosted project was created manually before the baseline migration existed.
 Do not run `202608030000_initial_schema.sql` against that database. Migrations
-`202608040001` through `202608040005` have already been applied manually.
+`202608040001` through `202608050006` have already been applied manually.
+
+Migration `202608050007` is the next migration to apply to the existing hosted
+project after reviewing it in a separate project.
 
 For each future migration:
 

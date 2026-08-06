@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { createClient } from "@/lib/supabase/server";
 import {
   reportServerError,
@@ -46,7 +46,7 @@ function failColorAction(
 }
 
 export async function createColorAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const name = String(formData.get("name") ?? "").trim();
   const sortOrderValue = String(formData.get("sortOrder") ?? "").trim();
@@ -97,7 +97,7 @@ export async function createColorAction(formData: FormData) {
 }
 
 export async function deleteColorAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const colorId = Number(formData.get("colorId"));
 
@@ -150,7 +150,7 @@ export async function deleteColorAction(formData: FormData) {
 }
 
 export async function updateColorSortOrderAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const colorId = Number(formData.get("colorId"));
   const sortOrderValue = String(formData.get("sortOrder") ?? "").trim();
@@ -188,7 +188,7 @@ export async function updateColorSortOrderAction(formData: FormData) {
 }
 
 export async function toggleColorActiveAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const colorId = Number(formData.get("colorId"));
   const nextIsActive = formData.get("nextIsActive") === "true";

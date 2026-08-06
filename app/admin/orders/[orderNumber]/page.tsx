@@ -3,7 +3,7 @@ import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
 import { getAdminOrderNotes } from "@/lib/admin-order-notes";
 import { getAdminOrderByNumber } from "@/lib/admin-orders";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 
 type AdminOrderDetailPageProps = {
   params: Promise<{
@@ -14,7 +14,7 @@ type AdminOrderDetailPageProps = {
 export default async function AdminOrderDetailPage({
   params,
 }: AdminOrderDetailPageProps) {
-  await requireAdmin();
+  await requireStaff();
 
   const { orderNumber } = await params;
   const order = await getAdminOrderByNumber(orderNumber);

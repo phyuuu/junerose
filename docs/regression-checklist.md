@@ -42,7 +42,11 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] A product without an image cannot be published.
 - [ ] A product without an in-stock variant cannot be published.
 - [ ] Archive removes a product from the catalog; restore keeps it hidden.
+- [ ] Adding a variant with positive initial quantity creates one inventory
+      history entry under the acting staff account.
 - [ ] Manual stock adjustment updates quantity and inventory history once.
+- [ ] Inventory history shows the acting account's current display name while
+      retaining its UUID in the database record.
 - [ ] Reusable size/color options can be sorted and deactivated safely.
 
 ## Order and stock workflow
@@ -64,6 +68,19 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Cancelling a pending order does not change stock.
 - [ ] Invalid status transitions show a business-safe message.
 - [ ] Reserve, release, and manual changes appear in inventory history.
+
+## Staff authorization
+
+- [ ] Active admin and staff accounts can sign in; inactive accounts are signed
+      out with a safe access message.
+- [ ] Staff can manage catalog, inventory, orders, notes, and privacy requests.
+- [ ] Staff cannot see or open Staff Access.
+- [ ] Admin can add access for an existing Auth user and deactivate/reactivate a
+      staff account.
+- [ ] Admin can set and edit staff display names; staff still sign in by email.
+- [ ] Admin access is protected from deactivation through the website.
+- [ ] Anonymous and non-staff authenticated requests cannot write application
+      tables or Storage objects directly.
 
 ## Final technical checks
 

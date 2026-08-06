@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { routes } from "@/lib/routes";
 import {
   reportServerError,
@@ -163,7 +163,7 @@ async function resequenceProductImages(productId: number) {
 }
 
 export async function uploadProductImageAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const productId = Number(formData.get("productId"));
   const imageFile = formData.get("image");
@@ -257,7 +257,7 @@ export async function uploadProductImageAction(formData: FormData) {
 }
 
 export async function deleteProductImageAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const productId = Number(formData.get("productId"));
   const imageId = Number(formData.get("imageId"));
@@ -346,7 +346,7 @@ export async function deleteProductImageAction(formData: FormData) {
 }
 
 export async function setMainProductImageAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const productId = Number(formData.get("productId"));
   const imageId = Number(formData.get("imageId"));

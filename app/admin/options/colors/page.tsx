@@ -7,7 +7,7 @@ import {
 import AdminColorActionForm from "@/components/AdminColorActionForm";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { createClient } from "@/lib/supabase/server";
 
 type ColorRow = {
@@ -27,7 +27,7 @@ type AdminColorsPageProps = {
 export default async function AdminColorsPage({
   searchParams,
 }: AdminColorsPageProps) {
-  await requireAdmin();
+  await requireStaff();
 
   const { error: errorMessage, saved } = await searchParams;
   const supabase = await createClient();

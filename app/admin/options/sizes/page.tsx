@@ -6,7 +6,7 @@ import {
 } from "@/app/admin/options/sizes/actions";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { createClient } from "@/lib/supabase/server";
 import AdminSizeActionForm from "@/components/AdminSizeActionForm";
 
@@ -27,7 +27,7 @@ type AdminSizesPageProps = {
 export default async function AdminSizesPage({
   searchParams,
 }: AdminSizesPageProps) {
-  await requireAdmin();
+  await requireStaff();
 
   const { error: errorMessage, saved } = await searchParams;
   const supabase = await createClient();

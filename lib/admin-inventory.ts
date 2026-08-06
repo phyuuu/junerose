@@ -10,26 +10,20 @@ export type InventoryAdjustmentHistoryItem = {
   size: string;
   color: string;
   quantityChange: number;
-  changedBy: string;
+  changedById: string;
+  changedByName: string;
   createdAt: string;
-};
-
-type JoinedProduct = {
-  name: string;
-};
-
-type JoinedVariant = {
-  size: string;
-  color: string;
-  products: JoinedProduct | JoinedProduct[] | null;
 };
 
 type InventoryHistoryRow = {
   id: number;
+  product_name: string;
+  size: string;
+  color: string;
   quantity_change: number;
   changed_by: string;
+  changed_by_name: string | null;
   created_at: string;
-  product_variants: JoinedVariant | JoinedVariant[] | null;
 };
 
 export async function getInventoryAdjustments(
@@ -70,54 +64,28 @@ export async function getAllInventoryAdjustments(): Promise<
 > {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("inventory_adjustments")
-    .select(
-      `
-        id,
-        quantity_change,
-        changed_by,
-        created_at,
-        product_variants (
-          size,
-          color,
-          products (
-            name
-          )
-        )
-      `,
-    )
-    .order("created_at", {
-      ascending: false,
-    });
+  const { data, error } = await supabase.rpc(
+    "get_inventory_adjustment_history",
+  );
 
-  if (error) {
+  if (error || !Array.isArray(data)) {
     throwReportedServerError({
       operation: "admin.inventory.load_all_history",
-      error,
+      error: error ?? new Error("Unexpected inventory history response"),
       message: "Unable to load inventory history.",
     });
   }
 
   const rows = data as unknown as InventoryHistoryRow[];
 
-  return rows.map((item) => {
-    const variant = Array.isArray(item.product_variants)
-      ? item.product_variants[0]
-      : item.product_variants;
-
-    const product = Array.isArray(variant?.products)
-      ? variant.products[0]
-      : variant?.products;
-
-    return {
-      id: item.id,
-      productName: product?.name ?? "Unknown product",
-      size: variant?.size ?? "-",
-      color: variant?.color ?? "-",
-      quantityChange: item.quantity_change,
-      changedBy: item.changed_by,
-      createdAt: item.created_at,
-    };
-  });
+  return rows.map((item) => ({
+    id: item.id,
+    productName: item.product_name,
+    size: item.size,
+    color: item.color,
+    quantityChange: item.quantity_change,
+    changedById: item.changed_by,
+    changedByName: item.changed_by_name?.trim() || "Name not set",
+    createdAt: item.created_at,
+  }));
 }

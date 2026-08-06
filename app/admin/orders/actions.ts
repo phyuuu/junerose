@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { routes } from "@/lib/routes";
 import {
   reportServerError,
@@ -84,7 +84,7 @@ export async function updateOrderStatusAction(
   orderNumber: string,
   status: OrderStatus,
 ): Promise<UpdateOrderStatusResult> {
-  await requireAdmin();
+  await requireStaff();
 
   const normalizedOrderNumber = orderNumber.trim();
 
@@ -137,7 +137,7 @@ export async function addOrderNoteAction(
   orderNumber: string,
   note: string,
 ): Promise<AddOrderNoteResult> {
-  await requireAdmin();
+  await requireStaff();
 
   const normalizedOrderNumber = orderNumber.trim();
   const normalizedNote = note.trim();
@@ -194,7 +194,7 @@ export async function updateOrderNoteAction(
   noteId: number,
   note: string,
 ): Promise<UpdateOrderNoteResult> {
-  await requireAdmin();
+  await requireStaff();
 
   const normalizedOrderNumber = orderNumber.trim();
   const normalizedNote = note.trim();
@@ -254,7 +254,7 @@ export async function deleteOrderNoteAction(
   orderNumber: string,
   noteId: number,
 ): Promise<DeleteOrderNoteResult> {
-  await requireAdmin();
+  await requireStaff();
 
   const normalizedOrderNumber = orderNumber.trim();
 

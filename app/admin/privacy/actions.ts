@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { routes } from "@/lib/routes";
 import {
   reportServerError,
@@ -121,7 +121,7 @@ export async function manageOrderPrivacyRequestAction(
   _previousState: AdminPrivacyRequestState,
   formData: FormData,
 ): Promise<AdminPrivacyRequestState> {
-  await requireAdmin();
+  await requireStaff();
 
   const verificationResult = validateAdminPrivacyOrderVerification(
     formData.get("orderNumber"),

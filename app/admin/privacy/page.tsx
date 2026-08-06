@@ -2,10 +2,10 @@ import AdminPrivacyRequestForm from "@/components/AdminPrivacyRequestForm";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
 import { getAdminDataRetentionSummary } from "@/lib/admin-data-retention";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 
 export default async function AdminDataRetentionPage() {
-  await requireAdmin();
+  await requireStaff();
   const summary = await getAdminDataRetentionSummary();
 
   return (

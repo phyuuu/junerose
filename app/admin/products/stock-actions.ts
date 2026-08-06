@@ -1,6 +1,6 @@
 "use server";
 
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { routes } from "@/lib/routes";
@@ -18,7 +18,7 @@ export async function adjustProductStockAction(
   variantId: number,
   adjustmentAmount: number,
 ): Promise<AdjustStockState> {
-  await requireAdmin();
+  await requireStaff();
 
   if (!Number.isInteger(variantId) || variantId <= 0) {
     return {

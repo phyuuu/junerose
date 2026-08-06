@@ -1,10 +1,10 @@
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { getAllInventoryAdjustments } from "@/lib/admin-inventory";
 
 export default async function InventoryHistoryPage() {
-  await requireAdmin();
+  await requireStaff();
 
   const history = await getAllInventoryAdjustments();
 
@@ -63,7 +63,7 @@ export default async function InventoryHistoryPage() {
                   </td>
 
                   <td className="px-5 py-3">
-                    {item.changedBy}
+                    {item.changedByName}
                   </td>
 
                   <td className="px-5 py-3">

@@ -25,6 +25,10 @@ change database behavior, authentication, orders, or inventory.
 - [ ] Retention summary and single-order privacy functions are executable only
       by the authenticated role and reject users who are not active staff.
 - [ ] The legacy bulk anonymization function is absent after migration `007`.
+- [ ] Migration `008` promotes the intended account to `admin` and all other
+      authorized accounts have the `staff` role.
+- [ ] Security Advisor has no permissive RLS or public bucket-listing warnings.
+- [ ] Non-admin staff cannot open `/admin/staff` or execute staff-access RPCs.
 - [ ] Every administrator has an active `staff_users` row; old staff accounts are
       deactivated.
 - [ ] Supabase Security Advisor has no unexplained finding.

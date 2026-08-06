@@ -6,11 +6,11 @@ import AdminSummaryCard from "@/components/AdminSummaryCard";
 import SectionHeader from "@/components/SectionHeader";
 import { getAdminProducts } from "@/lib/admin-products";
 import { getAdminProductSummary } from "@/lib/admin-product-summary";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { routes } from "@/lib/routes";
 
 export default async function AdminProductsPage() {
-  await requireAdmin();
+  await requireStaff();
 
   const products = await getAdminProducts();
   const summary = getAdminProductSummary(products);

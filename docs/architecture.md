@@ -127,6 +127,18 @@ and internal notes stay behind authenticated staff access.
   review after 12 months; only a separately verified customer request can run
   single-order anonymization.
 
+## Staff Authorization
+
+- Every staff-area request requires an active `staff_users` record.
+- The `staff` role manages catalog, inventory, orders, notes, and verified
+  customer anonymization requests.
+- The single `admin` role also manages staff access. Admin access cannot be
+  deactivated or reassigned through the website.
+- Staff accounts are deactivated rather than deleted so historical staff IDs
+  remain valid in audit and inventory records.
+- Database and RLS policy changes remain migration-controlled and are never
+  executable from the admin website.
+
 ## Deliberate Boundaries
 
 - There is no online payment provider.

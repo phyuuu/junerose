@@ -3,11 +3,11 @@ import AdminArchivedProductTable from "@/components/AdminArchivedProductTable";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
 import { getArchivedAdminProducts } from "@/lib/admin-products";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { routes } from "@/lib/routes";
 
 export default async function AdminArchivedProductsPage() {
-  await requireAdmin();
+  await requireStaff();
 
   const products = await getArchivedAdminProducts();
 

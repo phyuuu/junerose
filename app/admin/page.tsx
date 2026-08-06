@@ -1,10 +1,10 @@
 import Link from "next/link";
 import AdminShell from "../../components/AdminShell";
 import { routes } from "../../lib/routes";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 
 export default async function AdminPage() {
-  await requireAdmin();
+  const staff = await requireStaff();
 
   return (
     <AdminShell showSignOut>
@@ -13,16 +13,14 @@ export default async function AdminPage() {
           STAFF AREA
         </p>
 
-        <h1 className="mt-3 text-2xl font-semibold">
-          Admin Dashboard
-        </h1>
+        <h1 className="mt-3 text-2xl font-semibold">Staff Dashboard</h1>
 
         <p className="mt-2 max-w-xl text-sm leading-6 text-[#6f6258]">
           Manage JuneRose products, order requests, and inventory records.
           This area is protected by staff login.
         </p>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Link
             href={routes.adminOrders}
             className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6 hover:border-[#9c7a4f]"
@@ -69,9 +67,22 @@ export default async function AdminPage() {
             <h2 className="text-lg font-medium">Data Retention</h2>
 
             <p className="mt-2 text-sm text-[#8a7a6d]">
-              Remove expired customer details while preserving order history.
+              Review retention and process verified privacy requests.
             </p>
           </Link>
+
+          {staff.role === "admin" && (
+            <Link
+              href={routes.adminStaff}
+              className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6 hover:border-[#9c7a4f]"
+            >
+              <h2 className="text-lg font-medium">Staff Access</h2>
+
+              <p className="mt-2 text-sm text-[#8a7a6d]">
+                Add, deactivate, and review authorized staff accounts.
+              </p>
+            </Link>
+          )}
         </div>
       </section>
     </AdminShell>

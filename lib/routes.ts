@@ -15,6 +15,7 @@ export const routes = {
   adminArchivedProducts: "/admin/products/archived",
   adminInventoryHistory: "/admin/inventory/history",
   adminDataRetention: "/admin/privacy",
+  adminStaff: "/admin/staff",
   adminProductNew: "/admin/products/new",
   adminProductSizes: "/admin/options/sizes",
   adminProductColors: "/admin/options/colors",

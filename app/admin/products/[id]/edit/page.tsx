@@ -5,7 +5,7 @@ import SectionHeader from "@/components/SectionHeader";
 import { getAdminProductOptions } from "@/lib/admin-product-options";
 import { getAdminProductImages } from "@/lib/admin-product-images";
 import { getAdminProductById } from "@/lib/admin-products";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import AdminInventoryAdjustmentPanel from "@/components/AdminInventoryAdjustmentPanel";
 import AdminProductImagePanel from "@/components/AdminProductImagePanel";
 import AdminProductVariantPanel from "@/components/AdminProductVariantPanel";
@@ -27,7 +27,7 @@ export default async function AdminProductEditPage({
   params,
   searchParams,
 }: AdminProductEditPageProps) {
-  await requireAdmin();
+  await requireStaff();
 
   const { id } = await params;
   const { imageMessage, saved } = await searchParams;

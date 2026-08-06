@@ -32,6 +32,17 @@ export default function AdminLoginForm() {
       return;
     }
 
+    const { data: isActiveStaff, error: staffError } = await supabase.rpc(
+      "current_user_is_active_staff",
+    );
+
+    if (staffError || isActiveStaff !== true) {
+      await supabase.auth.signOut();
+      setErrorMessage("This account does not have active staff access.");
+      setIsSubmitting(false);
+      return;
+    }
+
     router.push(routes.admin);
     router.refresh();
   }

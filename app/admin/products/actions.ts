@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { routes } from "@/lib/routes";
 import {
   reportServerError,
@@ -21,7 +21,7 @@ export async function updateProductInfoAction(
   _previousState: UpdateProductInfoState,
   formData: FormData,
 ): Promise<UpdateProductInfoState> {
-  await requireAdmin();
+  await requireStaff();
 
   const productId = Number(formData.get("productId"));
 
@@ -102,7 +102,7 @@ export async function createProductAction(
   _previousState: UpdateProductInfoState,
   formData: FormData,
 ): Promise<UpdateProductInfoState> {
-  await requireAdmin();
+  await requireStaff();
 
   const parsed = adminCreateProductBaseSchema.safeParse({
     code: formData.get("code"),
@@ -209,7 +209,7 @@ export async function addProductVariantAction(
   _previousState: AddProductVariantState,
   formData: FormData,
 ): Promise<AddProductVariantState> {
-  await requireAdmin();
+  await requireStaff();
 
   const productId = Number(formData.get("productId"));
 
@@ -233,45 +233,15 @@ export async function addProductVariantAction(
 
   const supabase = await createClient();
 
-  const { data: size, error: sizeError } = await supabase
-    .from("sizes")
-    .select("name")
-    .eq("id", parsed.data.sizeId)
-    .single();
-
-  if (sizeError || !size) {
-    return {
-      formError: "Invalid size option.",
-    };
-  }
-
-  const { data: color, error: colorError } = await supabase
-    .from("colors")
-    .select("name")
-    .eq("id", parsed.data.colorId)
-    .single();
-
-  if (colorError || !color) {
-    return {
-      formError: "Invalid color option.",
-    };
-  }
-
-  const { error } = await supabase
-    .from("product_variants")
-    .insert({
-      product_id: productId,
-
-      // keep old columns temporarily
-      size: size.name,
-      color: color.name,
-
-      // new columns
-      size_id: parsed.data.sizeId,
-      color_id: parsed.data.colorId,
-
-      quantity: parsed.data.quantity,
-    });
+  const { error } = await supabase.rpc(
+    "add_product_variant_with_initial_stock",
+    {
+      target_product_id: productId,
+      target_size_id: parsed.data.sizeId,
+      target_color_id: parsed.data.colorId,
+      initial_quantity: parsed.data.quantity,
+    },
+  );
 
   if (error) {
     if (error.code === "23505") {
@@ -296,6 +266,7 @@ export async function addProductVariantAction(
   }
 
   revalidatePath(routes.adminProductEdit(productId));
+  revalidatePath(routes.adminInventoryHistory);
 
   return {};
 }
@@ -304,7 +275,7 @@ export async function toggleProductVisibilityAction(
   productId: number,
   nextIsVisible: boolean,
 ) {
-  await requireAdmin();
+  await requireStaff();
 
   if (!Number.isInteger(productId) || productId <= 0) {
     return {
@@ -368,7 +339,7 @@ export async function toggleProductVisibilityAction(
 }
 
 export async function archiveProductAction(productId: number) {
-  await requireAdmin();
+  await requireStaff();
 
   if (!Number.isInteger(productId) || productId <= 0) {
     return {
@@ -421,7 +392,7 @@ export async function archiveProductAction(productId: number) {
 }
 
 export async function restoreProductAction(productId: number) {
-  await requireAdmin();
+  await requireStaff();
 
   if (!Number.isInteger(productId) || productId <= 0) {
     return {

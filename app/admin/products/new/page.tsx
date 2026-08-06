@@ -1,10 +1,10 @@
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
 import AdminProductCreateForm from "@/components/AdminProductCreateForm";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 
 export default async function AdminNewProductPage() {
-  await requireAdmin();
+  await requireStaff();
 
   return (
     <AdminShell showSignOut>

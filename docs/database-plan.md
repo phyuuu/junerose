@@ -13,9 +13,9 @@ the current design; it is not a substitute for migrations.
 | `sizes` / `colors` | Reusable product options | No direct anonymous table access |
 | `orders` | Customer contact data, totals, status, stock timestamps | No direct anonymous table access |
 | `order_items` | Immutable product and price snapshots | No direct anonymous table access |
+| `staff_users` | Active access flag, role, and admin-managed display name | Users can read only their own access row; admin management uses protected functions |
 | `inventory_adjustments` | Stock reserve, release, and manual adjustment history | Staff only |
 | `order_notes` | Internal order notes | Staff only |
-| `staff_users` | Active staff authorization mapped to Supabase Auth | Staff check only |
 | `order_lookup_limits` | Public lookup abuse prevention | Function only |
 
 ## Important Database Functions
@@ -33,8 +33,12 @@ the current design; it is not a substitute for migrations.
 
 - `current_user_is_active_staff()` is the central staff membership check.
 - `create_product_with_variants(...)` creates hidden products safely.
+- `add_product_variant_with_initial_stock(...)` creates a variant and records
+  positive initial stock under the acting staff account in one transaction.
 - `update_product_info(...)` updates product fields.
 - `adjust_product_stock(...)` changes stock and records history.
+- `get_inventory_adjustment_history()` resolves immutable staff UUIDs to their
+  current display names for the staff-only history page.
 - `set_product_visibility(...)` enforces publication requirements.
 - `update_order_status(...)` changes status and coordinates stock transactions.
 - `get_order_retention_summary()` reports only the number and cutoff for orders
@@ -56,11 +60,14 @@ clients do not receive execute permission for them.
 - Variant stock cannot be reserved below zero.
 - Reservation and release timestamps make stock operations idempotent.
 - Product publication is rejected without an image and an in-stock variant.
+- Positive initial variant quantities are recorded in inventory history.
 - Product availability is derived from stock rather than trusted admin text.
 - Search, status/date filtering, pagination, and total sorting have supporting
   indexes for the admin order workflow.
 - Orders record when and by which staff account customer details were
   anonymized.
+- Audit rows keep immutable Auth UUIDs; changing a staff display name only
+  changes how existing history is presented.
 
 ## Authorization
 
@@ -71,6 +78,9 @@ clients do not receive execute permission for them.
   workflows.
 - Authenticated table access is constrained by staff RLS policies.
 - Protected functions also verify active staff membership before changing data.
+- Legacy permissive policies are removed by migration `008`; routine table and
+  Storage writes require active staff, while staff-management functions require
+  the active admin role.
 
 ## Change Process
 

@@ -30,6 +30,8 @@ not process online payments.
 - Atomic order status transitions with stock reservation and release
 - Private order notes with edit and delete support
 - Manual 12-month privacy review and verified single-order anonymization
+- Admin/staff roles with admin-only staff access management
+- Canonical least-privilege database and Storage policies
 
 ## Technology
 

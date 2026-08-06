@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { createClient } from "@/lib/supabase/server";
 import {
   reportServerError,
@@ -46,7 +46,7 @@ function failSizeAction(
 }
 
 export async function createSizeAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const name = String(formData.get("name") ?? "").trim();
   const sortOrderValue = String(formData.get("sortOrder") ?? "").trim();
@@ -97,7 +97,7 @@ export async function createSizeAction(formData: FormData) {
 }
 
 export async function deleteSizeAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const sizeId = Number(formData.get("sizeId"));
 
@@ -145,7 +145,7 @@ export async function deleteSizeAction(formData: FormData) {
 }
 
 export async function updateSizeSortOrderAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const sizeId = Number(formData.get("sizeId"));
   const sortOrderValue = String(formData.get("sortOrder") ?? "").trim();
@@ -183,7 +183,7 @@ export async function updateSizeSortOrderAction(formData: FormData) {
 }
 
 export async function toggleSizeActiveAction(formData: FormData) {
-  await requireAdmin();
+  await requireStaff();
 
   const sizeId = Number(formData.get("sizeId"));
   const nextIsActive = formData.get("nextIsActive") === "true";

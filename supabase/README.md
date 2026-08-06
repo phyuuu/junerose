@@ -15,14 +15,19 @@ fresh JuneRose Supabase project. Apply them in filename order.
 | `202608040005_product_publishing_and_availability.sql` | Publication guards and stock-derived availability |
 | `202608050006_customer_data_retention.sql` | Staff-only 12-month customer-data anonymization workflow |
 | `202608050007_single_order_privacy_requests.sql` | Replaces bulk anonymization with verified single-order privacy requests |
+| `202608050008_staff_roles_and_policy_hardening.sql` | Adds admin/staff roles and replaces legacy permissive policies |
+| `202608060009_fix_staff_access_email_type.sql` | Fixes the staff-list email return type for hosted Auth schemas |
+| `202608060010_audit_initial_variant_stock.sql` | Creates variants and their initial inventory records atomically |
+| `202608060011_staff_display_names.sql` | Adds admin-managed staff names and name-resolved inventory history |
+| `202608060012_fix_inventory_history_return_types.sql` | Normalizes hosted inventory-history return types |
 
 ## Existing Hosted JuneRose Project
 
 The hosted project was created manually before the baseline migration existed.
 Do not run `202608030000_initial_schema.sql` against that database. Migrations
-`202608040001` through `202608050006` have already been applied manually.
+`202608040001` through `202608060011` have already been applied manually.
 
-Migration `202608050007` is the next migration to apply to the existing hosted
+Migration `202608060012` is the next migration to apply to the existing hosted
 project after reviewing it in a separate project.
 
 For each future migration:

@@ -1,7 +1,7 @@
 import AdminOrderDashboard from "@/components/AdminOrderDashboard";
 import AdminShell from "@/components/AdminShell";
 import SectionHeader from "@/components/SectionHeader";
-import { requireAdmin } from "@/lib/auth/require-admin";
+import { requireStaff } from "@/lib/auth/require-staff";
 import { getAdminOrders } from "@/lib/admin-orders";
 import type { AdminOrderSort, OrderStatus } from "@/types/order";
 
@@ -92,7 +92,7 @@ function parseSort(value: string | undefined): AdminOrderSort {
 export default async function AdminOrdersPage({
   searchParams,
 }: AdminOrdersPageProps) {
-  await requireAdmin();
+  await requireStaff();
   const { page, search, status, date, sort } = await searchParams;
   const filters = {
     page: parsePage(page),

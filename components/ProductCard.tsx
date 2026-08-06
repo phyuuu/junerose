@@ -7,9 +7,13 @@ import { getMainProductImage } from "@/lib/product-image";
 
 type ProductCardProps = {
   product: PublicProduct;
+  eagerImage?: boolean;
 };
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  eagerImage = false,
+}: ProductCardProps) {
   return (
     <Link href={routes.productDetail(product.slug)} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#eadfce] transition group-hover:bg-[#e2d2bc]">
@@ -18,6 +22,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           alt={product.name}
           fill
           sizes="(min-width: 768px) 25vw, 50vw"
+          loading={eagerImage ? "eager" : "lazy"}
           className="object-cover"
         />
       </div>

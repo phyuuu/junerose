@@ -167,6 +167,8 @@ export async function uploadProductImageAction(formData: FormData) {
 
   const productId = Number(formData.get("productId"));
   const imageFile = formData.get("image");
+  const colorIdValue = String(formData.get("colorId") ?? "").trim();
+  const colorId = colorIdValue ? Number(colorIdValue) : null;
 
   if (!Number.isInteger(productId) || productId <= 0) {
     redirect(routes.adminProducts);
@@ -193,6 +195,34 @@ export async function uploadProductImageAction(formData: FormData) {
   }
 
   const { product, supabase } = await getProductForImageAction(productId);
+
+  if (colorId !== null) {
+    if (!Number.isInteger(colorId) || colorId <= 0) {
+      redirectToProductImages(productId, "Select a valid image color.");
+    }
+
+    const { count: variantCount, error: variantError } = await supabase
+      .from("product_variants")
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", productId)
+      .eq("color_id", colorId);
+
+    if (variantError) {
+      failProductImageAction({
+        operation: "admin.product_image.validate_upload_color",
+        error: variantError,
+        productId,
+        message: "Unable to validate the image color.",
+      });
+    }
+
+    if ((variantCount ?? 0) === 0) {
+      redirectToProductImages(
+        productId,
+        "Assign images only to colors already used by this product.",
+      );
+    }
+  }
 
   const { count, error: countError } = await supabase
     .from("product_images")
@@ -240,6 +270,7 @@ export async function uploadProductImageAction(formData: FormData) {
       product_id: productId,
       image_url: publicUrlData.publicUrl,
       display_order: count ?? 0,
+      color_id: colorId,
     });
 
   if (imageInsertError) {
@@ -254,6 +285,73 @@ export async function uploadProductImageAction(formData: FormData) {
   await revalidateProductImagePaths(productId, product.slug);
 
   redirectToProductImages(productId, "Product image uploaded successfully.");
+}
+
+export async function setProductImageColorAction(formData: FormData) {
+  await requireStaff();
+
+  const productId = Number(formData.get("productId"));
+  const imageId = Number(formData.get("imageId"));
+  const colorIdValue = String(formData.get("colorId") ?? "").trim();
+  const colorId = colorIdValue ? Number(colorIdValue) : null;
+
+  if (!Number.isInteger(productId) || productId <= 0) {
+    redirect(routes.adminProducts);
+  }
+
+  if (!Number.isInteger(imageId) || imageId <= 0) {
+    redirectToProductImages(productId, "Invalid product image.");
+  }
+
+  const { product, supabase } = await getProductForImageAction(productId);
+
+  if (colorId !== null) {
+    if (!Number.isInteger(colorId) || colorId <= 0) {
+      redirectToProductImages(productId, "Select a valid image color.");
+    }
+
+    const { count, error } = await supabase
+      .from("product_variants")
+      .select("id", { count: "exact", head: true })
+      .eq("product_id", productId)
+      .eq("color_id", colorId);
+
+    if (error) {
+      failProductImageAction({
+        operation: "admin.product_image.validate_assignment_color",
+        error,
+        productId,
+        imageId,
+        message: "Unable to validate the image color.",
+      });
+    }
+
+    if ((count ?? 0) === 0) {
+      redirectToProductImages(
+        productId,
+        "Assign images only to colors already used by this product.",
+      );
+    }
+  }
+
+  const { error } = await supabase
+    .from("product_images")
+    .update({ color_id: colorId })
+    .eq("id", imageId)
+    .eq("product_id", productId);
+
+  if (error) {
+    failProductImageAction({
+      operation: "admin.product_image.update_color",
+      error,
+      productId,
+      imageId,
+      message: "Unable to update the image color.",
+    });
+  }
+
+  await revalidateProductImagePaths(productId, product.slug);
+  redirectToProductImages(productId, "Image color updated successfully.");
 }
 
 export async function deleteProductImageAction(formData: FormData) {

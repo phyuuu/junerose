@@ -20,14 +20,15 @@ fresh JuneRose Supabase project. Apply them in filename order.
 | `202608060010_audit_initial_variant_stock.sql` | Creates variants and their initial inventory records atomically |
 | `202608060011_staff_display_names.sql` | Adds admin-managed staff names and name-resolved inventory history |
 | `202608060012_fix_inventory_history_return_types.sql` | Normalizes hosted inventory-history return types |
+| `202608090013_catalog_taxonomy_materials_and_color_images.sql` | Separates department and product type, adds reusable materials, and supports color-specific product images |
 
 ## Existing Hosted JuneRose Project
 
 The hosted project was created manually before the baseline migration existed.
 Do not run `202608030000_initial_schema.sql` against that database. Migrations
-`202608040001` through `202608060011` have already been applied manually.
+Migrations through `202608060012` have already been applied manually.
 
-Migration `202608060012` is the next migration to apply to the existing hosted
+Migration `202608090013` is the next migration to apply to the existing hosted
 project after reviewing it in a separate project.
 
 For each future migration:

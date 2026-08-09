@@ -3,22 +3,26 @@ import Link from "next/link";
 import { routes } from "../lib/routes";
 import type { PublicProduct } from "../types/product";
 import { formatMMK } from "../lib/formatPrice";
-import { getMainProductImage } from "@/lib/product-image";
+import { getProductImageForColor } from "@/lib/product-image";
+import { getPreferredProductColor } from "@/lib/catalog-filters";
 
 type ProductCardProps = {
   product: PublicProduct;
   eagerImage?: boolean;
+  selectedColors?: string[];
 };
 
 export default function ProductCard({
   product,
   eagerImage = false,
+  selectedColors = [],
 }: ProductCardProps) {
+  const preferredColor = getPreferredProductColor(product, selectedColors);
   return (
-    <Link href={routes.productDetail(product.slug)} className="group block">
+    <Link href={routes.productDetail(product.slug, preferredColor)} className="group block">
       <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#eadfce] transition group-hover:bg-[#e2d2bc]">
         <Image
-          src={getMainProductImage(product)}
+          src={getProductImageForColor(product, preferredColor)}
           alt={product.name}
           fill
           sizes="(min-width: 768px) 25vw, 50vw"

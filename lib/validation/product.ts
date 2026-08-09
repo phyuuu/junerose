@@ -18,7 +18,19 @@ export const adminProductInfoSchema = z.object({
     .int("Price must be a whole number.")
     .nonnegative("Price cannot be negative."),
 
-  category: z.enum(["Women", "Men", "Pajamas", "Swimwear"]),
+  departmentId: z
+    .number()
+    .int("Select a valid department.")
+    .positive("Select a department."),
+
+  productTypeId: z
+    .number()
+    .int("Select a valid product type.")
+    .positive("Select a product type."),
+
+  materialIds: z
+    .array(z.number().int().positive())
+    .max(20, "Select no more than 20 materials."),
 
   availability: z.enum(["Available", "Low stock", "Ask staff"]),
 

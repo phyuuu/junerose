@@ -76,11 +76,12 @@ export default async function AdminProductEditPage({
         </div>
 
         <div className="mt-8">
-          <AdminProductInfoForm product={product} />
+          <AdminProductInfoForm product={product} options={options} />
 
           <AdminProductImagePanel
             images={images}
             product={product}
+            colors={options.colors}
             message={imageMessage}
           />
 

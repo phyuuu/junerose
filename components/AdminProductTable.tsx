@@ -24,7 +24,7 @@ export default function AdminProductTable({
         <div>Image</div>
         <div>Name</div>
         <div>Code</div>
-        <div>Category</div>
+        <div>Department / Type</div>
         <div>Price</div>
         <div>Stock details</div>
         <div>Actions</div>
@@ -63,7 +63,8 @@ export default function AdminProductTable({
             <div>{product.code}</div>
 
             <div>
-              <p>{product.category}</p>
+              <p>{product.department.name}</p>
+              <p className="text-xs text-[#8a7a6d]">{product.productType.name}</p>
               <div className="mt-2">
                 <AdminStatusBadge
                   label={product.availability}

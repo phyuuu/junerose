@@ -5,9 +5,11 @@ import { updateProductInfoAction } from "@/app/admin/products/actions";
 import AdminProductSaveButton from "@/components/AdminProductSaveButton";
 import type { UpdateProductInfoState } from "@/types/admin-product-action";
 import type { InternalProduct } from "@/types/product";
+import type { AdminProductOptions } from "@/lib/admin-product-options";
 
 type AdminProductInfoFormProps = {
   product: InternalProduct;
+  options: AdminProductOptions;
 };
 
 const initialState: UpdateProductInfoState = {};
@@ -19,6 +21,7 @@ const errorClassName = "text-xs text-red-700";
 
 export default function AdminProductInfoForm({
   product,
+  options,
 }: AdminProductInfoFormProps) {
   const [state, formAction] = useActionState(
     updateProductInfoAction,
@@ -31,6 +34,19 @@ export default function AdminProductInfoForm({
 
       <form action={formAction} noValidate className="mt-5 grid gap-5">
         <input type="hidden" name="productId" value={product.id} />
+        {product.materials
+          .filter(
+            (selected) =>
+              !options.materials.some((material) => material.id === selected.id),
+          )
+          .map((material) => (
+            <input
+              key={material.id}
+              type="hidden"
+              name="materialIds"
+              value={material.id}
+            />
+          ))}
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-1 text-sm">
@@ -73,20 +89,43 @@ export default function AdminProductInfoForm({
           </label>
 
           <label className="grid gap-1 text-sm">
-            Category
+            Department
             <select
-              name="category"
-              defaultValue={product.category}
-              aria-invalid={Boolean(state.fieldErrors?.category)}
+              name="departmentId"
+              defaultValue={product.department.id}
+              aria-invalid={Boolean(state.fieldErrors?.departmentId)}
               className={inputClassName}
             >
-              <option value="Women">Women</option>
-              <option value="Men">Men</option>
-              <option value="Pajamas">Pajamas</option>
-              <option value="Swimwear">Swimwear</option>
+              {options.departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
             </select>
 
-            {state.fieldErrors?.category?.map((error) => (
+            {state.fieldErrors?.departmentId?.map((error) => (
+              <span key={error} className={errorClassName}>
+                {error}
+              </span>
+            ))}
+          </label>
+
+          <label className="grid gap-1 text-sm">
+            Product type
+            <select
+              name="productTypeId"
+              defaultValue={product.productType.id}
+              aria-invalid={Boolean(state.fieldErrors?.productTypeId)}
+              className={inputClassName}
+            >
+              {options.productTypes.map((productType) => (
+                <option key={productType.id} value={productType.id}>
+                  {productType.name}
+                </option>
+              ))}
+            </select>
+
+            {state.fieldErrors?.productTypeId?.map((error) => (
               <span key={error} className={errorClassName}>
                 {error}
               </span>
@@ -134,6 +173,30 @@ export default function AdminProductInfoForm({
           </label>
 
         </div>
+
+        <fieldset>
+          <legend className="text-sm">Materials</legend>
+          <div className="mt-2 flex flex-wrap gap-3">
+            {options.materials.map((material) => (
+              <label key={material.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  name="materialIds"
+                  value={material.id}
+                  defaultChecked={product.materials.some(
+                    (selected) => selected.id === material.id,
+                  )}
+                />
+                {material.name}
+              </label>
+            ))}
+          </div>
+          {state.fieldErrors?.materialIds?.map((error) => (
+            <span key={error} className={errorClassName}>
+              {error}
+            </span>
+          ))}
+        </fieldset>
 
         <label className="grid gap-1 text-sm">
           Description

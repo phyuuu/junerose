@@ -5,33 +5,37 @@ import { useState } from "react";
 import { addCartItem } from "@/lib/cartStorage";
 import { routes } from "@/lib/routes";
 import type { PublicProduct } from "@/types/product";
-import { getMainProductImage } from "@/lib/product-image";
+import { getProductImageForColor } from "@/lib/product-image";
 
 type ProductOptionsProps = {
   product: PublicProduct;
+  selectedColor: string | null;
+  onColorChange: (color: string | null) => void;
 };
 
-export default function ProductOptions({ product }: ProductOptionsProps) {
+export default function ProductOptions({
+  product,
+  selectedColor,
+  onColorChange,
+}: ProductOptionsProps) {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
-  const availableSizes = [
+  const availableColors = [
     ...new Set(
       product.variants
         .filter((variant) => variant.isAvailable)
-        .map((variant) => variant.size),
+        .map((variant) => variant.color),
     ),
   ];
-  const availableColors = selectedSize
+  const availableSizes = selectedColor
     ? [
         ...new Set(
           product.variants
             .filter(
-              (variant) =>
-                variant.size === selectedSize && variant.isAvailable,
+              (variant) => variant.color === selectedColor && variant.isAvailable,
             )
-            .map((variant) => variant.color),
+            .map((variant) => variant.size),
         ),
       ]
     : [];
@@ -54,7 +58,7 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
       slug: product.slug,
       name: product.name,
       priceMMK: product.priceMMK,
-      image: getMainProductImage(product),
+      image: getProductImageForColor(product, selectedColor),
       selectedSize,
       selectedColor,
       quantity: 1,
@@ -66,45 +70,11 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
   return (
     <div className="mt-6 space-y-6">
       <div>
-        <p className="text-sm font-medium">Choose Size</p>
-
-        <div className="mt-3 flex flex-wrap gap-2">
-          {product.sizes.map((size) => {
-            const isAvailable = availableSizes.includes(size);
-
-            return (
-              <button
-                key={size}
-                type="button"
-                disabled={!isAvailable}
-                aria-pressed={selectedSize === size}
-                onClick={() => {
-                  setSelectedSize(size);
-                  setSelectedColor(null);
-                  setMessage("");
-                }}
-                className={`rounded-full border px-4 py-2 text-sm transition disabled:cursor-not-allowed ${
-                  selectedSize === size
-                    ? "border-[#2f241d] bg-[#2f241d] text-[#f8f3eb]"
-                    : isAvailable
-                      ? "border-[#d6c4aa] text-[#2f241d] hover:border-[#9c7a4f]"
-                      : "border-[#e4d6c3] text-[#b8aa98] opacity-60"
-                }`}
-              >
-                {size}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div>
         <p className="text-sm font-medium">Choose Color</p>
 
         <div className="mt-3 flex flex-wrap gap-2">
           {product.colors.map((color) => {
-            const isAvailable =
-              selectedSize !== null && availableColors.includes(color);
+            const isAvailable = availableColors.includes(color);
 
             return (
               <button
@@ -113,7 +83,8 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
                 disabled={!isAvailable}
                 aria-pressed={selectedColor === color}
                 onClick={() => {
-                  setSelectedColor(color);
+                  onColorChange(color);
+                  setSelectedSize(null);
                   setMessage("");
                 }}
                 className={`rounded-full border px-4 py-2 text-sm transition disabled:cursor-not-allowed ${
@@ -129,10 +100,42 @@ export default function ProductOptions({ product }: ProductOptionsProps) {
             );
           })}
         </div>
+      </div>
 
-        {!selectedSize && (
+      <div>
+        <p className="text-sm font-medium">Choose Size</p>
+
+        <div className="mt-3 flex flex-wrap gap-2">
+          {product.sizes.map((size) => {
+            const isAvailable = selectedColor !== null && availableSizes.includes(size);
+
+            return (
+              <button
+                key={size}
+                type="button"
+                disabled={!isAvailable}
+                aria-pressed={selectedSize === size}
+                onClick={() => {
+                  setSelectedSize(size);
+                  setMessage("");
+                }}
+                className={`rounded-full border px-4 py-2 text-sm transition disabled:cursor-not-allowed ${
+                  selectedSize === size
+                    ? "border-[#2f241d] bg-[#2f241d] text-[#f8f3eb]"
+                    : isAvailable
+                      ? "border-[#d6c4aa] text-[#2f241d] hover:border-[#9c7a4f]"
+                      : "border-[#e4d6c3] text-[#b8aa98] opacity-60"
+                }`}
+              >
+                {size}
+              </button>
+            );
+          })}
+        </div>
+
+        {!selectedColor && (
           <p className="mt-3 text-sm text-[#8a7a6d]">
-            Select a size first.
+            Select a color first.
           </p>
         )}
       </div>

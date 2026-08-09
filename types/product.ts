@@ -1,5 +1,3 @@
-export type ProductCategory = "Women" | "Men" | "Pajamas" | "Swimwear";
-
 export type ProductAvailability =
   | "Available"
   | "Low stock"
@@ -13,6 +11,24 @@ export type ProductStockItem = {
   quantity: number;
 };
 
+export type ProductTaxonomy = {
+  name: string;
+  slug: string;
+};
+
+export type ProductTaxonomyOption = ProductTaxonomy & {
+  id: number;
+};
+
+export type ProductMaterial = ProductTaxonomyOption;
+
+export type ProductImage = {
+  id: number;
+  url: string;
+  colorId: number | null;
+  colorName: string | null;
+};
+
 export type InternalProduct = {
   id: number;
   code: string;
@@ -20,8 +36,10 @@ export type InternalProduct = {
   name: string;
   description: string;
   priceMMK: number;
-  category: ProductCategory;
-  images: string[];
+  department: ProductTaxonomyOption;
+  productType: ProductTaxonomyOption;
+  materials: ProductMaterial[];
+  images: ProductImage[];
   sizes: string[];
   colors: string[];
   availability: ProductAvailability;
@@ -36,8 +54,10 @@ export type PublicProduct = {
   name: string;
   description: string;
   priceMMK: number;
-  category: ProductCategory;
-  images: string[];
+  department: ProductTaxonomy;
+  productType: ProductTaxonomy;
+  materials: ProductMaterial[];
+  images: ProductImage[];
   sizes: string[];
   colors: string[];
   variants: {
@@ -55,8 +75,10 @@ export type AdminProductFormValues = {
   name: string;
   description: string;
   priceMMK: number;
-  category: ProductCategory;
-  images: string[];
+  department: ProductTaxonomyOption;
+  productType: ProductTaxonomyOption;
+  materials: ProductMaterial[];
+  images: ProductImage[];
   sizes: string[];
   colors: string[];
   availability: ProductAvailability;

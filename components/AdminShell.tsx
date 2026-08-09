@@ -47,6 +47,10 @@ export default async function AdminShell({
                 Colors
               </Link>
 
+              <Link href={routes.adminProductMaterials} className="hover:text-[#9c7a4f]">
+                Materials
+              </Link>
+
               <Link href={routes.adminDataRetention} className="hover:text-[#9c7a4f]">
                 Data retention
               </Link>

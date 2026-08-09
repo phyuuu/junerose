@@ -4,11 +4,13 @@ import type { PublicProduct } from "../types/product";
 type ProductGridProps = {
   products: PublicProduct[];
   eagerImageCount?: number;
+  selectedColors?: string[];
 };
 
 export default function ProductGrid({
   products,
   eagerImageCount = 4,
+  selectedColors = [],
 }: ProductGridProps) {
   if (products.length === 0) {
     return (
@@ -27,6 +29,7 @@ export default function ProductGrid({
           key={product.id}
           product={product}
           eagerImage={index < eagerImageCount}
+          selectedColors={selectedColors}
         />
       ))}
     </div>

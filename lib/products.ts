@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { throwReportedServerError } from "@/lib/server/report-error";
 import type {
   ProductAvailability,
-  ProductCategory,
   PublicProduct,
 } from "@/types/product";
 
@@ -14,14 +13,28 @@ type PublicProductRow = {
   name: string;
   description: string;
   price_mmk: number;
-  category: ProductCategory;
+  department: string;
+  department_slug: string;
+  product_type: string;
+  product_type_slug: string;
   availability: ProductAvailability;
 };
 
 type PublicProductImageRow = {
+  image_id: number;
   product_id: number;
   image_url: string;
   display_order: number;
+  color_id: number | null;
+  color_name: string | null;
+};
+
+type PublicProductMaterialRow = {
+  product_id: number;
+  material_id: number;
+  material_name: string;
+  material_slug: string;
+  sort_order: number | null;
 };
 
 type PublicProductVariantRow = {
@@ -38,10 +51,12 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
   const [
     { data: productRows, error: productsError },
     { data: imageRows, error: imagesError },
+    { data: materialRows, error: materialsError },
     { data: variantRows, error: variantsError },
   ] = await Promise.all([
     supabase.rpc("get_public_products"),
     supabase.rpc("get_public_product_images"),
+    supabase.rpc("get_public_product_materials"),
     supabase.rpc("get_public_product_variants"),
   ]);
 
@@ -69,15 +84,42 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
     });
   }
 
+  if (materialsError) {
+    throwReportedServerError({
+      operation: "customer.catalog.load_materials",
+      error: materialsError,
+      message: "Unable to load product materials.",
+    });
+  }
+
   const products = (productRows ?? []) as PublicProductRow[];
   const images = (imageRows ?? []) as PublicProductImageRow[];
+  const materials = (materialRows ?? []) as PublicProductMaterialRow[];
   const variants = (variantRows ?? []) as PublicProductVariantRow[];
 
   return products.map((product) => {
     const productImages = images
       .filter((image) => image.product_id === product.id)
       .sort((a, b) => a.display_order - b.display_order)
-      .map((image) => image.image_url);
+      .map((image) => ({
+        id: image.image_id,
+        url: image.image_url,
+        colorId: image.color_id,
+        colorName: image.color_name,
+      }));
+
+    const productMaterials = materials
+      .filter((material) => material.product_id === product.id)
+      .sort(
+        (first, second) =>
+          (first.sort_order ?? Number.MAX_SAFE_INTEGER) -
+          (second.sort_order ?? Number.MAX_SAFE_INTEGER),
+      )
+      .map((material) => ({
+        id: material.material_id,
+        name: material.material_name,
+        slug: material.material_slug,
+      }));
 
     const productVariants = variants.filter(
       (variant) => variant.product_id === product.id,
@@ -105,7 +147,15 @@ async function loadPublicProducts(): Promise<PublicProduct[]> {
       name: product.name,
       description: product.description,
       priceMMK: product.price_mmk,
-      category: product.category,
+      department: {
+        name: product.department,
+        slug: product.department_slug,
+      },
+      productType: {
+        name: product.product_type,
+        slug: product.product_type_slug,
+      },
+      materials: productMaterials,
       images: productImages,
       sizes,
       colors,
@@ -131,12 +181,4 @@ export async function getPublicProductBySlug(
   const products = await loadPublicProducts();
 
   return products.find((product) => product.slug === slug);
-}
-
-export async function getPublicProductsByCategory(
-  category: ProductCategory,
-): Promise<PublicProduct[]> {
-  const products = await loadPublicProducts();
-
-  return products.filter((product) => product.category === category);
 }

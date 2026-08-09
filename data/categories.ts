@@ -1,8 +1,8 @@
-import type { ProductCategory } from "../types/product";
+import type { ProductTaxonomy } from "../types/product";
 
-export const productCategories: ProductCategory[] = [
-  "Women",
-  "Men",
-  "Pajamas",
-  "Swimwear",
+export const productCategories: ProductTaxonomy[] = [
+  { name: "Underwear", slug: "underwear" },
+  { name: "Bra", slug: "bra" },
+  { name: "Pajamas", slug: "pajamas" },
+  { name: "Swimwear", slug: "swimwear" },
 ];

@@ -1,30 +1,31 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
 import type { PublicProduct } from "@/types/product";
 import { getMainProductImage } from "@/lib/product-image";
 
 type ProductGalleryProps = {
   product: PublicProduct;
+  selectedImageIndex: number;
+  onImageIndexChange: (index: number | ((current: number) => number)) => void;
 };
 
-export default function ProductGallery({ product }: ProductGalleryProps) {
-  const images =
-    product.images.length > 0
-      ? product.images
-      : [getMainProductImage(product)];
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const selectedImage = images[selectedImageIndex];
+export default function ProductGallery({
+  product,
+  selectedImageIndex,
+  onImageIndexChange,
+}: ProductGalleryProps) {
+  const images = product.images;
+  const selectedImage = images[selectedImageIndex]?.url ?? getMainProductImage(product);
 
   function showPreviousImage() {
-    setSelectedImageIndex((current) =>
-      current === 0 ? images.length - 1 : current - 1,
+    onImageIndexChange((current) =>
+      current === 0 ? Math.max(images.length - 1, 0) : current - 1,
     );
   }
 
   function showNextImage() {
-    setSelectedImageIndex((current) =>
+    onImageIndexChange((current) =>
       current === images.length - 1 ? 0 : current + 1,
     );
   }

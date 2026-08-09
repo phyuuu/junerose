@@ -11,6 +11,7 @@ type SafeErrorContext = {
   imageId?: number;
   sizeId?: number;
   colorId?: number;
+  materialId?: number;
 };
 
 function getErrorCode(error: unknown) {
@@ -40,6 +41,7 @@ export function reportServerError({
   imageId,
   sizeId,
   colorId,
+  materialId,
 }: SafeErrorContext) {
   const referenceId = randomUUID();
 
@@ -58,6 +60,7 @@ export function reportServerError({
       imageId,
       sizeId,
       colorId,
+      materialId,
       occurredAt: new Date().toISOString(),
     }),
   );

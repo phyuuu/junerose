@@ -38,7 +38,9 @@ const nextConfig: NextConfig = {
 
   experimental: {
     serverActions: {
-      bodySizeLimit: "5mb",
+      // Leave room for multipart metadata while the upload action enforces
+      // the actual 5 MB image limit.
+      bodySizeLimit: "6mb",
     },
   },
 

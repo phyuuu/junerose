@@ -6,9 +6,12 @@ data. Check desktop and a narrow mobile viewport.
 ## Customer workflow
 
 - [ ] Home and catalog load visible products without exposing exact stock.
-- [ ] Category filters show the correct products.
-- [ ] Product galleries, main images, and navigation arrows work.
-- [ ] Only real size/color combinations can be selected.
+- [ ] Department, product type, material, and color filters combine correctly.
+- [ ] Multiple choices within one filter group use OR; different groups use AND.
+- [ ] Color filters exclude products whose matching color has no stock.
+- [ ] Filtered cards and product color selection use the matching color image.
+- [ ] Product galleries, main images, color jumps, and navigation arrows work.
+- [ ] Only real color/size combinations can be selected.
 - [ ] Unavailable colors remain visible and disabled.
 - [ ] Sold-out variants cannot be added to the cart.
 - [ ] Cart add, quantity change, item removal, and total calculation work.
@@ -36,9 +39,10 @@ data. Check desktop and a narrow mobile viewport.
 
 - [ ] Staff can create a hidden draft product.
 - [ ] Duplicate product code/slug and duplicate variants are rejected safely.
-- [ ] Staff can edit product information and add size/color variants.
+- [ ] Staff can edit department, product type, materials, and size/color variants.
 - [ ] Image upload validates file type and the 5 MB limit.
-- [ ] Staff can change the main image and delete a non-required image.
+- [ ] Staff can assign images to General or a product color, change the main
+      image, and delete a non-required image.
 - [ ] A product without an image cannot be published.
 - [ ] A product without an in-stock variant cannot be published.
 - [ ] Archive removes a product from the catalog; restore keeps it hidden.
@@ -47,7 +51,7 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Manual stock adjustment updates quantity and inventory history once.
 - [ ] Inventory history shows the acting account's current display name while
       retaining its UUID in the database record.
-- [ ] Reusable size/color options can be sorted and deactivated safely.
+- [ ] Reusable size/color/material options can be sorted and deactivated safely.
 
 ## Order and stock workflow
 

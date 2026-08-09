@@ -7,7 +7,9 @@ export type UpdateProductInfoState = {
     name?: string[];
     description?: string[];
     priceMMK?: string[];
-    category?: string[];
+    departmentId?: string[];
+    productTypeId?: string[];
+    materialIds?: string[];
     availability?: string[];
     isVisible?: string[];
     variants?: string[];

@@ -11,7 +11,8 @@ not process online payments.
 ### Customer
 
 - Public catalog backed by privacy-safe Supabase functions
-- Product galleries and valid size/color selection
+- Department, product-type, material, and in-stock color filters
+- Color-aware product galleries and valid color/size selection
 - Browser cart with quantity limits
 - Database-authoritative order creation and totals
 - Order lookup using both order number and phone number
@@ -23,8 +24,8 @@ not process online payments.
 
 - Supabase Auth and active-staff authorization
 - Product creation, editing, publishing, archiving, and restoration
-- Reusable size and color management
-- Product image management through Supabase Storage
+- Reusable size, color, and material management
+- General and color-specific product image management through Supabase Storage
 - Variant-level stock adjustments and inventory history
 - Searchable, filterable, sortable, paginated orders
 - Atomic order status transitions with stock reservation and release

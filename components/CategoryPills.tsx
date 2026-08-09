@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { routes } from "../lib/routes";
-import type { ProductCategory } from "../types/product";
+import type { ProductTaxonomy } from "../types/product";
 
 type CategoryPillsProps = {
-  categories: ProductCategory[];
-  activeCategory?: ProductCategory;
+  categories: ProductTaxonomy[];
+  activeCategory?: string;
   showAll?: boolean;
 };
 
@@ -30,15 +30,15 @@ export default function CategoryPills({
 
       {categories.map((category) => (
         <Link
-          key={category}
-          href={routes.catalogByCategory(category)}
+          key={category.slug}
+          href={`${routes.catalog}?type=${encodeURIComponent(category.slug)}`}
           className={`rounded-full border px-5 py-2 text-sm transition ${
-            activeCategory === category
+            activeCategory === category.slug
               ? "border-[#2f241d] bg-[#2f241d] text-[#f8f3eb]"
               : "border-[#d6c4aa] text-[#2f241d] hover:border-[#9c7a4f] hover:text-[#9c7a4f]"
           }`}
         >
-          {category}
+          {category.name}
         </Link>
       ))}
     </div>

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { createProductAction } from "@/app/admin/products/actions";
 import AdminProductSaveButton from "@/components/AdminProductSaveButton";
 import type { UpdateProductInfoState } from "@/types/admin-product-action";
+import type { AdminProductOptions } from "@/lib/admin-product-options";
 
 type ProductFormValues = {
   code: string;
@@ -11,33 +12,37 @@ type ProductFormValues = {
   name: string;
   description: string;
   priceMMK: string;
-  category: string;
+  departmentId: string;
+  productTypeId: string;
   availability: string;
 };
 
 const initialState: UpdateProductInfoState = {};
 
-const initialProductValues: ProductFormValues = {
-  code: "",
-  slug: "",
-  name: "",
-  description: "",
-  priceMMK: "",
-  category: "Women",
-  availability: "Available",
-};
-
 const inputClassName =
   "mt-2 w-full rounded-xl border border-[#d6c4aa] bg-white px-3 py-2 text-sm";
 
-export default function AdminProductCreateForm() {
+export default function AdminProductCreateForm({
+  options,
+}: {
+  options: AdminProductOptions;
+}) {
   const [state, formAction] = useActionState(
     createProductAction,
     initialState,
   );
 
   const [productValues, setProductValues] =
-    useState<ProductFormValues>(initialProductValues);
+    useState<ProductFormValues>({
+      code: "",
+      slug: "",
+      name: "",
+      description: "",
+      priceMMK: "",
+      departmentId: String(options.departments[0]?.id ?? ""),
+      productTypeId: String(options.productTypes[0]?.id ?? ""),
+      availability: "Available",
+    });
 
   function updateProductValue<
     Field extends keyof ProductFormValues,
@@ -192,25 +197,82 @@ export default function AdminProductCreateForm() {
         </div>
 
         <div>
-          <label htmlFor="category" className="text-sm font-medium">
-            Category
+          <label htmlFor="departmentId" className="text-sm font-medium">
+            Department
           </label>
 
           <select
-            id="category"
-            name="category"
-            value={productValues.category}
+            id="departmentId"
+            name="departmentId"
+            value={productValues.departmentId}
             onChange={(event) =>
-              updateProductValue("category", event.target.value)
+              updateProductValue("departmentId", event.target.value)
             }
             className={inputClassName}
           >
-            <option value="Women">Women</option>
-            <option value="Men">Men</option>
-            <option value="Pajamas">Pajamas</option>
-            <option value="Swimwear">Swimwear</option>
+            {options.departments.map((department) => (
+              <option key={department.id} value={department.id}>
+                {department.name}
+              </option>
+            ))}
           </select>
+
+          {state.fieldErrors?.departmentId && (
+            <p className="mt-1 text-sm text-red-600">
+              {state.fieldErrors.departmentId[0]}
+            </p>
+          )}
         </div>
+
+        <div>
+          <label htmlFor="productTypeId" className="text-sm font-medium">
+            Product type
+          </label>
+
+          <select
+            id="productTypeId"
+            name="productTypeId"
+            value={productValues.productTypeId}
+            onChange={(event) =>
+              updateProductValue("productTypeId", event.target.value)
+            }
+            className={inputClassName}
+          >
+            {options.productTypes.map((productType) => (
+              <option key={productType.id} value={productType.id}>
+                {productType.name}
+              </option>
+            ))}
+          </select>
+
+          {state.fieldErrors?.productTypeId && (
+            <p className="mt-1 text-sm text-red-600">
+              {state.fieldErrors.productTypeId[0]}
+            </p>
+          )}
+        </div>
+
+        <fieldset>
+          <legend className="text-sm font-medium">Materials</legend>
+          <div className="mt-3 flex flex-wrap gap-3">
+            {options.materials.map((material) => (
+              <label key={material.id} className="flex items-center gap-2 text-sm">
+                <input type="checkbox" name="materialIds" value={material.id} />
+                {material.name}
+              </label>
+            ))}
+          </div>
+          {options.materials.length === 0 && (
+            <p className="mt-2 text-sm text-[#8a7a6d]">
+              Add reusable materials before assigning them to products.
+            </p>
+          )}
+          {state.fieldErrors?.materialIds && (
+            <p className="mt-1 text-sm text-red-600">
+              {state.fieldErrors.materialIds[0]}
+            </p>
+          )}
+        </fieldset>
 
         <div>
           <label htmlFor="availability" className="text-sm font-medium">

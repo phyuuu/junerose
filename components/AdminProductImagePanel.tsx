@@ -2,23 +2,30 @@ import Image from "next/image";
 import {
   deleteProductImageAction,
   setMainProductImageAction,
-  uploadProductImageAction,
+  setProductImageColorAction,
 } from "@/app/admin/products/image-actions";
 import AdminProductImageActionForm from "@/components/AdminProductImageActionForm";
+import AdminProductImageUploadForm from "@/components/AdminProductImageUploadForm";
 import type { AdminProductImage } from "@/lib/admin-product-images";
 import type { InternalProduct } from "@/types/product";
+import type { ProductOption } from "@/lib/admin-product-options";
 
 type AdminProductImagePanelProps = {
   images: AdminProductImage[];
   product: InternalProduct;
   message?: string;
+  colors: ProductOption[];
 };
 
 export default function AdminProductImagePanel({
   images,
   product,
   message,
+  colors,
 }: AdminProductImagePanelProps) {
+  const productColors = colors.filter((color) =>
+    product.colors.includes(color.name),
+  );
   return (
     <section className="mt-8 rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-5">
       <h2 className="text-lg font-semibold">Product images</h2>
@@ -55,6 +62,31 @@ export default function AdminProductImagePanel({
                   {index === 0 ? "Main image" : `Image ${index + 1}`}
                 </p>
 
+                <form action={setProductImageColorAction} className="grid gap-2">
+                  <input type="hidden" name="productId" value={product.id} />
+                  <input type="hidden" name="imageId" value={image.id} />
+                  <label className="grid gap-1 text-xs text-[#6f6258]">
+                    Image color
+                    <select
+                      name="colorId"
+                      defaultValue={image.color_id ?? ""}
+                      className="rounded-lg border border-[#d6c4aa] bg-white px-2 py-1 text-sm text-[#2f241d]"
+                    >
+                      <option value="">General</option>
+                      {image.color_id !== null &&
+                        !productColors.some((color) => color.id === image.color_id) && (
+                          <option value={image.color_id}>{image.color_name}</option>
+                        )}
+                      {productColors.map((color) => (
+                        <option key={color.id} value={color.id}>{color.name}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <button type="submit" className="justify-self-start rounded-lg border border-[#9c7a4f] px-3 py-1 text-xs text-[#6d4c2f]">
+                    Save color
+                  </button>
+                </form>
+
                 <div className="flex flex-wrap gap-2">
                   {index !== 0 && (
                     <AdminProductImageActionForm
@@ -86,29 +118,10 @@ export default function AdminProductImagePanel({
         )}
       </div>
 
-      <form
-        action={uploadProductImageAction}
-        className="mt-6 grid gap-4 rounded-xl border border-[#d6c4aa] bg-white p-4 md:grid-cols-[1fr_auto] md:items-end"
-      >
-        <input type="hidden" name="productId" value={product.id} />
-
-        <label className="grid gap-1 text-sm">
-          Upload image
-          <input
-            name="image"
-            type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif"
-            className="rounded-xl border border-[#d6c4aa] px-3 py-2 text-sm"
-          />
-        </label>
-
-        <button
-          type="submit"
-          className="rounded-xl bg-[#2f241d] px-5 py-2 text-sm font-semibold text-white hover:bg-[#4a382c]"
-        >
-          Upload image
-        </button>
-      </form>
+      <AdminProductImageUploadForm
+        productId={product.id}
+        colors={productColors}
+      />
     </section>
   );
 }

@@ -1,5 +1,3 @@
-import type { ProductCategory } from "../types/product";
-
 export const routes = {
   home: "/",
   catalog: "/catalog",
@@ -19,12 +17,14 @@ export const routes = {
   adminProductNew: "/admin/products/new",
   adminProductSizes: "/admin/options/sizes",
   adminProductColors: "/admin/options/colors",
+  adminProductMaterials: "/admin/options/materials",
 
   adminProductEdit: (id: number) => `/admin/products/${id}/edit`,
 
-  productDetail: (slug: string) => `/product/${slug}`,
+  productDetail: (slug: string, color?: string) =>
+    color
+      ? `/product/${slug}?color=${encodeURIComponent(color)}`
+      : `/product/${slug}`,
   orderSuccess: (orderNumber: string) => `/order-success/${orderNumber}`,
 
-  catalogByCategory: (category: ProductCategory) =>
-    `/catalog?category=${encodeURIComponent(category)}`,
 } as const;

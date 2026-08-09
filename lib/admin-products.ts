@@ -11,13 +11,22 @@ type ProductRow = {
   name: string;
   description: string;
   price_mmk: number;
-  category: InternalProduct["category"];
+  department_id: number;
+  product_type_id: number;
+  departments: TaxonomyRow | TaxonomyRow[] | null;
+  product_types: TaxonomyRow | TaxonomyRow[] | null;
   availability: InternalProduct["availability"];
   is_visible: boolean;
 };
 
 type OptionNameRow = {
   name: string;
+};
+
+type TaxonomyRow = {
+  id: number;
+  name: string;
+  slug: string;
 };
 
 type VariantRow = {
@@ -29,9 +38,17 @@ type VariantRow = {
 };
 
 type ImageRow = {
+  id: number;
   product_id: number;
   image_url: string;
   display_order: number | null;
+  color_id: number | null;
+  colors: OptionNameRow | OptionNameRow[] | null;
+};
+
+type ProductMaterialRow = {
+  product_id: number;
+  materials: TaxonomyRow | TaxonomyRow[] | null;
 };
 
 function getRelatedOptionName(
@@ -44,10 +61,19 @@ function getRelatedOptionName(
   return relation?.name ?? "Unknown";
 }
 
+function getRelatedTaxonomy(
+  relation: TaxonomyRow | TaxonomyRow[] | null,
+): TaxonomyRow {
+  const option = Array.isArray(relation) ? relation[0] : relation;
+
+  return option ?? { id: 0, name: "Unknown", slug: "unknown" };
+}
+
 function mapAdminProduct(
   product: ProductRow,
   variants: VariantRow[],
   images: ImageRow[],
+  materialRows: ProductMaterialRow[],
 ): InternalProduct {
   const stockItems = variants
     .filter((variant) => variant.product_id === product.id)
@@ -65,7 +91,18 @@ function mapAdminProduct(
         (firstImage.display_order ?? 0) -
         (secondImage.display_order ?? 0),
     )
-    .map((image) => image.image_url);
+    .map((image) => ({
+      id: image.id,
+      url: image.image_url,
+      colorId: image.color_id,
+      colorName: getRelatedOptionName(image.colors) === "Unknown"
+        ? null
+        : getRelatedOptionName(image.colors),
+    }));
+
+  const materials = materialRows
+    .filter((material) => material.product_id === product.id)
+    .map((material) => getRelatedTaxonomy(material.materials));
 
   const stockQty = stockItems.reduce(
     (total, item) => total + item.quantity,
@@ -79,7 +116,9 @@ function mapAdminProduct(
     name: product.name,
     description: product.description,
     priceMMK: product.price_mmk,
-    category: product.category,
+    department: getRelatedTaxonomy(product.departments),
+    productType: getRelatedTaxonomy(product.product_types),
+    materials,
     images: productImages,
     sizes: [...new Set(stockItems.map((item) => item.size))],
     colors: [...new Set(stockItems.map((item) => item.color))],
@@ -97,10 +136,11 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
     { data: products, error: productsError },
     { data: variants, error: variantsError },
     { data: images, error: imagesError },
+    { data: materials, error: materialsError },
   ] = await Promise.all([
     supabase
       .from("products")
-      .select("*")
+      .select("*, departments (id, name, slug), product_types (id, name, slug)")
       .is("deleted_at", null)
       .order("id"),
 
@@ -122,15 +162,19 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
 
     supabase
       .from("product_images")
-      .select("product_id, image_url, display_order")
+      .select("id, product_id, image_url, display_order, color_id, colors (name)")
       .order("display_order")
       .order("id"),
+
+    supabase
+      .from("product_materials")
+      .select("product_id, materials (id, name, slug)"),
   ]);
 
-  if (productsError || variantsError || imagesError) {
+  if (productsError || variantsError || imagesError || materialsError) {
     throwReportedServerError({
       operation: "admin.products.load_active",
-      error: productsError ?? variantsError ?? imagesError,
+      error: productsError ?? variantsError ?? imagesError ?? materialsError,
       message: "Unable to load admin products.",
     });
   }
@@ -139,7 +183,8 @@ export async function getAdminProducts(): Promise<InternalProduct[]> {
     mapAdminProduct(
       product,
       variants as unknown as VariantRow[],
-      images as ImageRow[],
+      images as unknown as ImageRow[],
+      materials as unknown as ProductMaterialRow[],
     ),
   );
 }
@@ -151,10 +196,11 @@ export async function getArchivedAdminProducts(): Promise<InternalProduct[]> {
     { data: products, error: productsError },
     { data: variants, error: variantsError },
     { data: images, error: imagesError },
+    { data: materials, error: materialsError },
   ] = await Promise.all([
     supabase
       .from("products")
-      .select("*")
+      .select("*, departments (id, name, slug), product_types (id, name, slug)")
       .not("deleted_at", "is", null)
       .order("id"),
 
@@ -176,15 +222,19 @@ export async function getArchivedAdminProducts(): Promise<InternalProduct[]> {
 
     supabase
       .from("product_images")
-      .select("product_id, image_url, display_order")
+      .select("id, product_id, image_url, display_order, color_id, colors (name)")
       .order("display_order")
       .order("id"),
+
+    supabase
+      .from("product_materials")
+      .select("product_id, materials (id, name, slug)"),
   ]);
 
-  if (productsError || variantsError || imagesError) {
+  if (productsError || variantsError || imagesError || materialsError) {
     throwReportedServerError({
       operation: "admin.products.load_archived",
-      error: productsError ?? variantsError ?? imagesError,
+      error: productsError ?? variantsError ?? imagesError ?? materialsError,
       message: "Unable to load archived admin products.",
     });
   }
@@ -193,7 +243,8 @@ export async function getArchivedAdminProducts(): Promise<InternalProduct[]> {
     mapAdminProduct(
       product,
       variants as unknown as VariantRow[],
-      images as ImageRow[],
+      images as unknown as ImageRow[],
+      materials as unknown as ProductMaterialRow[],
     ),
   );
 }
@@ -207,10 +258,11 @@ export async function getAdminProductById(
     { data: product, error: productError },
     { data: variants, error: variantsError },
     { data: images, error: imagesError },
+    { data: materials, error: materialsError },
   ] = await Promise.all([
     supabase
       .from("products")
-      .select("*")
+      .select("*, departments (id, name, slug), product_types (id, name, slug)")
       .eq("id", id)
       .is("deleted_at", null)
       .single(),
@@ -234,20 +286,25 @@ export async function getAdminProductById(
 
     supabase
       .from("product_images")
-      .select("product_id, image_url, display_order")
+      .select("id, product_id, image_url, display_order, color_id, colors (name)")
       .eq("product_id", id)
       .order("display_order")
       .order("id"),
+
+    supabase
+      .from("product_materials")
+      .select("product_id, materials (id, name, slug)")
+      .eq("product_id", id),
   ]);
 
   if (productError) {
     return undefined;
   }
 
-  if (variantsError || imagesError) {
+  if (variantsError || imagesError || materialsError) {
     throwReportedServerError({
       operation: "admin.product.load_detail",
-      error: variantsError ?? imagesError,
+      error: variantsError ?? imagesError ?? materialsError,
       productId: id,
       message: "Unable to load admin product.",
     });
@@ -256,6 +313,7 @@ export async function getAdminProductById(
   return mapAdminProduct(
     product as ProductRow,
     variants as unknown as VariantRow[],
-    images as ImageRow[],
+    images as unknown as ImageRow[],
+    materials as unknown as ProductMaterialRow[],
   );
 }

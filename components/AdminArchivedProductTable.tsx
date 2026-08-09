@@ -18,7 +18,7 @@ export default function AdminArchivedProductTable({
         <div>Image</div>
         <div>Name</div>
         <div>Code</div>
-        <div>Category</div>
+        <div>Department / Type</div>
         <div>Price</div>
         <div>Actions</div>
       </div>
@@ -52,7 +52,7 @@ export default function AdminArchivedProductTable({
 
             <div>{product.code}</div>
 
-            <div>{product.category}</div>
+            <div>{product.department.name} / {product.productType.name}</div>
 
             <div>{formatMMK(product.priceMMK)}</div>
 

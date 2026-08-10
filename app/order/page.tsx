@@ -5,10 +5,12 @@ import SectionHeader from "../../components/SectionHeader";
 export default function OrderPage() {
   return (
     <PageShell>
-      <section className="mx-auto max-w-6xl px-5 py-6">
+      <section className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-14 lg:px-12">
         <SectionHeader
-          title="Order Request"
-          description="Fill in your contact details and send your selected items to JuneRose. Our staff will confirm availability, payment, and pickup or delivery."
+          eyebrow="Final step"
+          title="Send your order request"
+          description="Tell us how to contact you. JuneRose staff will confirm availability, payment, and pickup or delivery after receiving your request."
+          appearance="editorial"
         />
 
         <OrderForm />

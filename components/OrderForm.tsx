@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { createOrderRequestAction } from "@/app/order/actions";
 import { clearCart } from "@/lib/cartStorage";
@@ -71,46 +72,56 @@ export default function OrderForm() {
   }
 
   if (cartItems.length === 0) {
+    return (
+      <div className="mt-12 border-y border-[#e7e1de] py-16 text-center sm:py-24">
+        <p className="font-display text-3xl">Your shopping bag is empty</p>
+        <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-[#6f6864]">
+          Add at least one piece before sending an order request.
+        </p>
+
+        <Link
+          href={routes.catalog}
+          className="mt-7 inline-flex min-h-12 items-center justify-center rounded-[3px] bg-[#211d1b] px-7 text-sm font-medium text-white transition-colors hover:bg-[#b62568]"
+        >
+          Browse the collection
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="mt-8 rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
-      <p className="text-sm text-[#8a7a6d]">
-        Your cart is empty. Please add items before sending an order request.
-      </p>
+    <form
+      onSubmit={handleSubmit}
+      className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start"
+    >
+      <section aria-labelledby="contact-details-heading">
+        <div className="border-b border-[#e7e1de] pb-4">
+          <p className="text-xs font-medium uppercase text-[#9a8558]">01</p>
+          <h2
+            id="contact-details-heading"
+            className="mt-2 font-display text-3xl"
+          >
+            Contact details
+          </h2>
+        </div>
 
-      <a
-        href={routes.catalog}
-        className="mt-4 inline-block rounded-full bg-[#2f241d] px-5 py-2 text-sm text-[#f8f3eb] hover:bg-[#4a382c]"
-      >
-        Browse Catalog
-      </a>
-    </div>
-  );
-}
-
-  return (
-    <form onSubmit={handleSubmit} className="mt-8 grid gap-6 md:grid-cols-[1fr_360px]">
-      <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
-        <h2 className="text-lg font-medium">Contact Details</h2>
-
-        <div className="mt-5 space-y-4">
-          <div>
-            <label htmlFor="order-name" className="text-sm font-medium">
-              Name
-            </label>
+        <div className="mt-7 grid gap-6 sm:grid-cols-2">
+          <label htmlFor="order-name" className="grid gap-2 text-sm">
+            Full name
             <input
               id="order-name"
               required
               autoComplete="name"
               value={customer.name}
-              onChange={(event) => updateCustomerField("name", event.target.value)}
-              className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
+              onChange={(event) =>
+                updateCustomerField("name", event.target.value)
+              }
+              className="min-h-12 w-full rounded-[3px] border border-[#d8d2cf] bg-white px-4 text-sm outline-none transition-colors focus:border-[#b62568]"
             />
-          </div>
+          </label>
 
-          <div>
-            <label htmlFor="order-phone" className="text-sm font-medium">
-              Phone
-            </label>
+          <label htmlFor="order-phone" className="grid gap-2 text-sm">
+            Phone number
             <input
               id="order-phone"
               required
@@ -118,15 +129,18 @@ export default function OrderForm() {
               autoComplete="tel"
               maxLength={30}
               value={customer.phone}
-              onChange={(event) => updateCustomerField("phone", event.target.value)}
-              className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
+              onChange={(event) =>
+                updateCustomerField("phone", event.target.value)
+              }
+              className="min-h-12 w-full rounded-[3px] border border-[#d8d2cf] bg-white px-4 text-sm outline-none transition-colors focus:border-[#b62568]"
             />
-          </div>
+          </label>
 
-          <div>
-            <label htmlFor="order-address" className="text-sm font-medium">
-              Address / Township
-            </label>
+          <label
+            htmlFor="order-address"
+            className="grid gap-2 text-sm sm:col-span-2"
+          >
+            Address / township
             <textarea
               id="order-address"
               required
@@ -135,83 +149,100 @@ export default function OrderForm() {
               onChange={(event) =>
                 updateCustomerField("address", event.target.value)
               }
-              rows={3}
-              className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
+              rows={4}
+              className="w-full resize-y rounded-[3px] border border-[#d8d2cf] bg-white px-4 py-3 text-sm leading-6 outline-none transition-colors focus:border-[#b62568]"
             />
-          </div>
+          </label>
 
-          <div>
-            <label htmlFor="order-contact" className="text-sm font-medium">
-              Preferred Contact
-            </label>
+          <label htmlFor="order-contact" className="grid gap-2 text-sm">
+            Preferred contact
             <select
               id="order-contact"
               value={customer.preferredContact}
               onChange={(event) =>
                 updateCustomerField(
                   "preferredContact",
-                  event.target.value as CustomerContactInfo["preferredContact"]
+                  event.target.value as CustomerContactInfo["preferredContact"],
                 )
               }
-              className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
+              className="min-h-12 w-full rounded-[3px] border border-[#d8d2cf] bg-white px-4 text-sm outline-none transition-colors focus:border-[#b62568]"
             >
               <option value="Viber">Viber</option>
               <option value="Messenger">Messenger</option>
               <option value="Phone">Phone</option>
             </select>
-          </div>
+          </label>
 
-          <div>
-            <label htmlFor="order-note" className="text-sm font-medium">
-              Note
-            </label>
+          <label htmlFor="order-note" className="grid gap-2 text-sm">
+            Note <span className="text-xs text-[#6f6864]">Optional</span>
             <textarea
               id="order-note"
               value={customer.note}
-              onChange={(event) => updateCustomerField("note", event.target.value)}
-              rows={3}
-              className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
+              onChange={(event) =>
+                updateCustomerField("note", event.target.value)
+              }
+              rows={4}
+              className="w-full resize-y rounded-[3px] border border-[#d8d2cf] bg-white px-4 py-3 text-sm leading-6 outline-none transition-colors focus:border-[#b62568]"
             />
-          </div>
+          </label>
         </div>
-      </div>
+      </section>
 
-      <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
-        <h2 className="text-lg font-medium">Order Summary</h2>
+      <aside className="border border-[#e7e1de] bg-[#faf9f8] p-6 lg:sticky lg:top-28">
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 className="font-display text-2xl">Order summary</h2>
+          <Link
+            href={routes.cart}
+            className="text-xs uppercase underline decoration-[#cfc8c4] underline-offset-4 hover:text-[#b62568]"
+          >
+            Edit bag
+          </Link>
+        </div>
 
-        <div className="mt-5 space-y-3">
+        <div className="mt-6 divide-y divide-[#e7e1de] border-y border-[#e7e1de]">
           {cartItems.map((item) => (
             <div
               key={`${item.productId}-${item.selectedSize}-${item.selectedColor}`}
-              className="border-b border-[#e4d6c3] pb-3 last:border-b-0"
+              className="grid grid-cols-[56px_minmax(0,1fr)] gap-3 py-4"
             >
-              <p className="text-sm font-medium">{item.name}</p>
-              <p className="mt-1 text-xs text-[#8a7a6d]">
-                Size: {item.selectedSize} · Color: {item.selectedColor}
-              </p>
-              <p className="mt-1 text-xs text-[#8a7a6d]">
-                Qty: {item.quantity}
-              </p>
-              <p className="mt-2 text-sm text-[#6f6258]">
-                {formatMMK(item.priceMMK * item.quantity)}
-              </p>
+              <div className="relative aspect-[3/4] overflow-hidden rounded-[3px] bg-[#f3f1f0]">
+                <Image
+                  src={item.image}
+                  alt=""
+                  fill
+                  sizes="56px"
+                  className="object-cover"
+                />
+              </div>
+
+              <div className="min-w-0">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-medium">{item.name}</p>
+                  <p className="shrink-0 text-xs">
+                    {formatMMK(item.priceMMK * item.quantity)}
+                  </p>
+                </div>
+                <p className="mt-1 text-xs leading-5 text-[#6f6864]">
+                  {item.selectedColor} / {item.selectedSize} / Qty {item.quantity}
+                </p>
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-[#d6c4aa] pt-4">
-          <p className="text-sm font-medium">Estimated Total</p>
-          <p className="text-sm font-semibold">{formatMMK(totalMMK)}</p>
+        <div className="flex items-center justify-between py-5">
+          <p className="text-sm">Estimated total</p>
+          <p className="font-medium">{formatMMK(totalMMK)}</p>
         </div>
 
-        <p className="mt-3 text-xs leading-5 text-[#8a7a6d]">
-          JuneRose staff will confirm availability, payment, and pickup or
-          delivery details.
+        <p className="text-xs leading-6 text-[#6f6864]">
+          No payment is collected now. JuneRose staff will contact you to
+          confirm availability, payment, and fulfilment.
         </p>
 
         <label
           htmlFor="order-privacy"
-          className="mt-5 flex items-start gap-3 text-sm leading-6 text-[#5f534a]"
+          className="mt-5 flex items-start gap-3 border-t border-[#e7e1de] pt-5 text-xs leading-6 text-[#4f4946]"
         >
           <input
             id="order-privacy"
@@ -221,7 +252,7 @@ export default function OrderForm() {
             onChange={(event) =>
               setPrivacyAcknowledged(event.target.checked)
             }
-            className="mt-1 size-4 shrink-0 accent-[#2f241d]"
+            className="mt-1 size-4 shrink-0 accent-[#b62568]"
           />
           <span>
             I have read and acknowledge the{" "}
@@ -229,7 +260,7 @@ export default function OrderForm() {
               href={routes.privacy}
               target="_blank"
               rel="noreferrer"
-              className="font-medium text-[#6d4c2f] underline underline-offset-2"
+              className="font-medium underline decoration-[#cfc8c4] underline-offset-2 hover:text-[#b62568]"
             >
               JuneRose privacy notice
             </Link>
@@ -238,17 +269,19 @@ export default function OrderForm() {
         </label>
 
         {errorMessage && (
-          <p className="mt-4 text-sm text-red-700">{errorMessage}</p>
+          <p className="mt-4 border-l-2 border-red-600 pl-3 text-sm text-red-700">
+            {errorMessage}
+          </p>
         )}
 
         <button
           type="submit"
           disabled={isSubmitting || !privacyAcknowledged}
-          className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:bg-[#b8aa98]"
+          className="mt-6 min-h-12 w-full rounded-[3px] bg-[#211d1b] px-6 text-sm font-medium text-white transition-colors hover:bg-[#b62568] disabled:cursor-not-allowed disabled:bg-[#cfc8c4]"
         >
-          {isSubmitting ? "Sending..." : "Send Order Request"}
+          {isSubmitting ? "Sending request..." : "Send order request"}
         </button>
-      </div>
+      </aside>
     </form>
   );
 }

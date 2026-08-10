@@ -1,14 +1,17 @@
 "use client";
 
-import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import CustomerOrderDetails, {
+  OrderStatusBadge,
+} from "@/components/CustomerOrderDetails";
 import {
   findCustomerOrder,
   OrderLookupRateLimitError,
 } from "@/lib/customer-orders";
 import { buildCustomerOrderMessage } from "@/lib/orderMessage";
-import { formatMMK } from "@/lib/formatPrice";
 import { consumeRecentOrderPhone } from "@/lib/orderStorage";
+import { routes } from "@/lib/routes";
 import type { OrderRequest } from "@/types/order";
 
 type OrderSuccessViewProps = {
@@ -100,26 +103,36 @@ export default function OrderSuccessView({
 
   if (!visibleOrder) {
     return (
-      <div className="mt-8 grid gap-6 md:grid-cols-[1fr_360px]">
-        <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
-          <p className="text-sm text-[#9c7a4f]">Order Number</p>
-
-          <h2 className="mt-2 text-2xl font-semibold">{orderNumber}</h2>
-
-          <p className="mt-4 text-sm leading-6 text-[#6f6258]">
-            Thank you. Please keep this order number. JuneRose staff will
-            confirm item availability, payment method, and pickup or delivery
-            details.
+      <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
+        <section className="border-y border-[#211d1b] py-8 sm:py-10">
+          <p className="text-xs font-medium uppercase text-[#9a8558]">
+            Your order number
           </p>
-        </div>
+
+          <h2 className="mt-3 break-all font-display text-4xl sm:text-5xl">
+            {orderNumber}
+          </h2>
+
+          <p className="mt-5 max-w-2xl text-sm leading-7 text-[#6f6864]">
+            Keep this number. JuneRose staff will contact you to confirm item
+            availability, payment, and pickup or delivery details.
+          </p>
+
+          <Link
+            href={routes.catalog}
+            className="mt-7 inline-flex min-h-11 items-center text-xs font-medium uppercase underline decoration-[#cfc8c4] underline-offset-4 hover:text-[#b62568]"
+          >
+            Continue shopping
+          </Link>
+        </section>
 
         <form
           onSubmit={handleVerifyOrder}
-          className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6"
+          className="border border-[#e7e1de] bg-[#faf9f8] p-6"
         >
-          <h3 className="text-lg font-medium">View order details</h3>
+          <h3 className="font-display text-2xl">View order details</h3>
 
-          <p className="mt-2 text-sm leading-6 text-[#8a7a6d]">
+          <p className="mt-3 text-sm leading-6 text-[#6f6864]">
             {isRestoringRecentOrder
               ? "Loading your order details..."
               : "Enter the phone number used in the order to view the full summary."}
@@ -127,13 +140,11 @@ export default function OrderSuccessView({
 
           {!isRestoringRecentOrder && (
             <>
-              <div className="mt-5">
-                <label
-                  htmlFor="success-order-phone"
-                  className="text-sm font-medium"
-                >
-                  Phone Number
-                </label>
+              <label
+                htmlFor="success-order-phone"
+                className="mt-6 grid gap-2 text-sm"
+              >
+                Phone number
                 <input
                   id="success-order-phone"
                   required
@@ -143,18 +154,20 @@ export default function OrderSuccessView({
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
                   placeholder="Phone used in the order"
-                  className="mt-2 w-full rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm outline-none focus:border-[#9c7a4f]"
+                  className="min-h-12 w-full rounded-[3px] border border-[#d8d2cf] bg-white px-4 text-sm outline-none transition-colors focus:border-[#b62568]"
                 />
-              </div>
+              </label>
 
               {errorMessage && (
-                <p className="mt-4 text-sm text-red-700">{errorMessage}</p>
+                <p className="mt-5 border-l-2 border-red-600 pl-3 text-sm leading-6 text-red-700">
+                  {errorMessage}
+                </p>
               )}
 
               <button
                 type="submit"
                 disabled={isChecking}
-                className="mt-5 w-full rounded-full bg-[#2f241d] px-6 py-3 text-sm text-[#f8f3eb] hover:bg-[#4a382c] disabled:cursor-not-allowed disabled:bg-[#b8aa98]"
+                className="mt-6 min-h-12 w-full rounded-[3px] bg-[#211d1b] px-6 text-sm font-medium text-white transition-colors hover:bg-[#b62568] disabled:cursor-not-allowed disabled:bg-[#cfc8c4]"
               >
                 {isChecking ? "Checking..." : "View order details"}
               </button>
@@ -166,92 +179,60 @@ export default function OrderSuccessView({
   }
 
   return (
-    <div className="mt-8 grid gap-6 md:grid-cols-[1fr_360px]">
-      <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
-        <p className="text-sm text-[#9c7a4f]">Order Number</p>
-
-        <h2 className="mt-2 text-2xl font-semibold">
-          {visibleOrder.orderNumber}
-        </h2>
-
-        <p className="mt-4 text-sm leading-6 text-[#6f6258]">
-          Thank you. Please keep this order number. JuneRose staff will confirm
-          item availability, payment method, and pickup or delivery details.
-        </p>
-
-        <div className="mt-6">
-          <h3 className="text-sm font-medium">Customer Details</h3>
-
-          <div className="mt-3 space-y-1 text-sm text-[#6f6258]">
-            <p>Name: {visibleOrder.customer.name}</p>
-            <p>Phone: {visibleOrder.customer.phone}</p>
-            <p>Address: {visibleOrder.customer.address}</p>
-            <p>
-              Preferred contact: {visibleOrder.customer.preferredContact}
-            </p>
-            {visibleOrder.customer.note && (
-              <p>Note: {visibleOrder.customer.note}</p>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={handleCopyOrderInfo}
-            className="mt-6 rounded-full bg-[#2f241d] px-5 py-2 text-sm text-[#f8f3eb] hover:bg-[#4a382c]"
-          >
-            Copy Order Info
-          </button>
-
-          {copyMessage && (
-            <p className="mt-3 text-sm text-[#6f6258]">{copyMessage}</p>
-          )}
+    <div className="mt-10">
+      <div className="flex flex-col gap-5 border-y border-[#211d1b] py-7 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-medium uppercase text-[#9a8558]">
+            Your order number
+          </p>
+          <h2 className="mt-2 break-all font-display text-4xl sm:text-5xl">
+            {visibleOrder.orderNumber}
+          </h2>
         </div>
+        <OrderStatusBadge status={visibleOrder.status} />
       </div>
 
-      <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
-        <h3 className="text-lg font-medium">Ordered Items</h3>
+      <p className="mt-6 max-w-2xl text-sm leading-7 text-[#6f6864]">
+        Keep this number. JuneRose staff will contact you to confirm item
+        availability, payment, and pickup or delivery details.
+      </p>
 
-        <div className="mt-5 space-y-3">
-          {visibleOrder.items.map((item) => (
-            <div
-              key={`${item.productId}-${item.selectedSize}-${item.selectedColor}`}
-              className="flex gap-3 border-b border-[#e4d6c3] pb-3 last:border-b-0"
-            >
-              <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-xl bg-[#eadfce]">
-                <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    sizes="64px"
-                    className="object-cover"
-                />
-              </div>
+      <div className="mt-10">
+        <CustomerOrderDetails
+          order={visibleOrder}
+          customerFooter={
+            <div className="mt-7 border-t border-[#e7e1de] pt-5">
+              <button
+                type="button"
+                onClick={handleCopyOrderInfo}
+                className="min-h-11 rounded-[3px] border border-[#211d1b] px-5 text-xs font-medium uppercase transition-colors hover:bg-[#211d1b] hover:text-white"
+              >
+                Copy order information
+              </button>
 
-              <div>
-                <p className="text-sm font-medium">{item.name}</p>
-
-                <p className="mt-1 text-xs text-[#8a7a6d]">
-                  Size: {item.selectedSize} · Color: {item.selectedColor}
+              {copyMessage && (
+                <p className="mt-3 text-sm text-[#35613e]" aria-live="polite">
+                  {copyMessage}
                 </p>
-
-                <p className="mt-1 text-xs text-[#8a7a6d]">
-                  Qty: {item.quantity}
-                </p>
-
-                <p className="mt-2 text-sm text-[#6f6258]">
-                  {formatMMK(item.priceMMK * item.quantity)}
-                </p>
-              </div>
+              )}
             </div>
-          ))}
-        </div>
+          }
+        />
+      </div>
 
-        <div className="mt-5 flex items-center justify-between border-t border-[#d6c4aa] pt-4">
-          <p className="text-sm font-medium">Estimated Total</p>
-          <p className="text-sm font-semibold">
-            {formatMMK(visibleOrder.totalMMK)}
-          </p>
-        </div>
+      <div className="mt-10 flex flex-wrap gap-6 border-t border-[#e7e1de] pt-6">
+        <Link
+          href={routes.catalog}
+          className="text-xs font-medium uppercase underline decoration-[#cfc8c4] underline-offset-4 hover:text-[#b62568]"
+        >
+          Continue shopping
+        </Link>
+        <Link
+          href={routes.checkOrder}
+          className="text-xs font-medium uppercase underline decoration-[#cfc8c4] underline-offset-4 hover:text-[#b62568]"
+        >
+          Check this order later
+        </Link>
       </div>
     </div>
   );

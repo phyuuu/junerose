@@ -39,7 +39,7 @@ export default function ProductGallery({
           alt={product.name}
           fill
           sizes="(min-width: 1024px) 60vw, 100vw"
-          loading="eager"
+          priority
           className="object-cover"
         />
 

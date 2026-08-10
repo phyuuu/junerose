@@ -15,10 +15,12 @@ export default async function OrderSuccessPage({
 
   return (
     <PageShell>
-      <section className="mx-auto max-w-6xl px-5 py-6">
+      <section className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-14 lg:px-12">
         <SectionHeader
-          title="Order Request Sent"
-          description="Your order request has been saved. Please keep your order number and share it with JuneRose staff if needed."
+          eyebrow="Request received"
+          title="Thank you"
+          description="Your order request has been saved. Keep your order number so you can return and check its progress."
+          appearance="editorial"
         />
 
         <OrderSuccessView orderNumber={orderNumber} />

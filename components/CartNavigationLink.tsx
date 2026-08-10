@@ -19,7 +19,7 @@ export default function CartNavigationLink({ mobile = false }: { mobile?: boolea
     >
       <span>Cart</span>
       <span
-        aria-label={`${itemCount} items in cart`}
+        aria-label={`${itemCount} ${itemCount === 1 ? "item" : "items"} in cart`}
         className="inline-flex size-6 items-center justify-center rounded-full bg-[#f8edf2] text-[11px] text-[#9b1e5d]"
       >
         {itemCount}

@@ -45,13 +45,13 @@ export default function AdminProductRestoreButton({
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="rounded-xl border border-[#9c7a4f] px-3 py-2 text-sm font-medium text-[#6d4c2f] hover:bg-[#eadfce] disabled:cursor-not-allowed disabled:opacity-60"
+        className="min-h-9 rounded-[4px] border border-[#cfd3d6] px-3 text-xs font-medium text-[#4f4a47] hover:bg-[#f1f2f3] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "Restoring..." : "Restore"}
       </button>
 
       {message && (
-        <p className="mt-1 text-[11px] leading-4 text-[#8a7a6d]">
+        <p className="mt-1 text-[11px] leading-4 text-[#6c6764]">
           {message}
         </p>
       )}

@@ -10,16 +10,16 @@ export default async function InventoryHistoryPage() {
 
   return (
     <AdminShell showSignOut>
-      <section className="mx-auto max-w-6xl px-5 py-6">
+      <section className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-10">
         <SectionHeader
           eyebrow="STAFF AREA"
           title="Inventory History"
           description="View all stock adjustments made by staff."
         />
 
-        <div className="mt-8 overflow-hidden rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0]">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-[#d6c4aa]">
+        <div className="mt-8 overflow-x-auto rounded-[4px] border border-[#d7dadd] bg-white">
+          <table className="w-full min-w-[820px] text-left text-sm">
+            <thead className="border-b border-[#d7dadd] bg-[#f1f2f3] text-xs uppercase text-[#686360]">
               <tr>
                 <th className="px-5 py-3">
                   Product
@@ -47,7 +47,7 @@ export default async function InventoryHistoryPage() {
               {history.map((item) => (
                 <tr
                   key={item.id}
-                  className="border-b border-[#eadbc7]"
+                  className="border-b border-[#e5e7e9] hover:bg-[#fafbfb]"
                 >
                   <td className="px-5 py-3">
                     {item.productName}

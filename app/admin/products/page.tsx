@@ -1,5 +1,4 @@
 import Link from "next/link";
-import AdminNotice from "@/components/AdminNotice";
 import AdminProductTable from "@/components/AdminProductTable";
 import AdminShell from "@/components/AdminShell";
 import AdminSummaryCard from "@/components/AdminSummaryCard";
@@ -17,39 +16,32 @@ export default async function AdminProductsPage() {
 
   return (
     <AdminShell showSignOut>
-      <section className="mx-auto max-w-6xl px-5 py-6">
+      <section className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <SectionHeader
             eyebrow="STAFF AREA"
             title="Products"
-            description="Staff will be able to add products, edit prices, upload photos, hide unavailable items, and manage public product information."
+            description="Manage public listings, variants, images, visibility, and exact stock."
           />
 
           <div className="flex flex-wrap gap-2">
             <Link
               href={routes.adminArchivedProducts}
-              className="w-fit rounded-xl border border-[#d6c4aa] px-4 py-2 text-sm font-semibold text-[#8b5e3c] hover:bg-[#eadfce]"
+              className="inline-flex min-h-10 items-center rounded-[4px] border border-[#cfd3d6] bg-white px-4 text-sm font-medium text-[#4f4a47] hover:border-[#9ea3a7]"
             >
               Archived products
             </Link>
 
             <Link
               href={routes.adminProductNew}
-              className="w-fit rounded-xl bg-[#8b5e3c] px-4 py-2 text-sm font-semibold text-white shadow-sm"
+              className="inline-flex min-h-10 items-center rounded-[4px] bg-[#211f1e] px-4 text-sm font-medium text-white hover:bg-[#b62568]"
             >
-              + Add product
+              Add product
             </Link>
           </div>
         </div>
 
-        <div className="mt-6">
-          <AdminNotice title="Development admin page">
-            Product data is now loaded from Supabase with protected staff access.
-            Product editing actions will be connected next.
-          </AdminNotice>
-        </div>
-
-        <div className="mt-8 grid gap-4 md:grid-cols-5">
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
           <AdminSummaryCard
             label="Total products"
             value={summary.totalProductCount}
@@ -69,11 +61,11 @@ export default async function AdminProductsPage() {
           />
         </div>
 
-        <div className="mt-8">
+        <div className="mt-6">
           <AdminProductTable products={products} />
         </div>
 
-        <p className="mt-4 text-xs leading-5 text-[#8a7a6d]">
+        <p className="mt-4 text-xs leading-5 text-[#6c6764]">
           This is an internal staff view. Product code and exact stock details
           are shown here, but they are not exposed on customer-facing product
           pages. Total stock is calculated from the size/color stock rows.

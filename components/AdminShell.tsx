@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import AdminSignOutButton from "@/components/AdminSignOutButton";
+import AdminWorkspaceShell from "@/components/AdminWorkspaceShell";
 import { requireStaff } from "@/lib/auth/require-staff";
 import { routes } from "../lib/routes";
 
@@ -15,75 +15,31 @@ export default async function AdminShell({
 }: AdminShellProps) {
   const staff = showSignOut ? await requireStaff() : null;
 
-  return (
-    <div className="min-h-screen bg-[#f8f3eb] text-[#2f241d]">
-      <a className="skip-link" href="#admin-main-content">
-        Skip to admin content
-      </a>
-      <header className="mx-auto flex max-w-6xl flex-col items-start gap-4 px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
-        <Link href={routes.admin} className="text-xl font-semibold tracking-wide">
-          JuneRose Admin
-        </Link>
+  if (!staff) {
+    return (
+      <div className="min-h-screen bg-[#f5f6f7] text-[#242220]">
+        <a className="skip-link" href="#admin-main-content">
+          Skip to admin content
+        </a>
+        <header className="border-b border-[#dfe2e5] bg-white">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
+            <Link href={routes.admin} className="text-lg font-semibold">
+              JuneRose Admin
+            </Link>
+            <Link
+              href={routes.home}
+              className="text-sm text-[#6c6764] hover:text-[#b62568]"
+            >
+              View store
+            </Link>
+          </div>
+        </header>
+        <main id="admin-main-content" tabIndex={-1}>
+          {children}
+        </main>
+      </div>
+    );
+  }
 
-        <nav
-          aria-label="Admin navigation"
-          className="flex w-full items-center gap-5 overflow-x-auto pb-1 text-sm whitespace-nowrap sm:w-auto"
-        >
-          {staff && (
-            <>
-              <Link href={routes.adminOrders} className="hover:text-[#9c7a4f]">
-                Orders
-              </Link>
-
-              <Link href={routes.adminProducts} className="hover:text-[#9c7a4f]">
-                Products
-              </Link>
-
-              <Link href={routes.adminProductSizes} className="hover:text-[#9c7a4f]">
-                Sizes
-              </Link>
-
-              <Link href={routes.adminProductColors} className="hover:text-[#9c7a4f]">
-                Colors
-              </Link>
-
-              <Link href={routes.adminProductMaterials} className="hover:text-[#9c7a4f]">
-                Materials
-              </Link>
-
-              <Link href={routes.adminStorefront} className="hover:text-[#9c7a4f]">
-                Storefront
-              </Link>
-
-              <Link href={routes.adminDataRetention} className="hover:text-[#9c7a4f]">
-                Data retention
-              </Link>
-
-              {staff.role === "admin" && (
-                <Link href={routes.adminStaff} className="hover:text-[#9c7a4f]">
-                  Staff access
-                </Link>
-              )}
-            </>
-          )}
-
-          <Link href={routes.home} className="text-[#8a7a6d] hover:text-[#9c7a4f]">
-            View Store
-          </Link>
-
-          {staff && (
-            <span className="text-xs font-medium uppercase text-[#8a7a6d]">
-              {staff.role}
-            </span>
-          )}
-
-          {showSignOut && <AdminSignOutButton />}
-        </nav>
-      </header>
-
-      <main id="admin-main-content" tabIndex={-1}>
-        {children}
-      </main>
-    </div>
-  );
+  return <AdminWorkspaceShell role={staff.role}>{children}</AdminWorkspaceShell>;
 }

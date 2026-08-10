@@ -105,7 +105,7 @@ export default async function AdminOrdersPage({
 
   return (
     <AdminShell showSignOut>
-      <section className="mx-auto max-w-6xl px-5 py-6">
+      <section className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-10">
         <SectionHeader
           eyebrow="STAFF AREA"
           title="Orders"

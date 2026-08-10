@@ -21,7 +21,7 @@ export default async function AdminStorefrontPage({
 
   return (
     <AdminShell showSignOut>
-      <section className="mx-auto max-w-6xl px-5 py-6">
+      <section className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-10">
         <p className="text-sm tracking-[0.25em] text-[#9c7a4f]">STAFF AREA</p>
         <h1 className="mt-3 text-2xl font-semibold">Storefront Appearance</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6f6258]">

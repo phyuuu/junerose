@@ -19,121 +19,137 @@ export default function AdminProductTable({
   products,
 }: AdminProductTableProps) {
   return (
-    <div className="mt-6 overflow-x-auto rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0]">
-      <div className="grid min-w-[1050px] grid-cols-[80px_1.4fr_1fr_1fr_1fr_1.2fr_1fr] bg-[#eadfce] px-4 py-3 text-sm font-semibold text-[#6f6258]">
-        <div>Image</div>
-        <div>Name</div>
-        <div>Code</div>
-        <div>Department / Type</div>
-        <div>Price</div>
-        <div>Stock details</div>
-        <div>Actions</div>
-      </div>
+    <div className="overflow-hidden rounded-[4px] border border-[#d7dadd] bg-white">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[1120px] text-left text-sm">
+          <thead className="bg-[#f1f2f3] text-xs uppercase text-[#686360]">
+            <tr>
+              <th className="px-4 py-3 font-medium">Product</th>
+              <th className="px-4 py-3 font-medium">Code</th>
+              <th className="px-4 py-3 font-medium">Classification</th>
+              <th className="px-4 py-3 font-medium">Price</th>
+              <th className="px-4 py-3 font-medium">Availability</th>
+              <th className="px-4 py-3 font-medium">Stock</th>
+              <th className="px-4 py-3 font-medium">Actions</th>
+            </tr>
+          </thead>
 
-      {products.length === 0 ? (
-        <div className="min-w-[1050px] border-t border-[#d6c4aa] px-4 py-6 text-sm text-[#8a7a6d]">
-          No products found.
-        </div>
-      ) : (
-        products.map((product) => (
-          <div
-            key={product.id}
-            className="grid min-w-[1050px] grid-cols-[80px_1.4fr_1fr_1fr_1fr_1.2fr_1fr] border-t border-[#d6c4aa] px-4 py-3 text-sm text-[#3f342b]"
-          >
-            <div className="relative h-14 w-14 overflow-hidden rounded-xl bg-[#eadfce]">
-              <Image
-                src={getMainProductImage(product)}
-                alt={product.name}
-                fill
-                sizes="56px"
-                className="object-cover"
-              />
-            </div>
+          <tbody className="divide-y divide-[#e5e7e9]">
+            {products.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-5 py-10 text-center text-[#6c6764]">
+                  No products found.
+                </td>
+              </tr>
+            ) : (
+              products.map((product) => (
+                <tr key={product.id} className="align-top hover:bg-[#fafbfb]">
+                  <td className="px-4 py-3">
+                    <div className="flex min-w-[220px] items-start gap-3">
+                      <div className="relative h-16 w-14 shrink-0 overflow-hidden rounded-[3px] bg-[#f1f2f3]">
+                        <Image
+                          src={getMainProductImage(product)}
+                          alt={product.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium text-[#242220]">
+                          {product.name}
+                        </p>
+                        <div className="mt-2">
+                          <AdminStatusBadge
+                            label={product.isVisible ? "Visible" : "Hidden"}
+                            tone={product.isVisible ? "green" : "gray"}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </td>
 
-            <div>
-              <p className="font-medium">{product.name}</p>
-              <div className="mt-2">
-                <AdminStatusBadge
-                  label={product.isVisible ? "Visible" : "Hidden"}
-                  tone={product.isVisible ? "green" : "gray"}
-                />
-              </div>
-            </div>
+                  <td className="px-4 py-3 font-mono text-xs text-[#5f5a57]">
+                    {product.code}
+                  </td>
 
-            <div>{product.code}</div>
-
-            <div>
-              <p>{product.department.name}</p>
-              <p className="text-xs text-[#8a7a6d]">{product.productType.name}</p>
-              <div className="mt-2">
-                <AdminStatusBadge
-                  label={product.availability}
-                  tone={
-                    product.availability === "Available"
-                      ? "green"
-                      : product.availability === "Low stock"
-                        ? "amber"
-                        : "gray"
-                  }
-                />
-              </div>
-            </div>
-
-            <div>{formatMMK(product.priceMMK)}</div>
-
-            <div>
-              <p className="font-medium">
-                Total: {calculateTotalStock(product.stockItems)}
-              </p>
-
-              {!isProductStockConsistent(product) && (
-                <p className="mt-1 rounded-full bg-red-50 px-2 py-1 text-xs font-medium text-red-600">
-                  Stock mismatch
-                </p>
-              )}
-
-              <div className="mt-2 space-y-1 text-xs text-[#8a7a6d]">
-                {product.stockItems.length > 0 ? (
-                  product.stockItems.map((item, index) => (
-                    <p
-                      key={`${item.size}-${item.color}-${index}`}
-                      className="rounded-lg bg-white/70 px-2 py-1"
-                    >
-                      {item.size} / {item.color}: {item.quantity}
+                  <td className="px-4 py-3">
+                    <p>{product.department.name}</p>
+                    <p className="mt-1 text-xs text-[#6c6764]">
+                      {product.productType.name}
                     </p>
-                  ))
-                ) : (
-                  <p className="rounded-lg bg-white/70 px-2 py-1">
-                    No stock rows
-                  </p>
-                )}
-              </div>
-            </div>
+                  </td>
 
-            <div className="flex flex-col gap-2">
-            <div className="flex flex-wrap gap-2">
-                <Link
-                  href={`/admin/products/${product.id}/edit`}
-                  className="rounded-xl border border-[#d6c4aa] px-3 py-2 text-sm font-medium text-[#8b5e3c] hover:bg-[#eadfce]"
-                >
-                  Edit
-                </Link>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    {formatMMK(product.priceMMK)}
+                  </td>
 
-                <AdminProductVisibilityButton
-                  productId={product.id}
-                  isVisible={product.isVisible}
-                  productName={product.name}
-                />
+                  <td className="px-4 py-3">
+                    <AdminStatusBadge
+                      label={product.availability}
+                      tone={
+                        product.availability === "Available"
+                          ? "green"
+                          : product.availability === "Low stock"
+                            ? "amber"
+                            : "gray"
+                      }
+                    />
+                  </td>
 
-                <AdminProductArchiveButton
-                  productId={product.id}
-                  productName={product.name}
-                />
-            </div>
-            </div>
-          </div>
-        ))
-      )}
+                  <td className="px-4 py-3">
+                    <details className="min-w-[150px]">
+                      <summary className="cursor-pointer text-sm font-medium text-[#242220]">
+                        {calculateTotalStock(product.stockItems)} total
+                      </summary>
+
+                      {!isProductStockConsistent(product) && (
+                        <p className="mt-2 text-xs font-medium text-red-700">
+                          Stock mismatch
+                        </p>
+                      )}
+
+                      <div className="mt-2 space-y-1 text-xs text-[#6c6764]">
+                        {product.stockItems.length > 0 ? (
+                          product.stockItems.map((item, index) => (
+                            <p key={`${item.size}-${item.color}-${index}`}>
+                              {item.size} / {item.color}: {item.quantity}
+                            </p>
+                          ))
+                        ) : (
+                          <p>No stock rows</p>
+                        )}
+                      </div>
+                    </details>
+                  </td>
+
+                  <td className="px-4 py-3">
+                    <div className="flex min-w-[210px] flex-wrap gap-2">
+                      <Link
+                        href={`/admin/products/${product.id}/edit`}
+                        className="inline-flex min-h-9 items-center rounded-[4px] border border-[#cfd3d6] px-3 text-xs font-medium hover:bg-[#f1f2f3]"
+                      >
+                        Edit
+                      </Link>
+
+                      <AdminProductVisibilityButton
+                        productId={product.id}
+                        isVisible={product.isVisible}
+                        productName={product.name}
+                      />
+
+                      <AdminProductArchiveButton
+                        productId={product.id}
+                        productName={product.name}
+                      />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

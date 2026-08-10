@@ -38,7 +38,7 @@ export default async function AdminStaffPage({
 
   return (
     <AdminShell showSignOut>
-      <section className="mx-auto max-w-5xl px-5 py-6">
+      <section className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-10">
         <SectionHeader
           eyebrow="ADMIN ONLY"
           title="Staff Access"
@@ -63,7 +63,7 @@ export default async function AdminStaffPage({
           </p>
         )}
 
-        <section className="mt-8 border-b border-[#d6c4aa] pb-8">
+        <section className="mt-8 border-b border-[#d7dadd] bg-white p-5">
           <h2 className="text-lg font-semibold">Add staff access</h2>
           <p className="mt-2 text-sm leading-6 text-[#6f6258]">
             The person must already have a Supabase Auth account. New access is
@@ -82,7 +82,7 @@ export default async function AdminStaffPage({
                 required
                 maxLength={80}
                 autoComplete="off"
-                className="min-h-11 rounded-lg border border-[#bca58a] bg-white px-3 py-2 outline-none focus:border-[#7d6040]"
+                className="min-h-11 rounded-[4px] border border-[#cfd3d6] bg-white px-3 py-2 outline-none focus:border-[#b62568]"
               />
             </label>
 
@@ -94,13 +94,13 @@ export default async function AdminStaffPage({
                 required
                 maxLength={254}
                 autoComplete="off"
-                className="min-h-11 rounded-lg border border-[#bca58a] bg-white px-3 py-2 outline-none focus:border-[#7d6040]"
+                className="min-h-11 rounded-[4px] border border-[#cfd3d6] bg-white px-3 py-2 outline-none focus:border-[#b62568]"
               />
             </label>
 
             <button
               type="submit"
-              className="min-h-11 rounded-lg bg-[#2f241c] px-5 py-2 text-sm font-semibold text-white hover:bg-[#4a392c]"
+              className="min-h-11 rounded-[4px] bg-[#211f1e] px-5 py-2 text-sm font-medium text-white hover:bg-[#b62568]"
             >
               Add staff
             </button>
@@ -110,9 +110,9 @@ export default async function AdminStaffPage({
         <section className="mt-8">
           <h2 className="text-lg font-semibold">Authorized accounts</h2>
 
-          <div className="mt-5 overflow-x-auto border-y border-[#d6c4aa]">
+          <div className="mt-5 overflow-x-auto rounded-[4px] border border-[#d7dadd]">
             <table className="w-full min-w-[960px] text-left text-sm">
-              <thead className="bg-[#efe5d7] text-xs uppercase text-[#6f6258]">
+              <thead className="bg-[#f1f2f3] text-xs uppercase text-[#686360]">
                 <tr>
                   <th className="px-4 py-3 font-medium">Display name</th>
                   <th className="px-4 py-3 font-medium">Email</th>
@@ -122,7 +122,7 @@ export default async function AdminStaffPage({
                   <th className="px-4 py-3 text-right font-medium">Access</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e4d7c6] bg-[#fbf7f0]">
+              <tbody className="divide-y divide-[#e5e7e9] bg-white">
                 {staff.map((member) => (
                   <tr key={member.userId}>
                     <td className="px-4 py-4">
@@ -143,11 +143,11 @@ export default async function AdminStaffPage({
                           defaultValue={member.displayName ?? ""}
                           placeholder="Name not set"
                           aria-label={`Display name for ${member.email}`}
-                          className="min-h-10 min-w-0 flex-1 rounded-lg border border-[#cbb79e] bg-white px-3 py-2"
+                          className="min-h-10 min-w-0 flex-1 rounded-[4px] border border-[#cfd3d6] bg-white px-3 py-2"
                         />
                         <button
                           type="submit"
-                          className="min-h-10 border border-[#9f876d] px-3 font-medium hover:bg-white"
+                          className="min-h-10 rounded-[4px] border border-[#cfd3d6] px-3 text-xs font-medium hover:bg-[#f1f2f3]"
                         >
                           Save
                         </button>

@@ -176,8 +176,8 @@ export default function AdminOrderDashboard({
   }
 
   return (
-    <div className="mt-8 space-y-8">
-      <section className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-5">
+    <div className="mt-8 space-y-6">
+      <section className="rounded-[4px] border border-[#d7dadd] bg-white p-5">
         <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
           <div>
             <label htmlFor="order-date-filter" className="text-sm font-medium">
@@ -199,7 +199,7 @@ export default function AdminOrderDashboard({
                   handleDateTextChange(event.target.value)
                 }
                 placeholder="dd/mm/yyyy"
-                className="w-full cursor-text rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] px-4 py-3 text-sm text-[#2f241d] outline-none placeholder:text-[#b8aa98] focus:border-[#9c7a4f]"
+                className="min-h-11 w-full cursor-text rounded-[4px] border border-[#cfd3d6] bg-white px-3 text-sm text-[#242220] outline-none placeholder:text-[#9a9592] focus:border-[#b62568]"
               />
 
               <input
@@ -218,7 +218,7 @@ export default function AdminOrderDashboard({
                 onClick={handleOpenDatePicker}
                 aria-label="Open calendar"
                 title="Open calendar"
-                className="flex h-[46px] w-[46px] shrink-0 items-center justify-center rounded-xl border border-[#d6c4aa] text-[#8b5e3c] hover:bg-[#eadfce]"
+                className="flex size-11 shrink-0 items-center justify-center rounded-[4px] border border-[#cfd3d6] text-[#5f5a57] hover:bg-[#f1f2f3]"
               >
                 <svg
                   aria-hidden="true"
@@ -243,13 +243,13 @@ export default function AdminOrderDashboard({
             type="button"
             onClick={clearDate}
             disabled={!selectedDate && !filters.date}
-            className="rounded-xl border border-[#d6c4aa] px-4 py-3 text-sm font-medium text-[#8b5e3c] hover:bg-[#eadfce] disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-11 rounded-[4px] border border-[#cfd3d6] px-4 text-sm font-medium text-[#4f4a47] hover:bg-[#f1f2f3] disabled:cursor-not-allowed disabled:opacity-50"
           >
             Clear date
           </button>
         </div>
 
-        <p className="mt-3 text-sm text-[#8a7a6d]">
+        <p className="mt-3 text-xs text-[#6c6764]">
           {selectedDate
             ? "Showing orders from the selected date."
             : `Showing page ${currentPage} of matching orders.`}

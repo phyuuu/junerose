@@ -56,6 +56,44 @@ body {
   transform: translateY(0);
 }
 
+/* Keep legacy admin tools visually consistent while their workflow classes stay local. */
+#admin-main-content .rounded-2xl {
+  border-radius: 6px;
+}
+
+#admin-main-content .rounded-xl {
+  border-radius: 4px;
+}
+
+#admin-main-content .border-\[\#d6c4aa\] {
+  border-color: #d7dadd;
+}
+
+#admin-main-content .border-\[\#e4d6c3\] {
+  border-color: #e5e7e9;
+}
+
+#admin-main-content .bg-\[\#fbf7f0\] {
+  background-color: #ffffff;
+}
+
+#admin-main-content .bg-\[\#f8f3eb\] {
+  background-color: #fafbfb;
+}
+
+#admin-main-content .bg-\[\#eadfce\] {
+  background-color: #f1f2f3;
+}
+
+#admin-main-content .text-\[\#8a7a6d\],
+#admin-main-content .text-\[\#6f6258\] {
+  color: #6c6764;
+}
+
+#admin-main-content :where(input, select, textarea):focus {
+  border-color: #b62568;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

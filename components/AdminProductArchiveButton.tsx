@@ -45,13 +45,13 @@ export default function AdminProductArchiveButton({
         type="button"
         onClick={handleClick}
         disabled={isPending}
-        className="rounded-xl border border-red-300 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+        className="min-h-9 rounded-[4px] border border-red-300 px-3 text-xs font-medium text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {isPending ? "Archiving..." : "Archive"}
       </button>
 
       {message && (
-        <p className="mt-1 text-[11px] leading-4 text-[#8a7a6d]">
+        <p className="mt-1 text-[11px] leading-4 text-[#6c6764]">
           {message}
         </p>
       )}

@@ -45,20 +45,24 @@ export default function ProductDetailExperience({
   }
 
   return (
-    <>
+    <div className="grid gap-9 lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.65fr)] lg:gap-14 xl:gap-20">
       <ProductGallery
         product={product}
         selectedImageIndex={selectedImageIndex}
         onImageIndexChange={setSelectedImageIndex}
       />
-      <div className="max-w-md">
+      <aside className="self-start lg:sticky lg:top-28">
         {children}
         <ProductOptions
           product={product}
           selectedColor={selectedColor}
           onColorChange={selectColor}
         />
-      </div>
-    </>
+        <div className="mt-8 border-t border-[#e7e1de] pt-5 text-xs leading-6 text-[#6f6864]">
+          Availability, final total, and pickup or delivery details are confirmed
+          after the order request is received.
+        </div>
+      </aside>
+    </div>
   );
 }

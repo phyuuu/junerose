@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
 import BrowserPrivacyCleanup from "@/components/BrowserPrivacyCleanup";
 import "./globals.css";
 
@@ -10,6 +10,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const bodoni = Bodoni_Moda({
+  variable: "--font-bodoni",
   subsets: ["latin"],
 });
 
@@ -30,7 +35,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${bodoni.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <BrowserPrivacyCleanup />

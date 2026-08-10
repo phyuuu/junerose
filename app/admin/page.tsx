@@ -71,6 +71,17 @@ export default async function AdminPage() {
             </p>
           </Link>
 
+          <Link
+            href={routes.adminStorefront}
+            className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6 hover:border-[#9c7a4f]"
+          >
+            <h2 className="text-lg font-medium">Storefront</h2>
+
+            <p className="mt-2 text-sm text-[#8a7a6d]">
+              Update the homepage hero image and public text.
+            </p>
+          </Link>
+
           {staff.role === "admin" && (
             <Link
               href={routes.adminStaff}

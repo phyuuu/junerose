@@ -8,7 +8,7 @@ type PageShellProps = {
 
 export default function PageShell({ children }: PageShellProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-[#f8f3eb] text-[#2f241d]">
+    <div className="flex min-h-screen flex-col bg-white text-[#211d1b]">
       <a className="skip-link" href="#main-content">
         Skip to content
       </a>

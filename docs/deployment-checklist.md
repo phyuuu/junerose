@@ -18,7 +18,7 @@ change database behavior, authentication, orders, or inventory.
 - [ ] A fresh project receives migrations in filename order.
 - [ ] The existing hosted project skips the baseline and receives only new,
       unapplied migrations.
-- [ ] The `product-images` bucket and staff Storage policies exist.
+- [ ] The `product-images` and `storefront-assets` buckets and their staff Storage policies exist.
 - [ ] RLS is enabled on every application table.
 - [ ] Anonymous roles have no direct access to private tables.
 - [ ] Public function execute grants match the intended catalog/order surface.

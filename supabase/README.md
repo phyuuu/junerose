@@ -21,14 +21,15 @@ fresh JuneRose Supabase project. Apply them in filename order.
 | `202608060011_staff_display_names.sql` | Adds admin-managed staff names and name-resolved inventory history |
 | `202608060012_fix_inventory_history_return_types.sql` | Normalizes hosted inventory-history return types |
 | `202608090013_catalog_taxonomy_materials_and_color_images.sql` | Separates department and product type, adds reusable materials, and supports color-specific product images |
+| `202608090014_storefront_appearance.sql` | Adds staff-managed homepage hero copy, a public-safe storefront function, and the storefront image bucket |
 
 ## Existing Hosted JuneRose Project
 
 The hosted project was created manually before the baseline migration existed.
 Do not run `202608030000_initial_schema.sql` against that database. Migrations
-Migrations through `202608060012` have already been applied manually.
+through `202608090013` have already been applied manually.
 
-Migration `202608090013` is the next migration to apply to the existing hosted
+Migration `202608090014` is the next migration to apply to the existing hosted
 project after reviewing it in a separate project.
 
 For each future migration:
@@ -51,7 +52,7 @@ For each future migration:
    values ('AUTH-USER-UUID');
    ```
 
-5. Confirm the `product-images` bucket exists and is public.
+5. Confirm the `product-images` and `storefront-assets` buckets exist and are public.
 6. Confirm the staff Storage policies from the baseline migration exist.
 7. Run Supabase Security Advisor and resolve unexpected findings.
 

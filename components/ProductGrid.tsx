@@ -14,8 +14,8 @@ export default function ProductGrid({
 }: ProductGridProps) {
   if (products.length === 0) {
     return (
-      <div className="rounded-2xl border border-[#d6c4aa] bg-[#fbf7f0] p-6">
-        <p className="text-sm text-[#8a7a6d]">
+      <div className="rounded-[4px] border border-[#e7e1de] bg-white p-6">
+        <p className="text-sm text-[#6f6864]">
           No products are available in this section yet.
         </p>
       </div>
@@ -23,7 +23,7 @@ export default function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4 md:gap-x-5 lg:gap-x-6">
       {products.map((product, index) => (
         <ProductCard
           key={product.id}

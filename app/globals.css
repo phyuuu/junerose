@@ -1,14 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8f3eb;
-  --foreground: #2f241d;
+  --background: #ffffff;
+  --foreground: #211d1b;
+  --brand-rose: #c00070;
+  --brand-rose-soft: #b62568;
+  --brand-gold: #9a8558;
+  --brand-blush: #f8edf2;
+  --brand-border: #e7e1de;
+  --brand-muted: #6f6864;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-rose: var(--brand-rose);
+  --color-brand-rose-soft: var(--brand-rose-soft);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-blush: var(--brand-blush);
+  --color-brand-border: var(--brand-border);
+  --color-brand-muted: var(--brand-muted);
   --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-bodoni);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -16,10 +29,15 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  letter-spacing: 0;
 }
 
-:where(a, button, input, select, textarea):focus-visible {
-  outline: 3px solid #7a4f2f;
+.font-display {
+  font-family: var(--font-bodoni), Georgia, "Times New Roman", serif;
+}
+
+:where(a, button, input, select, summary, textarea):focus-visible {
+  outline: 3px solid var(--brand-rose);
   outline-offset: 3px;
 }
 

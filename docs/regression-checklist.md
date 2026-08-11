@@ -29,6 +29,10 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Opening the success URL without access requires phone verification.
 - [ ] Order lookup fails when either order number or phone is wrong.
 - [ ] Order lookup succeeds when both values match.
+- [ ] A submitted or successfully verified order appears as a recent-order
+      shortcut on the same browser without storing its phone number or details.
+- [ ] Recent-order selection fills only the order number; individual removal,
+      clear all, five-order limit, and 30-day expiry work.
 - [ ] Success and check-order pages show the correct five-stage progress state.
 - [ ] Cancelled orders show a stopped state instead of completed progress.
 - [ ] A verified pending request can be cancelled after explicit confirmation.

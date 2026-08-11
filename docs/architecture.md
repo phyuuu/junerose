@@ -74,6 +74,9 @@ and internal notes stay behind authenticated staff access.
 3. Full details are returned only after successful verification.
 4. A new order success page may consume one short-lived session value once;
    complete orders are never persisted in browser local storage.
+5. The browser may retain up to five order numbers for 30 days as recovery
+   shortcuts. No phone number or order details are stored, and lookup still
+   requires the matching phone number.
 
 ### Admin authorization
 

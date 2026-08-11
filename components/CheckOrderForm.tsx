@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 import CustomerOrderDetails, {
   OrderStatusBadge,
 } from "@/components/CustomerOrderDetails";
@@ -9,7 +10,22 @@ import {
   findCustomerOrder,
   OrderLookupRateLimitError,
 } from "@/lib/customer-orders";
+import {
+  clearRecentOrderReferences,
+  getRecentOrderReferences,
+  removeRecentOrderReference,
+  saveRecentOrderReference,
+  type RecentOrderReference,
+} from "@/lib/orderStorage";
 import type { OrderRequest } from "@/types/order";
+
+function formatSavedDate(savedAt: number) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(savedAt));
+}
 
 export default function CheckOrderForm() {
   const [orderNumber, setOrderNumber] = useState("");
@@ -17,6 +33,35 @@ export default function CheckOrderForm() {
   const [foundOrder, setFoundOrder] = useState<OrderRequest | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [isChecking, setIsChecking] = useState(false);
+  const [recentOrders, setRecentOrders] = useState<RecentOrderReference[]>([]);
+
+  useEffect(() => {
+    const loadRecentOrders = window.setTimeout(() => {
+      setRecentOrders(getRecentOrderReferences());
+    }, 0);
+
+    return () => window.clearTimeout(loadRecentOrders);
+  }, []);
+
+  function selectRecentOrder(orderNumber: string) {
+    setOrderNumber(orderNumber);
+    setFoundOrder(null);
+    setErrorMessage("");
+  }
+
+  function removeRecentOrder(orderNumber: string) {
+    removeRecentOrderReference(orderNumber);
+    setRecentOrders(getRecentOrderReferences());
+    setOrderNumber((currentOrderNumber) =>
+      currentOrderNumber === orderNumber ? "" : currentOrderNumber,
+    );
+  }
+
+  function clearRecentOrders() {
+    clearRecentOrderReferences();
+    setRecentOrders([]);
+    setOrderNumber("");
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,6 +81,8 @@ export default function CheckOrderForm() {
       }
 
       setFoundOrder(order);
+      saveRecentOrderReference(order.orderNumber);
+      setRecentOrders(getRecentOrderReferences());
     } catch (error) {
       setErrorMessage(
         error instanceof OrderLookupRateLimitError
@@ -58,6 +105,63 @@ export default function CheckOrderForm() {
         <p className="mt-3 text-sm leading-6 text-[#6f6864]">
           Both details must match the original request.
         </p>
+
+        {recentOrders.length > 0 && (
+          <div className="mt-6 border-y border-[#e7e1de]">
+            <div className="flex min-h-11 items-center justify-between gap-4 border-b border-[#e7e1de]">
+              <p className="text-xs font-medium uppercase text-[#9a8558]">
+                Recent orders
+              </p>
+              <button
+                type="button"
+                onClick={clearRecentOrders}
+                className="text-xs underline decoration-[#cfc8c4] underline-offset-4 hover:text-[#b62568]"
+              >
+                Clear all
+              </button>
+            </div>
+
+            <ul className="divide-y divide-[#e7e1de]">
+              {recentOrders.map((recentOrder) => (
+                <li
+                  key={recentOrder.orderNumber}
+                  className="grid grid-cols-[minmax(0,1fr)_40px] items-center"
+                >
+                  <button
+                    type="button"
+                    onClick={() =>
+                      selectRecentOrder(recentOrder.orderNumber)
+                    }
+                    className="min-w-0 py-3 pr-3 text-left hover:text-[#b62568]"
+                  >
+                    <span className="block truncate text-sm font-medium">
+                      {recentOrder.orderNumber}
+                    </span>
+                    <span className="mt-1 block text-xs text-[#6f6864]">
+                      Saved {formatSavedDate(recentOrder.savedAt)}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      removeRecentOrder(recentOrder.orderNumber)
+                    }
+                    aria-label={`Remove ${recentOrder.orderNumber} from this browser`}
+                    title="Remove recent order"
+                    className="inline-flex size-10 items-center justify-center text-[#6f6864] hover:text-red-700"
+                  >
+                    <Trash2 aria-hidden="true" size={17} strokeWidth={1.7} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+
+            <p className="border-t border-[#e7e1de] py-3 text-xs leading-5 text-[#6f6864]">
+              Only order numbers are saved on this browser for 30 days. Your
+              phone number is still required.
+            </p>
+          </div>
+        )}
 
         <div className="mt-7 space-y-5">
           <label

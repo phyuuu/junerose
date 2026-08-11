@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
+import CustomerOrderProgress from "@/components/CustomerOrderProgress";
 import { formatMMK } from "@/lib/formatPrice";
 import type { OrderRequest, OrderStatus } from "@/types/order";
 
@@ -55,7 +56,10 @@ export default function CustomerOrderDetails({
   customerFooter,
 }: CustomerOrderDetailsProps) {
   return (
-    <div className="grid gap-10 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+    <div>
+      <CustomerOrderProgress status={order.status} />
+
+      <div className="grid gap-10 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
       <section aria-labelledby="customer-details-heading">
         <div className="border-b border-[#e7e1de] pb-4">
           <p className="text-xs font-medium uppercase text-[#9a8558]">Customer</p>
@@ -156,6 +160,7 @@ export default function CustomerOrderDetails({
           <p className="font-medium">{formatMMK(order.totalMMK)}</p>
         </div>
       </section>
+      </div>
     </div>
   );
 }

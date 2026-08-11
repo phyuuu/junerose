@@ -26,6 +26,8 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Opening the success URL without access requires phone verification.
 - [ ] Order lookup fails when either order number or phone is wrong.
 - [ ] Order lookup succeeds when both values match.
+- [ ] Success and check-order pages show the correct five-stage progress state.
+- [ ] Cancelled orders show a stopped state instead of completed progress.
 - [ ] A verified pending request can be cancelled after explicit confirmation.
 - [ ] Confirmed or later orders cannot be cancelled from the customer website.
 - [ ] Customer pages have no horizontal overflow or browser console errors.

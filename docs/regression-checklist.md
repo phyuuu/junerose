@@ -73,6 +73,8 @@ data. Check desktop and a narrow mobile viewport.
 
 ## Order and stock workflow
 
+- [ ] Admin Overview shows exact pending, ready, and needs-restock counts, and
+      each card opens the matching filtered management page.
 - [ ] Order search, status, date, sorting, reset, and pagination work together.
 - [ ] Choosing a date applies immediately; search and status wait for Apply.
 - [ ] Order details show immutable item snapshots and customer information.

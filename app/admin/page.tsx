@@ -1,10 +1,13 @@
 import Link from "next/link";
 import AdminShell from "../../components/AdminShell";
+import AdminSummaryCard from "@/components/AdminSummaryCard";
+import { getAdminOperationalSummary } from "@/lib/admin-overview";
 import { routes } from "../../lib/routes";
 import { requireStaff } from "@/lib/auth/require-staff";
 
 export default async function AdminPage() {
   const staff = await requireStaff();
+  const summary = await getAdminOperationalSummary();
 
   return (
     <AdminShell showSignOut>
@@ -24,7 +27,36 @@ export default async function AdminPage() {
           </span>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <div className="mt-8">
+          <div className="flex items-end justify-between border-b border-[#dfe2e5] pb-3">
+            <div>
+              <h2 className="text-sm font-semibold uppercase">Action required</h2>
+              <p className="mt-1 text-xs text-[#6c6764]">
+                Live counts from orders and size/color inventory.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
+            <AdminSummaryCard
+              label="Pending orders"
+              value={summary.pendingOrderCount}
+              href={`${routes.adminOrders}?status=pending`}
+            />
+            <AdminSummaryCard
+              label="Ready orders"
+              value={summary.readyOrderCount}
+              href={`${routes.adminOrders}?status=ready`}
+            />
+            <AdminSummaryCard
+              label="Needs restock"
+              value={summary.needsRestockProductCount}
+              href={`${routes.adminProducts}?stock=needs_restock`}
+            />
+          </div>
+        </div>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-2">
           <Link
             href={routes.adminOrders}
             className="group rounded-[6px] border border-[#d7dadd] bg-white p-6 transition-colors hover:border-[#b62568]"

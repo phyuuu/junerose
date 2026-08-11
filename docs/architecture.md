@@ -93,6 +93,14 @@ and internal notes stay behind authenticated staff access.
 4. Cancelling a reserved order releases stock once.
 5. Stock changes and inventory history are written in the same transaction.
 
+### Admin operations overview
+
+1. The protected overview queries exact pending and ready order counts.
+2. Restock attention is derived from every active product's size/color
+   variants using the same threshold as the Products page.
+3. Summary links open the existing filtered Orders and Products workflows;
+   the overview does not create a separate management path.
+
 ### Product publishing
 
 1. New and restored products remain hidden.

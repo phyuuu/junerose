@@ -58,11 +58,13 @@ and internal notes stay behind authenticated staff access.
 
 ### Order request
 
-1. The browser validates the contact form and cart shape.
+1. The browser validates the contact form and cart shape and keeps one temporary
+   request token for retries of the same cart.
 2. A server action validates the request again with Zod.
 3. `create_order_request` validates visible products, variants, quantities, and
    current prices inside PostgreSQL.
-4. The function creates the order and immutable item snapshots atomically.
+4. The function serializes requests by token, returning the existing order for
+   a retry or creating the order and immutable item snapshots atomically.
 5. The customer receives an order number, but stock is not reserved yet.
 
 ### Customer order lookup

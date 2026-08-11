@@ -41,7 +41,7 @@ export async function createOrderRequestAction(
     };
   }
 
-  const { customer, items } = parsed.data;
+  const { customer, items, requestToken } = parsed.data;
 
   const supabase = await createClient();
 
@@ -51,6 +51,7 @@ export async function createOrderRequestAction(
     order_customer_address: customer.address,
     order_preferred_contact: customer.preferredContact,
     order_customer_note: customer.note ?? null,
+    order_request_token: requestToken,
     order_items: items.map((item) => ({
       variant_id: item.variantId,
       quantity: item.quantity,

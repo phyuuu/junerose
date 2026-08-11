@@ -38,6 +38,7 @@ export const orderCartItemSchema = z.object({
 
 export const createOrderRequestSchema = z.object({
   customer: customerContactSchema,
+  requestToken: z.string().uuid(),
   privacyAcknowledged: z.boolean().refine((value) => value, {
     message: "Read and acknowledge the privacy notice before continuing.",
   }),

@@ -8,6 +8,10 @@ import { createOrderRequestAction } from "@/app/order/actions";
 import { clearCart } from "@/lib/cartStorage";
 import { formatMMK } from "@/lib/formatPrice";
 import { saveRecentOrderAccess } from "@/lib/orderStorage";
+import {
+  clearOrderRequestToken,
+  getOrCreateOrderRequestToken,
+} from "@/lib/orderRequestToken";
 import { useCartItems } from "@/hooks/useCartItems";
 import { useCartValidation } from "@/hooks/useCartValidation";
 import { applyCartValidation } from "@/lib/cart-validation";
@@ -68,9 +72,12 @@ export default function OrderForm() {
     setErrorMessage("");
     setIsSubmitting(true);
 
+    const requestToken = getOrCreateOrderRequestToken(cartItems);
+
     const result = await createOrderRequestAction({
       customer,
       items: cartItems,
+      requestToken,
       privacyAcknowledged,
     });
 
@@ -87,6 +94,7 @@ export default function OrderForm() {
     }
 
     saveRecentOrderAccess(result.orderNumber, customer.phone.trim());
+    clearOrderRequestToken();
     clearCart();
 
     router.push(routes.orderSuccess(result.orderNumber));

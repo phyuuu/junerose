@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createOrderRequestSchema } from "@/lib/validation/order";
 
 const validOrder = {
+  requestToken: "018f1f89-4eb7-7f35-8ac1-4a689d73303c",
   customer: {
     name: "  June Customer  ",
     phone: "  +95 9 123 456 789  ",
@@ -72,6 +73,15 @@ describe("createOrderRequestSchema", () => {
     const result = createOrderRequestSchema.safeParse({
       ...validOrder,
       privacyAcknowledged: false,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an invalid order request token", () => {
+    const result = createOrderRequestSchema.safeParse({
+      ...validOrder,
+      requestToken: "not-a-token",
     });
 
     expect(result.success).toBe(false);

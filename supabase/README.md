@@ -26,14 +26,16 @@ fresh JuneRose Supabase project. Apply them in filename order.
 | `202608110016_repair_manual_stock_adjustment.sql` | Recreates the atomic staff stock-adjustment function after hosted permission drift |
 | `202608110017_remove_legacy_stock_function_overload.sql` | Removes the hosted integer-ID stock-function overload that makes PostgREST calls ambiguous |
 | `202608110018_reset_stock_function_overloads.sql` | Replaces every unexpected hosted stock-function overload with one canonical signature |
+| `202608110019_idempotent_order_requests.sql` | Prevents network retries and repeated checkout submissions from creating duplicate orders |
+| `202608110020_fix_idempotent_order_lookup.sql` | Qualifies the existing-order lookup to remove a PostgreSQL column/variable ambiguity |
 
 ## Existing Hosted JuneRose Project
 
 The hosted project was created manually before the baseline migration existed.
 Do not run `202608030000_initial_schema.sql` against that database. Migrations
-through `202608090013` have already been applied manually.
+through `202608110018` have already been applied manually.
 
-Migration `202608110018` is the next migration to apply to the existing hosted
+Migration `202608110020` is the next migration to apply to the existing hosted
 project after reviewing it in a separate project.
 
 For each future migration:

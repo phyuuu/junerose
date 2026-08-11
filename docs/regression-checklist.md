@@ -22,6 +22,8 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Order submission requires acknowledgement of the privacy notice.
 - [ ] The privacy page and footer link work on desktop and mobile.
 - [ ] Order creation ignores browser prices and returns a new order number.
+- [ ] Retrying the same checkout request returns the original order number and
+      creates only one database order; a changed cart receives a new token.
 - [ ] The success page shows details after the immediate redirect.
 - [ ] Opening the success URL without access requires phone verification.
 - [ ] Order lookup fails when either order number or phone is wrong.

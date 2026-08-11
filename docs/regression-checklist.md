@@ -18,7 +18,8 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Cart and order pages recheck current price, publication, option, and stock.
 - [ ] Sold-out items block checkout and insufficient quantities can be reduced.
 - [ ] An empty cart blocks order submission.
-- [ ] Contact validation rejects missing or invalid values.
+- [ ] Contact validation shows missing or invalid values beside the relevant
+      checkout field and clears each message after correction.
 - [ ] Order submission requires acknowledgement of the privacy notice.
 - [ ] The privacy page and footer link work on desktop and mobile.
 - [ ] Order creation ignores browser prices and returns a new order number.

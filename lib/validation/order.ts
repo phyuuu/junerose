@@ -51,3 +51,37 @@ export const createOrderRequestSchema = z.object({
 export type CreateOrderRequestInput = z.infer<
   typeof createOrderRequestSchema
 >;
+
+export type OrderFieldErrors = Partial<
+  Record<
+    | "name"
+    | "phone"
+    | "address"
+    | "preferredContact"
+    | "note"
+    | "privacyAcknowledged",
+    string
+  >
+>;
+
+export function getOrderFieldErrors(error: z.ZodError): OrderFieldErrors {
+  const fieldErrors: OrderFieldErrors = {};
+
+  for (const issue of error.issues) {
+    const [section, field] = issue.path;
+    const errorField =
+      section === "customer" &&
+      typeof field === "string" &&
+      field in customerContactSchema.shape
+        ? (field as keyof typeof customerContactSchema.shape)
+        : section === "privacyAcknowledged"
+          ? "privacyAcknowledged"
+          : null;
+
+    if (errorField && !fieldErrors[errorField]) {
+      fieldErrors[errorField] = issue.message;
+    }
+  }
+
+  return fieldErrors;
+}

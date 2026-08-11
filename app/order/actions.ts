@@ -5,7 +5,11 @@ import {
   reportServerError,
   withErrorReference,
 } from "@/lib/server/report-error";
-import { createOrderRequestSchema } from "@/lib/validation/order";
+import {
+  createOrderRequestSchema,
+  getOrderFieldErrors,
+  type OrderFieldErrors,
+} from "@/lib/validation/order";
 import { z } from "zod";
 
 type CreateOrderRequestResult =
@@ -17,6 +21,7 @@ type CreateOrderRequestResult =
       ok: false;
       error: string;
       code?: "cart_changed";
+      fieldErrors?: OrderFieldErrors;
     };
 
 const createOrderResponseSchema = z.object({
@@ -29,15 +34,23 @@ export async function createOrderRequestAction(
   const parsed = createOrderRequestSchema.safeParse(input);
 
   if (!parsed.success) {
-    const privacyIssue = parsed.error.issues.some(
-      (issue) => issue.path[0] === "privacyAcknowledged",
+    const fieldErrors = getOrderFieldErrors(parsed.error);
+    const cartIssue = parsed.error.issues.some(
+      (issue) => issue.path[0] === "items",
+    );
+    const requestTokenIssue = parsed.error.issues.some(
+      (issue) => issue.path[0] === "requestToken",
     );
 
     return {
       ok: false,
-      error: privacyIssue
-        ? "Read and acknowledge the privacy notice before continuing."
-        : "Please check the order details and try again.",
+      code: cartIssue ? "cart_changed" : undefined,
+      fieldErrors,
+      error: requestTokenIssue
+        ? "Refresh the checkout page and try again."
+        : cartIssue
+          ? "Your shopping bag contains invalid items. Return to the bag and review it."
+          : "Check the highlighted order details and try again.",
     };
   }
 

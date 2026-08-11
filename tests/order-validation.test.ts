@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { createOrderRequestSchema } from "@/lib/validation/order";
+import {
+  createOrderRequestSchema,
+  getOrderFieldErrors,
+} from "@/lib/validation/order";
 
 const validOrder = {
   requestToken: "018f1f89-4eb7-7f35-8ac1-4a689d73303c",
@@ -85,5 +88,28 @@ describe("createOrderRequestSchema", () => {
     });
 
     expect(result.success).toBe(false);
+  });
+
+  it("maps customer validation issues to checkout fields", () => {
+    const result = createOrderRequestSchema.safeParse({
+      ...validOrder,
+      customer: {
+        ...validOrder.customer,
+        name: "",
+        phone: "123",
+      },
+      privacyAcknowledged: false,
+    });
+
+    expect(result.success).toBe(false);
+
+    if (!result.success) {
+      expect(getOrderFieldErrors(result.error)).toEqual({
+        name: "Name is required.",
+        phone: "Enter a valid phone number.",
+        privacyAcknowledged:
+          "Read and acknowledge the privacy notice before continuing.",
+      });
+    }
   });
 });

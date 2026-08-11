@@ -16,6 +16,11 @@ import { useCartItems } from "@/hooks/useCartItems";
 import { useCartValidation } from "@/hooks/useCartValidation";
 import { applyCartValidation } from "@/lib/cart-validation";
 import { routes } from "@/lib/routes";
+import {
+  createOrderRequestSchema,
+  getOrderFieldErrors,
+  type OrderFieldErrors,
+} from "@/lib/validation/order";
 import type { CustomerContactInfo } from "@/types/order";
 
 export default function OrderForm() {
@@ -36,6 +41,7 @@ export default function OrderForm() {
     note: "",
   });
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false);
 
@@ -55,6 +61,10 @@ export default function OrderForm() {
       ...currentCustomer,
       [field]: value,
     }));
+    setFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      [field]: undefined,
+    }));
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -69,22 +79,41 @@ export default function OrderForm() {
       return;
     }
 
-    setErrorMessage("");
-    setIsSubmitting(true);
-
     const requestToken = getOrCreateOrderRequestToken(cartItems);
-
-    const result = await createOrderRequestAction({
+    const orderInput = {
       customer,
       items: cartItems,
       requestToken,
       privacyAcknowledged,
-    });
+    };
+    const parsedOrder = createOrderRequestSchema.safeParse(orderInput);
+
+    setErrorMessage("");
+    setFieldErrors({});
+
+    if (!parsedOrder.success) {
+      const nextFieldErrors = getOrderFieldErrors(parsedOrder.error);
+      setFieldErrors(nextFieldErrors);
+
+      if (Object.keys(nextFieldErrors).length === 0) {
+        setErrorMessage("Check your shopping bag and try again.");
+      }
+
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    const result = await createOrderRequestAction(parsedOrder.data);
 
     setIsSubmitting(false);
 
     if (!result.ok) {
-      setErrorMessage(result.error);
+      const nextFieldErrors = result.fieldErrors ?? {};
+      setFieldErrors(nextFieldErrors);
+      setErrorMessage(
+        Object.keys(nextFieldErrors).length > 0 ? "" : result.error,
+      );
 
       if (result.code === "cart_changed") {
         recheck();
@@ -121,6 +150,7 @@ export default function OrderForm() {
   return (
     <form
       onSubmit={handleSubmit}
+      noValidate
       className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start"
     >
       <section aria-labelledby="contact-details-heading">
@@ -142,11 +172,18 @@ export default function OrderForm() {
               required
               autoComplete="name"
               value={customer.name}
+              aria-invalid={Boolean(fieldErrors.name)}
+              aria-describedby={fieldErrors.name ? "order-name-error" : undefined}
               onChange={(event) =>
                 updateCustomerField("name", event.target.value)
               }
               className="min-h-12 w-full rounded-[3px] border border-[#d8d2cf] bg-white px-4 text-sm outline-none transition-colors focus:border-[#b62568]"
             />
+            {fieldErrors.name && (
+              <span id="order-name-error" className="text-xs text-red-700">
+                {fieldErrors.name}
+              </span>
+            )}
           </label>
 
           <label htmlFor="order-phone" className="grid gap-2 text-sm">
@@ -158,11 +195,18 @@ export default function OrderForm() {
               autoComplete="tel"
               maxLength={30}
               value={customer.phone}
+              aria-invalid={Boolean(fieldErrors.phone)}
+              aria-describedby={fieldErrors.phone ? "order-phone-error" : undefined}
               onChange={(event) =>
                 updateCustomerField("phone", event.target.value)
               }
               className="min-h-12 w-full rounded-[3px] border border-[#d8d2cf] bg-white px-4 text-sm outline-none transition-colors focus:border-[#b62568]"
             />
+            {fieldErrors.phone && (
+              <span id="order-phone-error" className="text-xs text-red-700">
+                {fieldErrors.phone}
+              </span>
+            )}
           </label>
 
           <label
@@ -175,12 +219,21 @@ export default function OrderForm() {
               required
               autoComplete="street-address"
               value={customer.address}
+              aria-invalid={Boolean(fieldErrors.address)}
+              aria-describedby={
+                fieldErrors.address ? "order-address-error" : undefined
+              }
               onChange={(event) =>
                 updateCustomerField("address", event.target.value)
               }
               rows={4}
               className="w-full resize-y rounded-[3px] border border-[#d8d2cf] bg-white px-4 py-3 text-sm leading-6 outline-none transition-colors focus:border-[#b62568]"
             />
+            {fieldErrors.address && (
+              <span id="order-address-error" className="text-xs text-red-700">
+                {fieldErrors.address}
+              </span>
+            )}
           </label>
 
           <label htmlFor="order-contact" className="grid gap-2 text-sm">
@@ -188,6 +241,10 @@ export default function OrderForm() {
             <select
               id="order-contact"
               value={customer.preferredContact}
+              aria-invalid={Boolean(fieldErrors.preferredContact)}
+              aria-describedby={
+                fieldErrors.preferredContact ? "order-contact-error" : undefined
+              }
               onChange={(event) =>
                 updateCustomerField(
                   "preferredContact",
@@ -200,6 +257,11 @@ export default function OrderForm() {
               <option value="Messenger">Messenger</option>
               <option value="Phone">Phone</option>
             </select>
+            {fieldErrors.preferredContact && (
+              <span id="order-contact-error" className="text-xs text-red-700">
+                {fieldErrors.preferredContact}
+              </span>
+            )}
           </label>
 
           <label htmlFor="order-note" className="grid gap-2 text-sm">
@@ -207,12 +269,19 @@ export default function OrderForm() {
             <textarea
               id="order-note"
               value={customer.note}
+              aria-invalid={Boolean(fieldErrors.note)}
+              aria-describedby={fieldErrors.note ? "order-note-error" : undefined}
               onChange={(event) =>
                 updateCustomerField("note", event.target.value)
               }
               rows={4}
               className="w-full resize-y rounded-[3px] border border-[#d8d2cf] bg-white px-4 py-3 text-sm leading-6 outline-none transition-colors focus:border-[#b62568]"
             />
+            {fieldErrors.note && (
+              <span id="order-note-error" className="text-xs text-red-700">
+                {fieldErrors.note}
+              </span>
+            )}
           </label>
         </div>
       </section>
@@ -304,9 +373,19 @@ export default function OrderForm() {
             type="checkbox"
             required
             checked={privacyAcknowledged}
-            onChange={(event) =>
-              setPrivacyAcknowledged(event.target.checked)
+            aria-invalid={Boolean(fieldErrors.privacyAcknowledged)}
+            aria-describedby={
+              fieldErrors.privacyAcknowledged
+                ? "order-privacy-error"
+                : undefined
             }
+            onChange={(event) => {
+              setPrivacyAcknowledged(event.target.checked);
+              setFieldErrors((currentErrors) => ({
+                ...currentErrors,
+                privacyAcknowledged: undefined,
+              }));
+            }}
             className="mt-1 size-4 shrink-0 accent-[#b62568]"
           />
           <span>
@@ -323,6 +402,12 @@ export default function OrderForm() {
           </span>
         </label>
 
+        {fieldErrors.privacyAcknowledged && (
+          <p id="order-privacy-error" className="mt-2 text-xs text-red-700">
+            {fieldErrors.privacyAcknowledged}
+          </p>
+        )}
+
         {errorMessage && (
           <p className="mt-4 border-l-2 border-red-600 pl-3 text-sm text-red-700">
             {errorMessage}
@@ -333,7 +418,6 @@ export default function OrderForm() {
           type="submit"
           disabled={
             isSubmitting ||
-            !privacyAcknowledged ||
             validationStatus !== "ready" ||
             hasBlockingIssues
           }

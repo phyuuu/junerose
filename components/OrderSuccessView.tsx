@@ -1,5 +1,6 @@
 "use client";
 
+import { Copy } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import CustomerOrderDetails, {
@@ -22,6 +23,7 @@ export default function OrderSuccessView({
   orderNumber,
 }: OrderSuccessViewProps) {
   const [copyMessage, setCopyMessage] = useState("");
+  const [orderNumberCopyMessage, setOrderNumberCopyMessage] = useState("");
   const [phone, setPhone] = useState("");
   const [verifiedOrder, setVerifiedOrder] =
     useState<OrderRequest | null>(null);
@@ -64,8 +66,21 @@ export default function OrderSuccessView({
 
     const message = buildCustomerOrderMessage(visibleOrder);
 
-    await navigator.clipboard.writeText(message);
-    setCopyMessage("Order info copied.");
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopyMessage("Order information copied.");
+    } catch {
+      setCopyMessage("Unable to copy. Please try again.");
+    }
+  }
+
+  async function handleCopyOrderNumber() {
+    try {
+      await navigator.clipboard.writeText(orderNumber);
+      setOrderNumberCopyMessage("Order number copied.");
+    } catch {
+      setOrderNumberCopyMessage("Unable to copy. Please take a screenshot instead.");
+    }
   }
 
   async function handleVerifyOrder(
@@ -105,17 +120,38 @@ export default function OrderSuccessView({
     return (
       <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
         <section className="border-y border-[#211d1b] py-8 sm:py-10">
-          <p className="text-xs font-medium uppercase text-[#9a8558]">
-            Your order number
-          </p>
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-medium uppercase text-[#9a8558]">
+                Your order number
+              </p>
 
-          <h2 className="mt-3 break-all font-display text-4xl sm:text-5xl">
-            {orderNumber}
-          </h2>
+              <h2 className="mt-3 break-all font-display text-4xl sm:text-5xl">
+                {orderNumber}
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCopyOrderNumber}
+              className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-[3px] border border-[#211d1b] px-4 text-xs font-medium uppercase transition-colors hover:bg-[#211d1b] hover:text-white sm:self-auto"
+            >
+              <Copy aria-hidden="true" size={16} />
+              Copy order number
+            </button>
+          </div>
+
+          {orderNumberCopyMessage && (
+            <p className="mt-4 text-sm text-[#35613e]" aria-live="polite">
+              {orderNumberCopyMessage}
+            </p>
+          )}
 
           <p className="mt-5 max-w-2xl text-sm leading-7 text-[#6f6864]">
-            Keep this number. JuneRose staff will contact you to confirm item
-            availability, payment, and pickup or delivery details.
+            Save this order number to check your order later. Copy it or take a
+            screenshot before closing this page. JuneRose staff will contact
+            you to confirm item availability, payment, and pickup or delivery
+            details.
           </p>
 
           <Link
@@ -189,35 +225,34 @@ export default function OrderSuccessView({
             {visibleOrder.orderNumber}
           </h2>
         </div>
-        <OrderStatusBadge status={visibleOrder.status} />
+        <div className="flex flex-wrap items-center gap-3">
+          <OrderStatusBadge status={visibleOrder.status} />
+          <button
+            type="button"
+            onClick={handleCopyOrderInfo}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-[3px] border border-[#211d1b] px-4 text-xs font-medium uppercase transition-colors hover:bg-[#211d1b] hover:text-white"
+          >
+            <Copy aria-hidden="true" size={16} />
+            Copy order information
+          </button>
+        </div>
       </div>
 
+      {copyMessage && (
+        <p className="mt-4 text-sm text-[#35613e]" aria-live="polite">
+          {copyMessage}
+        </p>
+      )}
+
       <p className="mt-6 max-w-2xl text-sm leading-7 text-[#6f6864]">
-        Keep this number. JuneRose staff will contact you to confirm item
-        availability, payment, and pickup or delivery details.
+        Save this order number to check your order later. Copy the order
+        information or take a screenshot before closing this page. JuneRose
+        staff will contact you to confirm item availability, payment, and
+        pickup or delivery details.
       </p>
 
       <div className="mt-10">
-        <CustomerOrderDetails
-          order={visibleOrder}
-          customerFooter={
-            <div className="mt-7 border-t border-[#e7e1de] pt-5">
-              <button
-                type="button"
-                onClick={handleCopyOrderInfo}
-                className="min-h-11 rounded-[3px] border border-[#211d1b] px-5 text-xs font-medium uppercase transition-colors hover:bg-[#211d1b] hover:text-white"
-              >
-                Copy order information
-              </button>
-
-              {copyMessage && (
-                <p className="mt-3 text-sm text-[#35613e]" aria-live="polite">
-                  {copyMessage}
-                </p>
-              )}
-            </div>
-          }
-        />
+        <CustomerOrderDetails order={visibleOrder} />
       </div>
 
       <div className="mt-10 flex flex-wrap gap-6 border-t border-[#e7e1de] pt-6">

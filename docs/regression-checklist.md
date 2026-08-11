@@ -15,6 +15,8 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Unavailable colors remain visible and disabled.
 - [ ] Sold-out variants cannot be added to the cart.
 - [ ] Cart add, quantity change, item removal, and total calculation work.
+- [ ] Cart and order pages recheck current price, publication, option, and stock.
+- [ ] Sold-out items block checkout and insufficient quantities can be reduced.
 - [ ] An empty cart blocks order submission.
 - [ ] Contact validation rejects missing or invalid values.
 - [ ] Order submission requires acknowledgement of the privacy notice.
@@ -24,6 +26,8 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Opening the success URL without access requires phone verification.
 - [ ] Order lookup fails when either order number or phone is wrong.
 - [ ] Order lookup succeeds when both values match.
+- [ ] A verified pending request can be cancelled after explicit confirmation.
+- [ ] Confirmed or later orders cannot be cancelled from the customer website.
 - [ ] Customer pages have no horizontal overflow or browser console errors.
 
 ## Admin authentication and privacy
@@ -49,6 +53,7 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Adding a variant with positive initial quantity creates one inventory
       history entry under the acting staff account.
 - [ ] Manual stock adjustment updates quantity and inventory history once.
+- [ ] Manual stock can be reduced to exactly zero but never below zero.
 - [ ] Inventory history shows the acting account's current display name while
       retaining its UUID in the database record.
 - [ ] Reusable size/color/material options can be sorted and deactivated safely.

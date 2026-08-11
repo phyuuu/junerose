@@ -16,6 +16,7 @@ type CreateOrderRequestResult =
   | {
       ok: false;
       error: string;
+      code?: "cart_changed";
     };
 
 const createOrderResponseSchema = z.object({
@@ -62,6 +63,20 @@ export async function createOrderRequestAction(
         ok: false,
         error:
           "Too many recent order requests. Please wait before trying again or contact JuneRose staff.",
+      };
+    }
+
+    if (
+      error?.message ===
+        "One or more selected products are no longer available." ||
+      error?.message ===
+        "One or more selected products do not have enough stock."
+    ) {
+      return {
+        ok: false,
+        code: "cart_changed",
+        error:
+          "Your shopping bag changed while you were ordering. Review the highlighted items and try again.",
       };
     }
 

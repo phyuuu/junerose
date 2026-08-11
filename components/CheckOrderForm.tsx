@@ -4,6 +4,7 @@ import { useState } from "react";
 import CustomerOrderDetails, {
   OrderStatusBadge,
 } from "@/components/CustomerOrderDetails";
+import CustomerOrderCancellation from "@/components/CustomerOrderCancellation";
 import {
   findCustomerOrder,
   OrderLookupRateLimitError,
@@ -135,7 +136,19 @@ export default function CheckOrderForm() {
             </div>
 
             <div className="mt-8">
-              <CustomerOrderDetails order={foundOrder} />
+              <CustomerOrderDetails
+                order={foundOrder}
+                customerFooter={
+                  <CustomerOrderCancellation
+                    order={foundOrder}
+                    onStatusChange={(status) =>
+                      setFoundOrder((current) =>
+                        current ? { ...current, status } : current,
+                      )
+                    }
+                  />
+                }
+              />
             </div>
 
             <p className="mt-7 border-t border-[#e7e1de] pt-5 text-xs leading-6 text-[#6f6864]">

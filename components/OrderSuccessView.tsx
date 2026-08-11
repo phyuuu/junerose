@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import CustomerOrderDetails, {
   OrderStatusBadge,
 } from "@/components/CustomerOrderDetails";
+import CustomerOrderCancellation from "@/components/CustomerOrderCancellation";
 import {
   findCustomerOrder,
   OrderLookupRateLimitError,
@@ -252,7 +253,19 @@ export default function OrderSuccessView({
       </p>
 
       <div className="mt-10">
-        <CustomerOrderDetails order={visibleOrder} />
+        <CustomerOrderDetails
+          order={visibleOrder}
+          customerFooter={
+            <CustomerOrderCancellation
+              order={visibleOrder}
+              onStatusChange={(status) =>
+                setVerifiedOrder((current) =>
+                  current ? { ...current, status } : current,
+                )
+              }
+            />
+          }
+        />
       </div>
 
       <div className="mt-10 flex flex-wrap gap-6 border-t border-[#e7e1de] pt-6">

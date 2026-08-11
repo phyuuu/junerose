@@ -22,6 +22,10 @@ fresh JuneRose Supabase project. Apply them in filename order.
 | `202608060012_fix_inventory_history_return_types.sql` | Normalizes hosted inventory-history return types |
 | `202608090013_catalog_taxonomy_materials_and_color_images.sql` | Separates department and product type, adds reusable materials, and supports color-specific product images |
 | `202608090014_storefront_appearance.sql` | Adds staff-managed homepage hero copy, a public-safe storefront function, and the storefront image bucket |
+| `202608110015_customer_cart_validation_and_cancellation.sql` | Adds cart-specific live availability checks and verified pending-order cancellation |
+| `202608110016_repair_manual_stock_adjustment.sql` | Recreates the atomic staff stock-adjustment function after hosted permission drift |
+| `202608110017_remove_legacy_stock_function_overload.sql` | Removes the hosted integer-ID stock-function overload that makes PostgREST calls ambiguous |
+| `202608110018_reset_stock_function_overloads.sql` | Replaces every unexpected hosted stock-function overload with one canonical signature |
 
 ## Existing Hosted JuneRose Project
 
@@ -29,7 +33,7 @@ The hosted project was created manually before the baseline migration existed.
 Do not run `202608030000_initial_schema.sql` against that database. Migrations
 through `202608090013` have already been applied manually.
 
-Migration `202608090014` is the next migration to apply to the existing hosted
+Migration `202608110018` is the next migration to apply to the existing hosted
 project after reviewing it in a separate project.
 
 For each future migration:

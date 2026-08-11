@@ -9,6 +9,8 @@ import { clearCart } from "@/lib/cartStorage";
 import { formatMMK } from "@/lib/formatPrice";
 import { saveRecentOrderAccess } from "@/lib/orderStorage";
 import { useCartItems } from "@/hooks/useCartItems";
+import { useCartValidation } from "@/hooks/useCartValidation";
+import { applyCartValidation } from "@/lib/cart-validation";
 import { routes } from "@/lib/routes";
 import type { CustomerContactInfo } from "@/types/order";
 
@@ -16,6 +18,12 @@ export default function OrderForm() {
   const router = useRouter();
 
   const cartItems = useCartItems();
+  const {
+    status: validationStatus,
+    validationByVariantId,
+    hasBlockingIssues,
+    recheck,
+  } = useCartValidation(cartItems);
   const [customer, setCustomer] = useState<CustomerContactInfo>({
     name: "",
     phone: "",
@@ -27,7 +35,10 @@ export default function OrderForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [privacyAcknowledged, setPrivacyAcknowledged] = useState(false);
 
-  const totalMMK = cartItems.reduce(
+  const currentCartItems = cartItems.map((item) =>
+    applyCartValidation(item, validationByVariantId.get(item.variantId)),
+  );
+  const totalMMK = currentCartItems.reduce(
     (total, item) => total + item.priceMMK * item.quantity,
     0
   );
@@ -45,7 +56,12 @@ export default function OrderForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (cartItems.length === 0 || isSubmitting) {
+    if (
+      cartItems.length === 0 ||
+      isSubmitting ||
+      validationStatus !== "ready" ||
+      hasBlockingIssues
+    ) {
       return;
     }
 
@@ -62,6 +78,11 @@ export default function OrderForm() {
 
     if (!result.ok) {
       setErrorMessage(result.error);
+
+      if (result.code === "cart_changed") {
+        recheck();
+      }
+
       return;
     }
 
@@ -200,7 +221,7 @@ export default function OrderForm() {
         </div>
 
         <div className="mt-6 divide-y divide-[#e7e1de] border-y border-[#e7e1de]">
-          {cartItems.map((item) => (
+          {currentCartItems.map((item) => (
             <div
               key={`${item.productId}-${item.selectedSize}-${item.selectedColor}`}
               className="grid grid-cols-[56px_minmax(0,1fr)] gap-3 py-4"
@@ -240,6 +261,32 @@ export default function OrderForm() {
           confirm availability, payment, and fulfilment.
         </p>
 
+        {validationStatus === "checking" && (
+          <p className="mt-4 text-xs text-[#6f6864]" aria-live="polite">
+            Checking current price and availability...
+          </p>
+        )}
+
+        {validationStatus === "error" && (
+          <div className="mt-4 border-l-2 border-red-600 pl-3 text-xs leading-5 text-red-700">
+            <p>Unable to confirm current availability.</p>
+            <button
+              type="button"
+              onClick={recheck}
+              className="mt-2 font-medium underline underline-offset-2"
+            >
+              Check again
+            </button>
+          </div>
+        )}
+
+        {hasBlockingIssues && (
+          <p className="mt-4 border-l-2 border-[#b62568] pl-3 text-xs leading-5 text-[#8f1f58]">
+            Your shopping bag changed. Return to the bag and update the
+            unavailable quantities before sending this request.
+          </p>
+        )}
+
         <label
           htmlFor="order-privacy"
           className="mt-5 flex items-start gap-3 border-t border-[#e7e1de] pt-5 text-xs leading-6 text-[#4f4946]"
@@ -276,7 +323,12 @@ export default function OrderForm() {
 
         <button
           type="submit"
-          disabled={isSubmitting || !privacyAcknowledged}
+          disabled={
+            isSubmitting ||
+            !privacyAcknowledged ||
+            validationStatus !== "ready" ||
+            hasBlockingIssues
+          }
           className="mt-6 min-h-12 w-full rounded-[3px] bg-[#211d1b] px-6 text-sm font-medium text-white transition-colors hover:bg-[#b62568] disabled:cursor-not-allowed disabled:bg-[#cfc8c4]"
         >
           {isSubmitting ? "Sending request..." : "Send order request"}

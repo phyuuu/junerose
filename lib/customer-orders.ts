@@ -34,6 +34,14 @@ export class OrderLookupRateLimitError extends Error {
   }
 }
 
+export type CancelCustomerOrderResult =
+  | { outcome: "cancelled" | "already_cancelled"; status: "cancelled" }
+  | {
+      outcome: "not_allowed";
+      status: Exclude<OrderStatus, "pending" | "cancelled">;
+    }
+  | { outcome: "not_found" };
+
 function mapFindOrderResponse(order: FindOrderResponse): OrderRequest {
   const items: CartItem[] = order.items.map((item) => ({
     variantId: item.product_variant_id ?? 0,
@@ -105,4 +113,70 @@ export async function findCustomerOrder(
   }
 
   return mapFindOrderResponse(order as FindOrderResponse);
+}
+
+export async function cancelCustomerOrder(
+  orderNumber: string,
+  phone: string,
+): Promise<CancelCustomerOrderResult> {
+  const normalizedOrderNumber = orderNumber.trim();
+  const normalizedPhone = phone.trim();
+
+  if (
+    !normalizedOrderNumber ||
+    normalizedOrderNumber.length > 40 ||
+    !normalizedPhone ||
+    normalizedPhone.length > 30
+  ) {
+    return { outcome: "not_found" };
+  }
+
+  const supabase = createClient();
+  const { data, error } = await supabase.rpc("cancel_order_request", {
+    lookup_order_number: normalizedOrderNumber,
+    lookup_customer_phone: normalizedPhone,
+  });
+
+  if (error) {
+    if (error.message === "Too many order lookup attempts.") {
+      throw new OrderLookupRateLimitError();
+    }
+
+    throw new Error("Unable to cancel order request.");
+  }
+
+  const result =
+    data && !Array.isArray(data) && typeof data === "object"
+      ? (data as { outcome?: unknown; status?: unknown })
+      : null;
+
+  if (!result || result.outcome === "not_found") {
+    return { outcome: "not_found" };
+  }
+
+  if (
+    (result.outcome === "cancelled" ||
+      result.outcome === "already_cancelled") &&
+    result.status === "cancelled"
+  ) {
+    return {
+      outcome: result.outcome,
+      status: "cancelled",
+    };
+  }
+
+  if (
+    result.outcome === "not_allowed" &&
+    (result.status === "confirmed" ||
+      result.status === "preparing" ||
+      result.status === "ready" ||
+      result.status === "completed")
+  ) {
+    return {
+      outcome: "not_allowed",
+      status: result.status,
+    };
+  }
+
+  throw new Error("Unable to cancel order request.");
 }

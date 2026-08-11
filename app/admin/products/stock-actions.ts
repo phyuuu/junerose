@@ -55,9 +55,17 @@ export async function adjustProductStockAction(
       productId,
       variantId,
     });
+    const developmentCode =
+      process.env.NODE_ENV === "development" &&
+      typeof error.code === "string"
+        ? ` Database code: ${error.code}.`
+        : "";
 
     return {
-      error: withErrorReference("Unable to update stock.", referenceId),
+      error: `${withErrorReference(
+        "Unable to update stock.",
+        referenceId,
+      )}${developmentCode}`,
     };
   }
 

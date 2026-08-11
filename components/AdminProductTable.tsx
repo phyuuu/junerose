@@ -4,6 +4,8 @@ import { formatMMK } from "@/lib/formatPrice";
 import { getMainProductImage } from "@/lib/product-image";
 import {
   calculateTotalStock,
+  getProductRestockState,
+  getVariantStockState,
   isProductStockConsistent,
 } from "@/lib/product-stock";
 import AdminStatusBadge from "./AdminStatusBadge";
@@ -13,10 +15,12 @@ import Link from "next/link";
 
 type AdminProductTableProps = {
   products: InternalProduct[];
+  emptyMessage?: string;
 };
 
 export default function AdminProductTable({
   products,
+  emptyMessage = "No products found.",
 }: AdminProductTableProps) {
   return (
     <div className="overflow-hidden rounded-[4px] border border-[#d7dadd] bg-white">
@@ -38,11 +42,14 @@ export default function AdminProductTable({
             {products.length === 0 ? (
               <tr>
                 <td colSpan={7} className="px-5 py-10 text-center text-[#6c6764]">
-                  No products found.
+                  {emptyMessage}
                 </td>
               </tr>
             ) : (
-              products.map((product) => (
+              products.map((product) => {
+                const restockState = getProductRestockState(product.stockItems);
+
+                return (
                 <tr key={product.id} className="align-top hover:bg-[#fafbfb]">
                   <td className="px-4 py-3">
                     <div className="flex min-w-[220px] items-start gap-3">
@@ -103,6 +110,19 @@ export default function AdminProductTable({
                         {calculateTotalStock(product.stockItems)} total
                       </summary>
 
+                      {restockState !== "healthy" && (
+                        <div className="mt-2">
+                          <AdminStatusBadge
+                            label={
+                              restockState === "sold_out"
+                                ? "Fully sold out"
+                                : "Needs restock"
+                            }
+                            tone={restockState === "sold_out" ? "gray" : "amber"}
+                          />
+                        </div>
+                      )}
+
                       {!isProductStockConsistent(product) && (
                         <p className="mt-2 text-xs font-medium text-red-700">
                           Stock mismatch
@@ -111,11 +131,30 @@ export default function AdminProductTable({
 
                       <div className="mt-2 space-y-1 text-xs text-[#6c6764]">
                         {product.stockItems.length > 0 ? (
-                          product.stockItems.map((item, index) => (
-                            <p key={`${item.size}-${item.color}-${index}`}>
-                              {item.size} / {item.color}: {item.quantity}
-                            </p>
-                          ))
+                          product.stockItems.map((item, index) => {
+                            const stockState = getVariantStockState(item);
+
+                            return (
+                              <div
+                                key={`${item.size}-${item.color}-${index}`}
+                                className="flex items-center justify-between gap-3"
+                              >
+                                <span>
+                                  {item.size} / {item.color}: {item.quantity}
+                                </span>
+                                {stockState !== "healthy" && (
+                                  <AdminStatusBadge
+                                    label={
+                                      stockState === "sold_out"
+                                        ? "Sold out"
+                                        : "Low"
+                                    }
+                                    tone={stockState === "sold_out" ? "gray" : "amber"}
+                                  />
+                                )}
+                              </div>
+                            );
+                          })
                         ) : (
                           <p>No stock rows</p>
                         )}
@@ -145,7 +184,8 @@ export default function AdminProductTable({
                     </div>
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>

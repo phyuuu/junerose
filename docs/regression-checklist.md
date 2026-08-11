@@ -53,6 +53,10 @@ data. Check desktop and a narrow mobile viewport.
 - [ ] Staff can create a hidden draft product.
 - [ ] Duplicate product code/slug and duplicate variants are rejected safely.
 - [ ] Staff can edit department, product type, materials, and size/color variants.
+- [ ] Product name/code search, visibility filter, stock filter, reset, and
+      clickable summary counts work together.
+- [ ] A product is marked for restocking when any size/color variant has 5 or
+      fewer items, even when its total stock is higher than 5.
 - [ ] Image upload validates file type and the 5 MB limit.
 - [ ] Staff can assign images to General or a product color, change the main
       image, and delete a non-required image.

@@ -1,17 +1,33 @@
 import Link from "next/link";
 import AdminProductTable from "@/components/AdminProductTable";
+import AdminProductFilters from "@/components/AdminProductFilters";
 import AdminShell from "@/components/AdminShell";
 import AdminSummaryCard from "@/components/AdminSummaryCard";
 import SectionHeader from "@/components/SectionHeader";
 import { getAdminProducts } from "@/lib/admin-products";
 import { getAdminProductSummary } from "@/lib/admin-product-summary";
+import {
+  filterAdminProducts,
+  parseAdminProductFilters,
+} from "@/lib/admin-product-filters";
 import { requireStaff } from "@/lib/auth/require-staff";
 import { routes } from "@/lib/routes";
 
-export default async function AdminProductsPage() {
+type AdminProductsPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function AdminProductsPage({
+  searchParams,
+}: AdminProductsPageProps) {
   await requireStaff();
 
-  const products = await getAdminProducts();
+  const [products, resolvedSearchParams] = await Promise.all([
+    getAdminProducts(),
+    searchParams,
+  ]);
+  const filters = parseAdminProductFilters(resolvedSearchParams);
+  const filteredProducts = filterAdminProducts(products, filters);
   const summary = getAdminProductSummary(products);
 
   return (
@@ -45,24 +61,44 @@ export default async function AdminProductsPage() {
           <AdminSummaryCard
             label="Total products"
             value={summary.totalProductCount}
+            href={routes.adminProducts}
+            active={
+              !filters.search &&
+              filters.visibility === "all" &&
+              filters.stock === "all"
+            }
           />
           <AdminSummaryCard
             label="Visible products"
             value={summary.visibleProductCount}
+            href={`${routes.adminProducts}?visibility=visible`}
+            active={filters.visibility === "visible"}
           />
           <AdminSummaryCard
             label="Hidden products"
             value={summary.hiddenProductCount}
+            href={`${routes.adminProducts}?visibility=hidden`}
+            active={filters.visibility === "hidden"}
           />
           <AdminSummaryCard label="Total stock" value={summary.totalStock} />
           <AdminSummaryCard
-            label="Low stock products"
-            value={summary.lowStockProductCount}
+            label="Needs restock"
+            value={summary.needsRestockProductCount}
+            href={`${routes.adminProducts}?stock=needs_restock`}
+            active={filters.stock === "needs_restock"}
           />
         </div>
 
-        <div className="mt-6">
-          <AdminProductTable products={products} />
+        <div className="mt-6 space-y-4">
+          <AdminProductFilters
+            filters={filters}
+            resultCount={filteredProducts.length}
+            totalCount={products.length}
+          />
+          <AdminProductTable
+            products={filteredProducts}
+            emptyMessage="No products match these filters."
+          />
         </div>
 
         <p className="mt-4 text-xs leading-5 text-[#6c6764]">

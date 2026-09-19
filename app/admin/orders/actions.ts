@@ -41,11 +41,17 @@ function getKnownOrderStatusErrorMessage(message: string | undefined) {
   }
 
   if (
+    message === "Completed orders cannot be cancelled." ||
+    message === "Completed orders cannot be changed."
+  ) {
+    return "Unable to update order status. This order is already completed.";
+  }
+
+  if (
     message.startsWith("Not enough stock") ||
     message.startsWith("Product variant not found") ||
     message.startsWith("Stock was already released") ||
     message === "Order not found." ||
-    message === "Completed orders cannot be cancelled." ||
     message === "Cancelled orders cannot be reopened." ||
     message ===
       "Reserved orders cannot be moved back to pending. Cancel the order to release stock." ||

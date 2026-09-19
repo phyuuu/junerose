@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { updateOrderStatusAction } from "@/app/admin/orders/actions";
+import { isTerminalOrderStatus } from "@/lib/order-status";
 import type { OrderStatus } from "@/types/order";
 
 const ORDER_STATUS_OPTIONS: {
@@ -52,6 +53,19 @@ export default function AdminOrderStatusForm({
     }
 
     setMessage("Order status updated.");
+  }
+
+  if (isTerminalOrderStatus(status)) {
+    return (
+      <div className="mt-6 rounded-xl border border-[#d6c4aa] bg-[#f8f3eb] p-4">
+        <p className="text-sm font-medium">Order status</p>
+        <p className="mt-2 text-sm text-[#6f6258]">
+          {status === "completed"
+            ? "This order is completed and its status can no longer be changed."
+            : "This order is cancelled and cannot be reopened."}
+        </p>
+      </div>
+    );
   }
 
   return (

@@ -28,12 +28,13 @@ fresh JuneRose Supabase project. Apply them in filename order.
 | `202608110018_reset_stock_function_overloads.sql` | Replaces every unexpected hosted stock-function overload with one canonical signature |
 | `202608110019_idempotent_order_requests.sql` | Prevents network retries and repeated checkout submissions from creating duplicate orders |
 | `202608110020_fix_idempotent_order_lookup.sql` | Qualifies the existing-order lookup to remove a PostgreSQL column/variable ambiguity |
+| `202609190021_lock_terminal_order_statuses.sql` | Prevents completed and cancelled orders from being changed or reopened |
 
 ## Existing Hosted JuneRose Project
 
 The hosted project was created manually before the baseline migration existed.
 Do not run `202608030000_initial_schema.sql` against that database. Migrations
-through `202608110020` have already been applied manually. There are currently
+through `202609190021` have already been applied manually. There are currently
 no pending migrations for the existing hosted project.
 
 For each future migration:

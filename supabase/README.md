@@ -33,10 +33,8 @@ fresh JuneRose Supabase project. Apply them in filename order.
 
 The hosted project was created manually before the baseline migration existed.
 Do not run `202608030000_initial_schema.sql` against that database. Migrations
-through `202608110018` have already been applied manually.
-
-Migration `202608110020` is the next migration to apply to the existing hosted
-project after reviewing it in a separate project.
+through `202608110020` have already been applied manually. There are currently
+no pending migrations for the existing hosted project.
 
 For each future migration:
 

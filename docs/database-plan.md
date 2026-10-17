@@ -17,6 +17,7 @@ the current design; it is not a substitute for migrations.
 | `inventory_adjustments` | Stock reserve, release, and manual adjustment history | Staff only |
 | `order_notes` | Internal order notes | Staff only |
 | `order_lookup_limits` | Public lookup abuse prevention | Function only |
+| `store_locations` | Staff-managed pickup locations returned through a public-safe function | Function only for public users; staff-managed |
 
 ## Important Database Functions
 
@@ -28,6 +29,8 @@ the current design; it is not a substitute for migrations.
   not exact stock quantities.
 - `create_order_request(...)` validates the cart and creates an order atomically.
 - `find_order_request(...)` verifies order number plus phone and enforces limits.
+- `get_public_store_locations()` returns active locations customers can choose
+  for pickup without exposing inactive records or staff-only fields.
 
 ### Staff
 
@@ -56,6 +59,10 @@ clients do not receive execute permission for them.
 
 - Order items snapshot names, slugs, prices, images, size, and color so historical
   orders remain understandable after a product changes.
+- Pickup orders snapshot the selected store name, address, township, hours,
+  phone, and map URL so historical orders remain accurate after a store changes.
+- Inventory remains global; selecting a pickup store does not create separate
+  per-store stock balances.
 - Order totals are calculated from current database prices during creation.
 - Variant stock cannot be reserved below zero.
 - Reservation and release timestamps make stock operations idempotent.

@@ -1,8 +1,11 @@
 import PageShell from "../../components/PageShell";
 import OrderForm from "../../components/OrderForm";
 import SectionHeader from "../../components/SectionHeader";
+import { getPublicStoreLocations } from "@/lib/store-locations";
 
-export default function OrderPage() {
+export default async function OrderPage() {
+  const storeLocations = await getPublicStoreLocations();
+
   return (
     <PageShell>
       <section className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-14 lg:px-12">
@@ -13,7 +16,7 @@ export default function OrderPage() {
           appearance="editorial"
         />
 
-        <OrderForm />
+        <OrderForm storeLocations={storeLocations} />
       </section>
     </PageShell>
   );

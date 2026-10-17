@@ -18,11 +18,6 @@ export const customerContactSchema = z.object({
       },
       "Enter a valid phone number.",
     ),
-  address: z
-    .string()
-    .trim()
-    .min(1, "Address is required.")
-    .max(500, "Address must be 500 characters or fewer."),
   preferredContact: z.enum(["Viber", "Messenger", "Phone"]),
   note: z
     .string()
@@ -31,6 +26,21 @@ export const customerContactSchema = z.object({
     .optional(),
 });
 
+export const orderFulfillmentSchema = z.discriminatedUnion("method", [
+  z.object({
+    method: z.literal("delivery"),
+    address: z
+      .string()
+      .trim()
+      .min(1, "Delivery address is required.")
+      .max(500, "Delivery address must be 500 characters or fewer."),
+  }),
+  z.object({
+    method: z.literal("pickup"),
+    storeId: z.number().int().positive("Choose a pickup store."),
+  }),
+]);
+
 export const orderCartItemSchema = z.object({
   variantId: z.number().int().positive(),
   quantity: z.number().int().positive().max(20),
@@ -38,6 +48,7 @@ export const orderCartItemSchema = z.object({
 
 export const createOrderRequestSchema = z.object({
   customer: customerContactSchema,
+  fulfillment: orderFulfillmentSchema,
   requestToken: z.string().uuid(),
   privacyAcknowledged: z.boolean().refine((value) => value, {
     message: "Read and acknowledge the privacy notice before continuing.",
@@ -57,6 +68,7 @@ export type OrderFieldErrors = Partial<
     | "name"
     | "phone"
     | "address"
+    | "pickupStoreId"
     | "preferredContact"
     | "note"
     | "privacyAcknowledged",
@@ -74,6 +86,10 @@ export function getOrderFieldErrors(error: z.ZodError): OrderFieldErrors {
       typeof field === "string" &&
       field in customerContactSchema.shape
         ? (field as keyof typeof customerContactSchema.shape)
+        : section === "fulfillment" && field === "address"
+          ? "address"
+          : section === "fulfillment" && field === "storeId"
+            ? "pickupStoreId"
         : section === "privacyAcknowledged"
           ? "privacyAcknowledged"
           : null;

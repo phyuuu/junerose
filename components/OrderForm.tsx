@@ -21,9 +21,17 @@ import {
   getOrderFieldErrors,
   type OrderFieldErrors,
 } from "@/lib/validation/order";
-import type { CustomerContactInfo } from "@/types/order";
+import type {
+  CustomerContactInfo,
+  FulfillmentMethod,
+} from "@/types/order";
+import type { PublicStoreLocation } from "@/types/store-location";
 
-export default function OrderForm() {
+type OrderFormProps = {
+  storeLocations: PublicStoreLocation[];
+};
+
+export default function OrderForm({ storeLocations }: OrderFormProps) {
   const router = useRouter();
 
   const cartItems = useCartItems();
@@ -36,10 +44,13 @@ export default function OrderForm() {
   const [customer, setCustomer] = useState<CustomerContactInfo>({
     name: "",
     phone: "",
-    address: "",
     preferredContact: "Viber",
     note: "",
   });
+  const [fulfillmentMethod, setFulfillmentMethod] =
+    useState<FulfillmentMethod>("delivery");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [pickupStoreId, setPickupStoreId] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [fieldErrors, setFieldErrors] = useState<OrderFieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,6 +62,9 @@ export default function OrderForm() {
   const totalMMK = currentCartItems.reduce(
     (total, item) => total + item.priceMMK * item.quantity,
     0
+  );
+  const selectedPickupStore = storeLocations.find(
+    (location) => location.id === Number(pickupStoreId),
   );
 
   function updateCustomerField(
@@ -64,6 +78,15 @@ export default function OrderForm() {
     setFieldErrors((currentErrors) => ({
       ...currentErrors,
       [field]: undefined,
+    }));
+  }
+
+  function selectFulfillmentMethod(method: FulfillmentMethod) {
+    setFulfillmentMethod(method);
+    setFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      address: undefined,
+      pickupStoreId: undefined,
     }));
   }
 
@@ -82,6 +105,16 @@ export default function OrderForm() {
     const requestToken = getOrCreateOrderRequestToken(cartItems);
     const orderInput = {
       customer,
+      fulfillment:
+        fulfillmentMethod === "delivery"
+          ? {
+              method: "delivery" as const,
+              address: deliveryAddress,
+            }
+          : {
+              method: "pickup" as const,
+              storeId: Number(pickupStoreId),
+            },
       items: cartItems,
       requestToken,
       privacyAcknowledged,
@@ -153,9 +186,177 @@ export default function OrderForm() {
       noValidate
       className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start"
     >
-      <section aria-labelledby="contact-details-heading">
+      <div className="grid gap-12">
+      <section aria-labelledby="fulfillment-heading">
         <div className="border-b border-[#e7e1de] pb-4">
           <p className="text-xs font-medium uppercase text-[#9a8558]">01</p>
+          <h2 id="fulfillment-heading" className="mt-2 font-display text-3xl">
+            Delivery or pickup
+          </h2>
+        </div>
+
+        <fieldset className="mt-7 grid gap-3 sm:grid-cols-2">
+          <legend className="sr-only">Choose delivery or store pickup</legend>
+          <label
+            className={`cursor-pointer border p-4 transition-colors ${
+              fulfillmentMethod === "delivery"
+                ? "border-[#211d1b] bg-[#faf9f8]"
+                : "border-[#e7e1de] bg-white hover:border-[#b7afab]"
+            }`}
+          >
+            <span className="flex items-start gap-3">
+              <input
+                type="radio"
+                name="fulfillment-method"
+                value="delivery"
+                checked={fulfillmentMethod === "delivery"}
+                onChange={() => selectFulfillmentMethod("delivery")}
+                className="mt-1 size-4 accent-[#b62568]"
+              />
+              <span>
+                <span className="block text-sm font-medium">Delivery</span>
+                <span className="mt-1 block text-xs leading-5 text-[#6f6864]">
+                  Enter your address. Staff will confirm the delivery fee and
+                  timing.
+                </span>
+              </span>
+            </span>
+          </label>
+
+          {storeLocations.length > 0 && (
+            <label
+              className={`cursor-pointer border p-4 transition-colors ${
+                fulfillmentMethod === "pickup"
+                  ? "border-[#211d1b] bg-[#faf9f8]"
+                  : "border-[#e7e1de] bg-white hover:border-[#b7afab]"
+              }`}
+            >
+              <span className="flex items-start gap-3">
+                <input
+                  type="radio"
+                  name="fulfillment-method"
+                  value="pickup"
+                  checked={fulfillmentMethod === "pickup"}
+                  onChange={() => selectFulfillmentMethod("pickup")}
+                  className="mt-1 size-4 accent-[#b62568]"
+                />
+                <span>
+                  <span className="block text-sm font-medium">
+                    Store pickup
+                  </span>
+                  <span className="mt-1 block text-xs leading-5 text-[#6f6864]">
+                    Choose the JuneRose store where you want to collect your
+                    order.
+                  </span>
+                </span>
+              </span>
+            </label>
+          )}
+        </fieldset>
+
+        {storeLocations.length === 0 && (
+          <p className="mt-3 text-xs leading-5 text-[#6f6864]">
+            Store pickup will appear when a pickup location is available.
+          </p>
+        )}
+
+        {fulfillmentMethod === "delivery" ? (
+          <label htmlFor="order-address" className="mt-6 grid gap-2 text-sm">
+            Delivery address / township
+            <textarea
+              id="order-address"
+              required
+              autoComplete="street-address"
+              value={deliveryAddress}
+              aria-invalid={Boolean(fieldErrors.address)}
+              aria-describedby={
+                fieldErrors.address ? "order-address-error" : undefined
+              }
+              onChange={(event) => {
+                setDeliveryAddress(event.target.value);
+                setFieldErrors((currentErrors) => ({
+                  ...currentErrors,
+                  address: undefined,
+                }));
+              }}
+              rows={4}
+              className="w-full resize-y rounded-[3px] border border-[#d8d2cf] bg-white px-4 py-3 text-sm leading-6 outline-none transition-colors focus:border-[#b62568]"
+            />
+            {fieldErrors.address && (
+              <span id="order-address-error" className="text-xs text-red-700">
+                {fieldErrors.address}
+              </span>
+            )}
+          </label>
+        ) : (
+          <div className="mt-6 grid gap-3">
+            <label htmlFor="pickup-store" className="grid gap-2 text-sm">
+              Pickup store
+              <select
+                id="pickup-store"
+                required
+                value={pickupStoreId}
+                aria-invalid={Boolean(fieldErrors.pickupStoreId)}
+                aria-describedby={
+                  fieldErrors.pickupStoreId
+                    ? "pickup-store-error"
+                    : undefined
+                }
+                onChange={(event) => {
+                  setPickupStoreId(event.target.value);
+                  setFieldErrors((currentErrors) => ({
+                    ...currentErrors,
+                    pickupStoreId: undefined,
+                  }));
+                }}
+                className="min-h-12 w-full rounded-[3px] border border-[#d8d2cf] bg-white px-4 text-sm outline-none transition-colors focus:border-[#b62568]"
+              >
+                <option value="">Choose a store</option>
+                {storeLocations.map((location) => (
+                  <option key={location.id} value={location.id}>
+                    {location.name} — {location.township}
+                  </option>
+                ))}
+              </select>
+              {fieldErrors.pickupStoreId && (
+                <span id="pickup-store-error" className="text-xs text-red-700">
+                  {fieldErrors.pickupStoreId}
+                </span>
+              )}
+            </label>
+
+            {selectedPickupStore && (
+              <div className="border-l-2 border-[#9a8558] pl-4 text-xs leading-6 text-[#6f6864]">
+                <p className="font-medium text-[#211d1b]">
+                  {selectedPickupStore.name}
+                </p>
+                <p>{selectedPickupStore.address}</p>
+                <p>{selectedPickupStore.township}</p>
+                {selectedPickupStore.openingHours && (
+                  <p>Hours: {selectedPickupStore.openingHours}</p>
+                )}
+                {selectedPickupStore.phone && (
+                  <p>Phone: {selectedPickupStore.phone}</p>
+                )}
+                {selectedPickupStore.mapUrl && (
+                  <a
+                    href={selectedPickupStore.mapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium underline underline-offset-2 hover:text-[#b62568]"
+                  >
+                    View map
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+
+      <section aria-labelledby="contact-details-heading">
+        <div className="border-b border-[#e7e1de] pb-4">
+          <p className="text-xs font-medium uppercase text-[#9a8558]">02</p>
           <h2
             id="contact-details-heading"
             className="mt-2 font-display text-3xl"
@@ -209,33 +410,6 @@ export default function OrderForm() {
             )}
           </label>
 
-          <label
-            htmlFor="order-address"
-            className="grid gap-2 text-sm sm:col-span-2"
-          >
-            Address / township
-            <textarea
-              id="order-address"
-              required
-              autoComplete="street-address"
-              value={customer.address}
-              aria-invalid={Boolean(fieldErrors.address)}
-              aria-describedby={
-                fieldErrors.address ? "order-address-error" : undefined
-              }
-              onChange={(event) =>
-                updateCustomerField("address", event.target.value)
-              }
-              rows={4}
-              className="w-full resize-y rounded-[3px] border border-[#d8d2cf] bg-white px-4 py-3 text-sm leading-6 outline-none transition-colors focus:border-[#b62568]"
-            />
-            {fieldErrors.address && (
-              <span id="order-address-error" className="text-xs text-red-700">
-                {fieldErrors.address}
-              </span>
-            )}
-          </label>
-
           <label htmlFor="order-contact" className="grid gap-2 text-sm">
             Preferred contact
             <select
@@ -262,6 +436,12 @@ export default function OrderForm() {
                 {fieldErrors.preferredContact}
               </span>
             )}
+            {customer.preferredContact === "Messenger" && (
+              <span className="text-xs leading-5 text-[#6f6864]">
+                After submitting, send your order number through Messenger so
+                staff can continue the conversation.
+              </span>
+            )}
           </label>
 
           <label htmlFor="order-note" className="grid gap-2 text-sm">
@@ -285,6 +465,7 @@ export default function OrderForm() {
           </label>
         </div>
       </section>
+      </div>
 
       <aside className="border border-[#e7e1de] bg-[#faf9f8] p-6 lg:sticky lg:top-28">
         <div className="flex items-baseline justify-between gap-4">

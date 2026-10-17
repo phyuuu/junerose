@@ -30,20 +30,20 @@ export default function ProductCard({
 
   return (
     <Link href={routes.productDetail(product.slug, preferredColor)} className="group block min-w-0">
-      <div className="relative aspect-[3/4] overflow-hidden rounded-[4px] bg-[#f3f0ee]">
+      <div className="relative aspect-[3/4] overflow-hidden bg-[#f3f0ee]">
         <Image
           src={getProductImageForColor(product, preferredColor)}
           alt={product.name}
           fill
           sizes="(min-width: 768px) 25vw, 50vw"
           loading={eagerImage ? "eager" : "lazy"}
-          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+          className="object-cover transition-opacity duration-300 group-hover:opacity-95"
         />
       </div>
 
       <div className="mt-3">
         <p className="truncate text-sm font-medium">{product.name}</p>
-        <p className="mt-1 text-sm text-[#6f6864]">
+        <p className="mt-1 text-xs text-[#6f6864]">
           {formatMMK(product.priceMMK)}
         </p>
 

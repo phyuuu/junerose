@@ -6,6 +6,7 @@ import {
   House,
   Image,
   LockKeyhole,
+  MapPin,
   Package,
   Palette,
   Ruler,
@@ -48,6 +49,11 @@ const navigationGroups = [
         icon: Shirt,
       },
       { label: "Storefront", href: routes.adminStorefront, icon: Image },
+      {
+        label: "Store locations",
+        href: routes.adminStoreLocations,
+        icon: MapPin,
+      },
     ],
   },
   {

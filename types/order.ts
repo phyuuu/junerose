@@ -17,14 +17,36 @@ export type AdminOrderSort =
 export type CustomerContactInfo = {
   name: string;
   phone: string;
-  address: string;
   preferredContact: "Viber" | "Messenger" | "Phone";
   note?: string;
 };
 
+export type FulfillmentMethod = "delivery" | "pickup";
+
+export type PickupStoreSnapshot = {
+  id: number;
+  name: string;
+  township: string;
+  address: string;
+  phone?: string | null;
+  openingHours?: string | null;
+  mapUrl?: string | null;
+};
+
+export type OrderFulfillment =
+  | {
+      method: "delivery";
+      address: string;
+    }
+  | {
+      method: "pickup";
+      store: PickupStoreSnapshot;
+    };
+
 export type OrderRequest = {
   orderNumber: string;
   customer: CustomerContactInfo;
+  fulfillment: OrderFulfillment;
   items: CartItem[];
   totalMMK: number;
   status: OrderStatus;

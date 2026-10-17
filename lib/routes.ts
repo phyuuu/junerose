@@ -14,6 +14,7 @@ export const routes = {
   adminInventoryHistory: "/admin/inventory/history",
   adminDataRetention: "/admin/privacy",
   adminStorefront: "/admin/storefront",
+  adminStoreLocations: "/admin/store-locations",
   adminStaff: "/admin/staff",
   adminProductNew: "/admin/products/new",
   adminProductSizes: "/admin/options/sizes",
@@ -21,6 +22,7 @@ export const routes = {
   adminProductMaterials: "/admin/options/materials",
 
   adminProductEdit: (id: number) => `/admin/products/${id}/edit`,
+  catalogByType: (type: string) => `/catalog?type=${encodeURIComponent(type)}`,
 
   productDetail: (slug: string, color?: string) =>
     color

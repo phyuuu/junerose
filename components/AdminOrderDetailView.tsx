@@ -97,11 +97,39 @@ export default function AdminOrderDetailView({
 
           <div className="mt-6">
             <p className="text-xs uppercase tracking-wide text-[#8a7a6d]">
-              Address / Township
+              Fulfillment
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#6f6258]">
-              {order.customer.address}
-            </p>
+            {order.fulfillment.method === "delivery" ? (
+              <div className="mt-2 text-sm leading-6 text-[#6f6258]">
+                <p className="font-medium text-[#2f241d]">Delivery</p>
+                <p className="whitespace-pre-wrap">
+                  {order.fulfillment.address}
+                </p>
+              </div>
+            ) : (
+              <div className="mt-2 text-sm leading-6 text-[#6f6258]">
+                <p className="font-medium text-[#2f241d]">Store pickup</p>
+                <p>{order.fulfillment.store.name}</p>
+                <p>{order.fulfillment.store.address}</p>
+                <p>{order.fulfillment.store.township}</p>
+                {order.fulfillment.store.openingHours && (
+                  <p>Hours: {order.fulfillment.store.openingHours}</p>
+                )}
+                {order.fulfillment.store.phone && (
+                  <p>Phone: {order.fulfillment.store.phone}</p>
+                )}
+                {order.fulfillment.store.mapUrl && (
+                  <a
+                    href={order.fulfillment.store.mapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium text-[#9c7a4f] hover:underline"
+                  >
+                    View map
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           {order.customer.note && (

@@ -19,9 +19,19 @@ export function buildCustomerOrderMessage(order: OrderRequest): string {
     "Customer Details",
     `Name: ${order.customer.name}`,
     `Phone: ${order.customer.phone}`,
-    `Address: ${order.customer.address}`,
     `Preferred Contact: ${order.customer.preferredContact}`,
   ];
+
+  if (order.fulfillment.method === "delivery") {
+    lines.push("", "Fulfillment", "Method: Delivery");
+    lines.push(`Delivery address: ${order.fulfillment.address}`);
+  } else {
+    lines.push("", "Fulfillment", "Method: Store pickup");
+    lines.push(`Pickup store: ${order.fulfillment.store.name}`);
+    lines.push(
+      `Pickup address: ${order.fulfillment.store.address}, ${order.fulfillment.store.township}`,
+    );
+  }
 
   if (order.customer.note) {
     lines.push(`Note: ${order.customer.note}`);
@@ -33,7 +43,7 @@ export function buildCustomerOrderMessage(order: OrderRequest): string {
     ...itemLines,
     `Estimated Total: ${formatMMK(order.totalMMK)}`,
     "",
-    "Please confirm availability, payment method, and pickup or delivery details.",
+    "Please confirm availability and payment details.",
   );
 
   return lines.join("\n");

@@ -58,14 +58,17 @@ and internal notes stay behind authenticated staff access.
 
 ### Order request
 
-1. The browser validates the contact form and cart shape and keeps one temporary
-   request token for retries of the same cart.
+1. The browser validates contact details, delivery or pickup fulfillment, and
+   cart shape and keeps one temporary request token for retries of the same cart.
 2. A server action validates the request again with Zod.
-3. `create_order_request` validates visible products, variants, quantities, and
-   current prices inside PostgreSQL.
+3. `create_order_request` validates visible products, variants, quantities,
+   current prices, and an active pickup store when pickup is selected inside
+   PostgreSQL.
 4. The function serializes requests by token, returning the existing order for
    a retry or creating the order and immutable item snapshots atomically.
-5. The customer receives an order number, but stock is not reserved yet.
+5. Pickup details are snapshotted on the order; inventory remains global rather
+   than being divided by store.
+6. The customer receives an order number, but stock is not reserved yet.
 
 ### Customer order lookup
 

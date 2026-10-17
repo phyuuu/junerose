@@ -26,9 +26,9 @@ export default function PrivacyPage() {
             </h2>
             <p className="mt-3 text-sm leading-7 text-[#5f534a]">
               When you send an order request, we collect your name, phone
-              number, address or township, preferred contact method, optional
+              number, delivery address or selected pickup store, preferred contact method, optional
               note, selected products, order total, order number, status, and
-              relevant dates. Name, phone, address, and product selections are
+              relevant dates. Name, phone, fulfillment details, and product selections are
               required so staff can identify, confirm, and prepare the order.
               The note is optional.
             </p>

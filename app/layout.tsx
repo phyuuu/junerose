@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Geist, Geist_Mono } from "next/font/google";
+import { Cormorant_Garamond, Geist_Mono, Instrument_Sans } from "next/font/google";
 import BrowserPrivacyCleanup from "@/components/BrowserPrivacyCleanup";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const instrumentSans = Instrument_Sans({
+  variable: "--font-instrument-sans",
   subsets: ["latin"],
 });
 
@@ -13,9 +13,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const bodoni = Bodoni_Moda({
-  variable: "--font-bodoni",
+const cormorantGaramond = Cormorant_Garamond({
+  variable: "--font-cormorant-garamond",
   subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -35,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${bodoni.variable} h-full antialiased`}
+      className={`${instrumentSans.variable} ${cormorantGaramond.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <BrowserPrivacyCleanup />

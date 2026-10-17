@@ -18,7 +18,15 @@ type FindOrderResponse = {
   order_number: string;
   customer_name: string;
   customer_phone: string;
-  customer_address: string;
+  customer_address: string | null;
+  fulfillment_method: "delivery" | "pickup";
+  pickup_store_id: number | null;
+  pickup_store_name: string | null;
+  pickup_store_township: string | null;
+  pickup_store_address: string | null;
+  pickup_store_phone: string | null;
+  pickup_store_opening_hours: string | null;
+  pickup_store_map_url: string | null;
   preferred_contact: "Viber" | "Messenger" | "Phone";
   customer_note: string | null;
   total_mmk: number;
@@ -60,10 +68,31 @@ function mapFindOrderResponse(order: FindOrderResponse): OrderRequest {
     customer: {
       name: order.customer_name,
       phone: order.customer_phone,
-      address: order.customer_address,
       preferredContact: order.preferred_contact,
       note: order.customer_note ?? "",
     },
+    fulfillment:
+      order.fulfillment_method === "pickup" &&
+      order.pickup_store_id !== null &&
+      order.pickup_store_name &&
+      order.pickup_store_township &&
+      order.pickup_store_address
+        ? {
+            method: "pickup",
+            store: {
+              id: order.pickup_store_id,
+              name: order.pickup_store_name,
+              township: order.pickup_store_township,
+              address: order.pickup_store_address,
+              phone: order.pickup_store_phone,
+              openingHours: order.pickup_store_opening_hours,
+              mapUrl: order.pickup_store_map_url,
+            },
+          }
+        : {
+            method: "delivery",
+            address: order.customer_address ?? "",
+          },
     items,
     totalMMK: order.total_mmk,
     status: order.status,

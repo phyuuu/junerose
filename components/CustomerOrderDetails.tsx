@@ -81,10 +81,44 @@ export default function CustomerOrderDetails({
             <dd className="mt-1 break-words">{order.customer.phone}</dd>
           </div>
           <div>
-            <dt className="text-xs uppercase text-[#6f6864]">Address</dt>
-            <dd className="mt-1 whitespace-pre-wrap break-words leading-6">
-              {order.customer.address}
-            </dd>
+            <dt className="text-xs uppercase text-[#6f6864]">Fulfillment</dt>
+            {order.fulfillment.method === "delivery" ? (
+              <dd className="mt-1 break-words leading-6">
+                <span className="block font-medium">Delivery</span>
+                <span className="block whitespace-pre-wrap">
+                  {order.fulfillment.address}
+                </span>
+              </dd>
+            ) : (
+              <dd className="mt-1 break-words leading-6">
+                <span className="block font-medium">Store pickup</span>
+                <span className="block">{order.fulfillment.store.name}</span>
+                <span className="block">{order.fulfillment.store.address}</span>
+                <span className="block">
+                  {order.fulfillment.store.township}
+                </span>
+                {order.fulfillment.store.openingHours && (
+                  <span className="block">
+                    Hours: {order.fulfillment.store.openingHours}
+                  </span>
+                )}
+                {order.fulfillment.store.phone && (
+                  <span className="block">
+                    Phone: {order.fulfillment.store.phone}
+                  </span>
+                )}
+                {order.fulfillment.store.mapUrl && (
+                  <a
+                    href={order.fulfillment.store.mapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-medium underline underline-offset-2 hover:text-[#b62568]"
+                  >
+                    View map
+                  </a>
+                )}
+              </dd>
+            )}
           </div>
           <div>
             <dt className="text-xs uppercase text-[#6f6864]">

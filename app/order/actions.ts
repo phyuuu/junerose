@@ -54,16 +54,20 @@ export async function createOrderRequestAction(
     };
   }
 
-  const { customer, items, requestToken } = parsed.data;
+  const { customer, fulfillment, items, requestToken } = parsed.data;
 
   const supabase = await createClient();
 
   const { data, error } = await supabase.rpc("create_order_request", {
     order_customer_name: customer.name,
     order_customer_phone: customer.phone,
-    order_customer_address: customer.address,
+    order_customer_address:
+      fulfillment.method === "delivery" ? fulfillment.address : null,
     order_preferred_contact: customer.preferredContact,
     order_customer_note: customer.note ?? null,
+    order_fulfillment_method: fulfillment.method,
+    order_pickup_store_id:
+      fulfillment.method === "pickup" ? fulfillment.storeId : null,
     order_request_token: requestToken,
     order_items: items.map((item) => ({
       variant_id: item.variantId,
@@ -72,6 +76,16 @@ export async function createOrderRequestAction(
   });
 
   if (error || !data) {
+    if (error?.message === "Selected pickup store is not available.") {
+      return {
+        ok: false,
+        error: "",
+        fieldErrors: {
+          pickupStoreId: "Choose an available pickup store.",
+        },
+      };
+    }
+
     if (error?.message === "Too many order requests for this phone number.") {
       return {
         ok: false,
